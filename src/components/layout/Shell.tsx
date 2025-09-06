@@ -1,21 +1,26 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { ActivityBar, ActivityBarItem } from './ActivityBar';
 import { SideBar } from './SideBar';
 import { Panel } from './Panel';
 import { StatusBar, StatusBarItem } from './StatusBar';
 import { RegionManager } from '../../layout/regions';
-import { LayoutPersistence } from '../../layout/persistence';
+import { LayoutPersistence } from '../../layout/persistence-browser';
+import { CommandManager } from '../../commands/CommandManager';
+import { FocusManager } from '../../focus/FocusManager';
 import './Shell.css';
 
 interface ShellProps {
   children?: React.ReactNode; // Editor Grid will go here
+  onCommand?: (commandId: string, context?: any) => void;
 }
 
-export const Shell: React.FC<ShellProps> = ({ children }) => {
+export const Shell: React.FC<ShellProps> = ({ children, onCommand }) => {
   const [regionManager] = useState(() => new RegionManager());
   const [persistence] = useState(() => new LayoutPersistence());
   const [regions, setRegions] = useState(regionManager.getState());
   const [activeView, setActiveView] = useState('explorer');
+  const commandManagerRef = useRef<CommandManager | null>(null);
+  const focusManagerRef = useRef<FocusManager | null>(null);
 
   // Update regions when manager state changes
   const updateRegions = () => {
@@ -47,8 +52,45 @@ export const Shell: React.FC<ShellProps> = ({ children }) => {
     });
   };
 
-  // Load persisted layout on mount
+  // Initialize command and focus managers
   useEffect(() => {
+    if (!commandManagerRef.current) {
+      commandManagerRef.current = new CommandManager((action) => {
+        // Pass layout actions to parent or handle internally
+        if (onCommand) {
+          onCommand('layout.action', action);
+        }
+      });
+    }
+
+    if (!focusManagerRef.current) {
+      focusManagerRef.current = new FocusManager();
+    }
+
+    // Register shell-specific commands
+    const cmdManager = commandManagerRef.current;
+    
+    cmdManager.registerCommand({
+      id: 'view.toggleSideBar',
+      label: 'Toggle Side Bar',
+      keybinding: 'Ctrl+B',
+      execute: () => {
+        regionManager.toggleRegion('primarySideBar');
+        updateRegions();
+      }
+    });
+
+    cmdManager.registerCommand({
+      id: 'view.togglePanel',
+      label: 'Toggle Panel',
+      keybinding: 'Ctrl+J',
+      execute: () => {
+        regionManager.toggleRegion('panel');
+        updateRegions();
+      }
+    });
+
+    // Load persisted layout
     persistence.load().then(layout => {
       if (layout) {
         regionManager.setRegionState('activityBar', layout.regions.activityBar);
@@ -59,27 +101,31 @@ export const Shell: React.FC<ShellProps> = ({ children }) => {
         updateRegions();
       }
     });
-  }, []);
+  }, [onCommand]);
 
-  // Keyboard shortcuts
+  // Global keyboard event handler
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.ctrlKey || e.metaKey) {
-        if (e.key === 'b') {
-          e.preventDefault();
-          regionManager.toggleRegion('primarySideBar');
-          updateRegions();
-        } else if (e.key === 'j') {
-          e.preventDefault();
-          regionManager.toggleRegion('panel');
-          updateRegions();
-        }
+      if (!commandManagerRef.current) return;
+
+      // Get current context for command execution
+      const context = {
+        activeView,
+        regions,
+        focusedElement: document.activeElement,
+        // Additional context can be added here
+      };
+
+      // Let command manager handle the event
+      const handled = commandManagerRef.current.handleKeyboardEvent(e, context);
+      if (handled) {
+        e.preventDefault();
       }
     };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, []);
+  }, [activeView, regions]);
 
   const activityBarItems: ActivityBarItem[] = [
     { id: 'explorer', icon: '📁', label: 'Explorer', isActive: activeView === 'explorer' },
@@ -135,6 +181,7 @@ export const Shell: React.FC<ShellProps> = ({ children }) => {
           items={activityBarItems}
           onItemClick={handleActivityBarClick}
           visible={regions.activityBar.visible}
+          data-focus-group="activity-bar"
         />
         
         <SideBar
@@ -144,6 +191,7 @@ export const Shell: React.FC<ShellProps> = ({ children }) => {
           minWidth={200}
           onResize={(width) => handleSideBarResize('primarySideBar', width)}
           title={activityBarItems.find(i => i.id === activeView)?.label}
+          data-focus-group="primary-sidebar"
         >
           <div className="sidebar-view-content">
             {activeView === 'explorer' && <div>File Explorer</div>}
@@ -168,6 +216,7 @@ export const Shell: React.FC<ShellProps> = ({ children }) => {
             activeTabId="terminal"
             onResize={handlePanelResize}
             onClose={handlePanelClose}
+            data-focus-group="panel"
           />
         </div>
         
@@ -177,6 +226,7 @@ export const Shell: React.FC<ShellProps> = ({ children }) => {
           width={regions.secondarySideBar.width}
           minWidth={200}
           onResize={(width) => handleSideBarResize('secondarySideBar', width)}
+          data-focus-group="secondary-sidebar"
         >
           <div>Secondary sidebar content</div>
         </SideBar>

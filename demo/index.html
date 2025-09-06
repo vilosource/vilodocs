@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>vilodocs - Panes Demo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background: #1e1e1e;
+            color: #cccccc;
+            height: 100vh;
+            overflow: hidden;
+        }
+        
+        #root {
+            width: 100%;
+            height: 100%;
+        }
+        
+        .demo-info {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background: rgba(0, 122, 204, 0.9);
+            color: white;
+            padding: 10px 15px;
+            border-radius: 5px;
+            z-index: 10000;
+            font-size: 14px;
+            max-width: 350px;
+        }
+        
+        .demo-info h3 {
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+        
+        .demo-info ul {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .demo-info li {
+            margin: 5px 0;
+            padding-left: 20px;
+            position: relative;
+        }
+        
+        .demo-info li:before {
+            content: '•';
+            position: absolute;
+            left: 8px;
+        }
+        
+        .keyboard-shortcut {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: monospace;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+    
+    <div class="demo-info">
+        <h3>Panes Demo - Keyboard Shortcuts</h3>
+        <ul>
+            <li><span class="keyboard-shortcut">Ctrl+\</span> Split horizontally</li>
+            <li><span class="keyboard-shortcut">Ctrl+Alt+\</span> Split vertically</li>
+            <li><span class="keyboard-shortcut">Ctrl+W</span> Close tab</li>
+            <li><span class="keyboard-shortcut">Ctrl+Tab</span> Next tab</li>
+            <li><span class="keyboard-shortcut">Ctrl+Shift+Tab</span> Previous tab</li>
+            <li><span class="keyboard-shortcut">Ctrl+B</span> Toggle sidebar</li>
+            <li><span class="keyboard-shortcut">Ctrl+J</span> Toggle panel</li>
+            <li><span class="keyboard-shortcut">Ctrl+K Ctrl+W</span> Close all tabs</li>
+            <li><span class="keyboard-shortcut">F6</span> Focus next pane</li>
+            <li><span class="keyboard-shortcut">Shift+F6</span> Focus previous pane</li>
+        </ul>
+        <p style="margin-top: 10px; font-size: 12px; opacity: 0.9;">
+            Drag tabs to reorder or drop on edges to create splits!
+        </p>
+    </div>
+    
+    <script type="module" src="../src/renderer/index.tsx"></script>
+</body>
+</html>

@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Leaf } from '../../layout/types';
 import { TabStrip } from '../shared/TabStrip';
 import { DockOverlay } from '../dnd/DockOverlay';
 import { useDragDrop } from '../../hooks/useDragDrop';
+import { FocusManager } from '../../focus/FocusManager';
 import './EditorLeaf.css';
 
 interface EditorLeafProps {
@@ -13,6 +14,7 @@ interface EditorLeafProps {
   onTabReorder: (fromIndex: number, toIndex: number) => void;
   onFocus: () => void;
   dispatch?: (action: any) => void;
+  focusManager?: FocusManager | null;
 }
 
 export const EditorLeaf: React.FC<EditorLeafProps> = ({
@@ -22,9 +24,29 @@ export const EditorLeaf: React.FC<EditorLeafProps> = ({
   onTabClose,
   onTabReorder,
   onFocus,
-  dispatch
+  dispatch,
+  focusManager
 }) => {
+  const leafRef = useRef<HTMLDivElement>(null);
   const [overlayBounds, setOverlayBounds] = useState<{ x: number; y: number; width: number; height: number } | null>(null);
+
+  // Register leaf with focus manager
+  useEffect(() => {
+    if (focusManager && leafRef.current) {
+      focusManager.registerFocusable(leaf.id, leafRef.current, 'editor-leaf', leaf.order);
+      
+      return () => {
+        focusManager.unregisterFocusable(leaf.id);
+      };
+    }
+  }, [focusManager, leaf.id, leaf.order]);
+
+  // Update focus when leaf becomes active
+  useEffect(() => {
+    if (isActive && focusManager && leafRef.current) {
+      focusManager.focus(leaf.id);
+    }
+  }, [isActive, focusManager, leaf.id]);
   
   const { isOver, dropPosition, handleDragOver, handleDragLeave, handleDrop } = useDragDrop({
     dispatch: dispatch || (() => {}),
@@ -61,13 +83,16 @@ export const EditorLeaf: React.FC<EditorLeafProps> = ({
 
   return (
     <div 
+      ref={leafRef}
       className={`editor-leaf ${isActive ? 'active' : ''} ${isOver ? 'drag-over' : ''}`}
       onClick={onFocus}
       role="group"
       aria-label={`Editor pane with ${leaf.tabs.length} tabs`}
+      tabIndex={isActive ? 0 : -1}
       onDragOver={handleLeafDragOver}
       onDragLeave={handleLeafDragLeave}
       onDrop={handleLeafDrop}
+      data-leaf-id={leaf.id}
     >
       {leaf.tabs.length > 0 ? (
         <>

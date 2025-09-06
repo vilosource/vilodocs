@@ -17,7 +17,8 @@ export type LayoutAction =
   | { type: 'REORDER_TABS'; payload: { leafId: string; fromIndex: number; toIndex: number } }
   | { type: 'RESIZE_SPLIT'; payload: { splitId: string; sizes: number[] } }
   | { type: 'CLOSE_ALL_TABS'; payload: { leafId: string } }
-  | { type: 'CLOSE_TABS_TO_RIGHT'; payload: { leafId: string; fromIndex: number } };
+  | { type: 'CLOSE_TABS_TO_RIGHT'; payload: { leafId: string; fromIndex: number } }
+  | { type: 'RESTORE_LAYOUT'; payload: LayoutNode };
 
 let nextId = 1;
 const generateId = () => `editor-${nextId++}`;
@@ -161,6 +162,18 @@ function enforceMinimumSizes(sizes: number[], minSize: number = 10): number[] {
   }
   
   return normalizeSizes(enforced);
+}
+
+export function createInitialState(): EditorGridState {
+  const welcomeTab = createWelcomeTab();
+  const rootLeaf = createLeaf(generateId(), [welcomeTab]);
+  
+  return {
+    root: rootLeaf,
+    activeLeafId: rootLeaf.id,
+    leafMap: new Map([[rootLeaf.id, rootLeaf]]),
+    focusHistory: [rootLeaf.id]
+  };
 }
 
 export function layoutReducer(state: EditorGridState, action: LayoutAction): EditorGridState {
@@ -487,6 +500,25 @@ export function layoutReducer(state: EditorGridState, action: LayoutAction): Edi
         ...state,
         root: newRoot,
         leafMap: rebuildLeafMap(newRoot)
+      };
+    }
+    
+    case 'RESTORE_LAYOUT': {
+      const newRoot = action.payload;
+      const leafMap = rebuildLeafMap(newRoot);
+      
+      // Find first leaf to set as active if not already set
+      let activeLeafId = state.activeLeafId;
+      if (!activeLeafId || !leafMap.has(activeLeafId)) {
+        const firstLeaf = Array.from(leafMap.values())[0];
+        activeLeafId = firstLeaf?.id || '';
+      }
+      
+      return {
+        ...state,
+        root: newRoot,
+        leafMap,
+        activeLeafId
       };
     }
     
