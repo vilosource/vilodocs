@@ -32,6 +32,7 @@ jobs:
             rpm \
             fakeroot \
             dpkg \
+            zip \
             libarchive-tools \
             file \
             libfuse2 \
