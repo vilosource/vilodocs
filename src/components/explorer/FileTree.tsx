@@ -36,16 +36,11 @@ export const FileTree: React.FC<FileTreeProps> = ({
   const handleNodeClick = useCallback((node: FileNode, event: React.MouseEvent) => {
     event.stopPropagation();
     
-    if (node.type === 'directory') {
-      onToggleExpand(node.path);
-    } else {
-      if (event.detail === 2) { // Double click
-        onOpenFile(node.path);
-      }
-    }
-    
+    // Select the node
     onSelectPath(node.path);
-  }, [onToggleExpand, onOpenFile, onSelectPath]);
+    
+    // Open file on double click (handled separately in handleNodeDoubleClick)
+  }, [onSelectPath]);
 
   const handleNodeDoubleClick = useCallback((node: FileNode) => {
     if (node.type === 'file') {

@@ -48,7 +48,11 @@ export const FileTreeNode: React.FC<FileTreeNodeProps> = ({
   const handleClick = useCallback((event: React.MouseEvent) => {
     event.stopPropagation();
     onClick(node, event);
-  }, [node, onClick]);
+    // Also expand/collapse directories on single click
+    if (node.type === 'directory') {
+      onToggleExpand(node.path);
+    }
+  }, [node, onClick, onToggleExpand]);
 
   const handleDoubleClick = useCallback((event: React.MouseEvent) => {
     event.stopPropagation();

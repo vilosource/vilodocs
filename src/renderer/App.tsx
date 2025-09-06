@@ -7,6 +7,7 @@ import { LayoutPersistence } from '../layout/persistence-browser';
 import { CommandManager } from '../commands/CommandManager';
 import { FocusManager } from '../focus/FocusManager';
 import { generateUniqueId, generateFileTabId } from '../utils/id-generator';
+import '../utils/storage-utils'; // Load storage utilities for development
 import './App.css';
 
 // Create singleton instances
@@ -21,6 +22,16 @@ export const App: React.FC = () => {
 
   // Load persisted state on mount
   useEffect(() => {
+    // Check for clear storage flag (useful during development)
+    if (window.location.hash === '#clear' || localStorage.getItem('clear-storage') === 'true') {
+      console.log('Clearing localStorage due to clear flag');
+      localStorage.clear();
+      localStorage.removeItem('clear-storage');
+      window.location.hash = '';
+      setIsLoading(false);
+      return;
+    }
+
     persistence.load().then(layout => {
       if (layout && layout.editorGrid) {
         dispatch({
@@ -168,6 +179,19 @@ export const App: React.FC = () => {
   // Register file operations with command manager
   useEffect(() => {
     if (!commandManager) return;
+
+    // Clear storage command (development)
+    commandManager.registerCommand({
+      id: 'dev.clearStorage',
+      label: 'Clear Local Storage (Dev)',
+      keybinding: 'Ctrl+Shift+Alt+C',
+      execute: () => {
+        if (confirm('Clear all local storage? This will reset the application state.')) {
+          localStorage.clear();
+          window.location.reload();
+        }
+      }
+    });
 
     // Open file command
     commandManager.registerCommand({
