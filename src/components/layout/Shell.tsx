@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { ActivityBar, ActivityBarItem } from './ActivityBar';
 import { SideBar } from './SideBar';
 import { Panel } from './Panel';
-import { StatusBar, StatusBarItem } from './StatusBar';
+import { StatusBar } from './StatusBar';
 import { FileExplorer } from '../explorer/FileExplorer';
 import { RegionManager } from '../../layout/regions';
 import { CommandManager } from '../../commands/CommandManager';
@@ -296,13 +296,16 @@ export const Shell: React.FC<ShellProps> = ({ children, onCommand, onOpenFile })
         </SideBar>
       </div>
       
-      <StatusBar visible={regions.statusBar.visible}>
-        <StatusBarItem align="left">Ready</StatusBarItem>
-        <StatusBarItem align="left">{workspace.current ? 'Workspace Open' : 'No Folder Open'}</StatusBarItem>
-        <StatusBarItem align="right">UTF-8</StatusBarItem>
-        <StatusBarItem align="right">LF</StatusBarItem>
-        <StatusBarItem align="right">TypeScript</StatusBarItem>
-      </StatusBar>
+      <StatusBar 
+        visible={regions.statusBar.visible}
+        items={[
+          { id: 'status', content: 'Ready', position: 'left', priority: 0 },
+          { id: 'workspace', content: workspace.current ? 'Workspace Open' : 'No Folder Open', position: 'left', priority: 1 },
+          { id: 'encoding', content: 'UTF-8', position: 'right', priority: 0 },
+          { id: 'eol', content: 'LF', position: 'right', priority: 1 },
+          { id: 'language', content: 'TypeScript', position: 'right', priority: 2 }
+        ]}
+      />
     </div>
   );
 };
