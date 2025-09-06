@@ -9,21 +9,55 @@ on:
 jobs:
   build-linux:
     runs-on: ubuntu-latest
+    container:
+      image: ubuntu:22.04
+    
+    env:
+      DISPLAY: ':99'
+      APPIMAGE_EXTRACT_AND_RUN: '1'
     
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
         
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: 'npm'
-      
-      - name: Install Linux build dependencies
+      - name: Install system dependencies
         run: |
-          sudo apt-get update
-          sudo apt-get install -y rpm fakeroot dpkg
+          apt-get update
+          DEBIAN_FRONTEND=noninteractive apt-get install -y \
+            curl \
+            git \
+            build-essential \
+            rpm \
+            fakeroot \
+            dpkg \
+            libarchive-tools \
+            file \
+            libfuse2 \
+            desktop-file-utils \
+            libgconf-2-4 \
+            libgtk-3-0 \
+            libgbm1 \
+            libnotify4 \
+            libnss3 \
+            libxss1 \
+            libxtst6 \
+            xdg-utils \
+            libatspi2.0-0 \
+            libdrm2 \
+            libx11-xcb1 \
+            libxcb-dri3-0 \
+            libasound2 \
+            xvfb
+        
+      - name: Setup Node.js
+        run: |
+          curl -fsSL https://deb.nodesource.com/setup_20.x | bash -
+          apt-get install -y nodejs
+      
+      - name: Start virtual display
+        run: |
+          Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
+          sleep 2
           
       - name: Install dependencies
         run: npm ci
@@ -39,6 +73,7 @@ jobs:
         with:
           name: linux-builds
           path: |
+            out/make/**/*.AppImage
             out/make/**/*.deb
             out/make/**/*.rpm
             out/make/**/*.zip

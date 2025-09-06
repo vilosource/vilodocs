@@ -11,6 +11,17 @@ const config: ForgeConfig = {
   rebuildConfig: {},
   makers: [
     {
+      name: '@pengx17/electron-forge-maker-appimage',
+      config: {
+        options: {
+          name: 'vilodocs',
+          productName: 'vilodocs',
+          genericName: 'Document Editor',
+          categories: ['Office', 'TextEditor']
+        }
+      }
+    },
+    {
       name: '@electron-forge/maker-deb',
       config: {
         options: {
