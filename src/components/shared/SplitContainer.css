@@ -1,0 +1,75 @@
+.split-container {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+
+.split-horizontal {
+  flex-direction: row;
+}
+
+.split-vertical {
+  flex-direction: column;
+}
+
+.split-panel {
+  overflow: hidden;
+  position: relative;
+  min-width: 0;
+  min-height: 0;
+}
+
+.split-gutter {
+  background-color: var(--vscode-editorGroup-border, #444444);
+  flex-shrink: 0;
+  position: relative;
+  z-index: 10;
+  transition: background-color 0.1s;
+}
+
+.split-gutter:hover,
+.split-gutter:focus {
+  background-color: var(--vscode-sash-hoverBorder, #007acc);
+}
+
+.split-gutter-horizontal {
+  width: 1px;
+  cursor: ew-resize;
+  margin: 0 2px;
+}
+
+.split-gutter-horizontal::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: -2px;
+  right: -2px;
+  cursor: ew-resize;
+}
+
+.split-gutter-vertical {
+  height: 1px;
+  cursor: ns-resize;
+  margin: 2px 0;
+}
+
+.split-gutter-vertical::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: -2px;
+  bottom: -2px;
+  cursor: ns-resize;
+}
+
+.split-gutter:focus {
+  outline: 2px solid var(--vscode-focusBorder, #007acc);
+  outline-offset: -1px;
+}
+
+.split-gutter:focus:not(:focus-visible) {
+  outline: none;
+}

@@ -1,0 +1,50 @@
+.activity-bar {
+  width: 48px;
+  background-color: var(--vscode-activityBar-background, #333333);
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid var(--vscode-activityBar-border, #222222);
+}
+
+.activity-bar-items {
+  display: flex;
+  flex-direction: column;
+  padding: 8px 0;
+}
+
+.activity-bar-item {
+  width: 48px;
+  height: 48px;
+  border: none;
+  background: transparent;
+  color: var(--vscode-activityBar-foreground, #cccccc);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  transition: background-color 0.1s;
+}
+
+.activity-bar-item:hover {
+  background-color: var(--vscode-activityBar-hoverBackground, rgba(255, 255, 255, 0.1));
+}
+
+.activity-bar-item.active {
+  color: var(--vscode-activityBar-activeForeground, #ffffff);
+}
+
+.activity-bar-item.active::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background-color: var(--vscode-activityBar-activeBorder, #007acc);
+}
+
+.activity-bar-icon {
+  font-size: 24px;
+  line-height: 1;
+}

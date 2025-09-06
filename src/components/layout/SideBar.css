@@ -1,0 +1,59 @@
+.sidebar {
+  position: relative;
+  background-color: var(--vscode-sideBar-background, #252526);
+  color: var(--vscode-sideBar-foreground, #cccccc);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.sidebar-left {
+  border-right: 1px solid var(--vscode-sideBar-border, #222222);
+}
+
+.sidebar-right {
+  border-left: 1px solid var(--vscode-sideBar-border, #222222);
+}
+
+.sidebar-content {
+  flex: 1;
+  overflow: auto;
+  padding: 8px;
+}
+
+.sidebar-header {
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--vscode-sideBar-border, #222222);
+}
+
+.sidebar-title {
+  margin: 0;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--vscode-sideBar-foreground, #cccccc);
+}
+
+.sidebar-gutter {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  cursor: ew-resize;
+  background: transparent;
+  transition: background-color 0.1s;
+}
+
+.sidebar-gutter:hover,
+.sidebar-gutter:focus {
+  background-color: var(--vscode-sash-hoverBorder, #007acc);
+}
+
+.sidebar-gutter-left {
+  right: -2px;
+}
+
+.sidebar-gutter-right {
+  left: -2px;
+}
