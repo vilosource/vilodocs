@@ -27,6 +27,7 @@ jobs:
           apt-get update
           DEBIAN_FRONTEND=noninteractive apt-get install -y \
             curl \
+            wget \
             git \
             build-essential \
             rpm \
@@ -72,6 +73,11 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: npm run publish
+      
+      - name: List build artifacts
+        run: |
+          echo "=== Contents of out/make directory ==="
+          find out/make -type f -name "*.AppImage" -o -name "*.deb" -o -name "*.rpm" -o -name "*.zip" -o -name "*.tar.gz" | sort
         
       - name: Upload release artifacts
         uses: actions/upload-artifact@v4
