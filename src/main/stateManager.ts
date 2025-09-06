@@ -44,10 +44,13 @@ export class StateManager {
     });
 
     // Load initial state
+    console.log('StateManager: Initializing...');
     this.state = this.loadStateFromDisk();
+    console.log('StateManager: Loaded initial state:', JSON.stringify(this.state, null, 2));
     
     // Register IPC handlers
     this.registerIPCHandlers();
+    console.log('StateManager: IPC handlers registered');
   }
 
   /**
@@ -56,16 +59,18 @@ export class StateManager {
   private loadStateFromDisk(): ApplicationState {
     try {
       const stored = this.store.get('state');
+      console.log('StateManager: Loading state from disk:', JSON.stringify(stored, null, 2));
       
       // Validate and migrate if needed
       if (this.validateState(stored)) {
+        console.log('StateManager: State is valid, returning stored state');
         return stored;
       }
       
-      console.warn('Invalid state found, using defaults');
+      console.warn('StateManager: Invalid state found, using defaults');
       return DEFAULT_APPLICATION_STATE;
     } catch (error) {
-      console.error('Failed to load state:', error);
+      console.error('StateManager: Failed to load state:', error);
       return DEFAULT_APPLICATION_STATE;
     }
   }
