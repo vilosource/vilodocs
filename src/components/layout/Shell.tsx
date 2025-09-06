@@ -203,9 +203,7 @@ export const Shell: React.FC<ShellProps> = ({ children, onCommand }) => {
         </SideBar>
         
         <div className="shell-editor-area">
-          <div className="editor-grid">
-            {children || <div className="welcome-tab">Welcome to vilodocs</div>}
-          </div>
+          {children || <div className="welcome-tab">Welcome to vilodocs</div>}
           
           <Panel
             visible={regions.panel.visible}

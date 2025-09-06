@@ -47,7 +47,7 @@ test.describe('Panes Functionality E2E Tests', () => {
     const page = context.page;
     
     // Check if editor grid is present
-    const editorGrid = await page.locator('.editor-grid');
+    const editorGrid = await page.locator('.editor-grid').first();
     await expect(editorGrid).toBeVisible();
     
     // Check for at least one editor leaf
@@ -64,7 +64,7 @@ test.describe('Panes Functionality E2E Tests', () => {
     await expect(activityBar).toBeVisible();
     
     // Check for activity items
-    const activityItems = await page.locator('.activity-item');
+    const activityItems = await page.locator('.activity-bar-item');
     await expect(activityItems).toHaveCount(5); // Explorer, Search, SCM, Debug, Extensions
   });
 
@@ -168,7 +168,7 @@ test.describe('Panes Functionality E2E Tests', () => {
     await expect(statusBar).toBeVisible();
     
     // Check for status items
-    const statusItems = await page.locator('.status-item');
+    const statusItems = await page.locator('.status-bar-item');
     const itemCount = await statusItems.count();
     expect(itemCount).toBeGreaterThan(0);
   });
