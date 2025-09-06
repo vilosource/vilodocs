@@ -22,6 +22,17 @@ export const WidgetRenderer: React.FC<WidgetRendererProps> = ({
     onDirtyChange?.(tab.id, isDirty);
   };
 
+  // Handle tabs without widget property (legacy tabs)
+  if (!tab.widget) {
+    console.warn('Tab missing widget property:', tab);
+    return (
+      <div className="widget-error">
+        <h3>Invalid Tab Configuration</h3>
+        <p>This tab is missing widget configuration. Tab: {tab.title}</p>
+      </div>
+    );
+  }
+
   switch (tab.widget.type) {
     case 'text-editor':
       return (

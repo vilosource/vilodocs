@@ -1,5 +1,6 @@
 import { vi } from 'vitest';
 import '@testing-library/jest-dom';
+import './setup/console-error-detection';
 
 // Mock electron if needed in tests
 vi.mock('electron', () => ({

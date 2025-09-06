@@ -54,6 +54,14 @@ export class LayoutPersistence {
       }
 
       const layout = JSON.parse(serialized) as PersistedLayout;
+      
+      // Validate layout - check if it has valid structure
+      if (!this.validateLayout(layout)) {
+        console.warn('Invalid layout detected, clearing storage');
+        await this.clear();
+        return null;
+      }
+      
       console.log('Layout loaded from localStorage');
       return layout;
     } catch (error) {
@@ -95,5 +103,44 @@ export class LayoutPersistence {
     } catch (error) {
       console.error('Failed to clear layout:', error);
     }
+  }
+
+  private validateLayout(layout: PersistedLayout): boolean {
+    // Check basic structure
+    if (!layout || !layout.editorGrid || !layout.regions) {
+      return false;
+    }
+
+    // Check version compatibility
+    if (layout.version !== 1) {
+      console.warn('Incompatible layout version:', layout.version);
+      return false;
+    }
+
+    // Validate tabs have required properties
+    const validateNode = (node: any): boolean => {
+      if (!node) return false;
+      
+      if (node.type === 'leaf' && node.tabs) {
+        for (const tab of node.tabs) {
+          // Check if tab has widget property (required in new version)
+          // Migration will handle missing widgets, but if structure is completely broken, reject
+          if (!tab.id || !tab.title) {
+            console.warn('Invalid tab structure:', tab);
+            return false;
+          }
+        }
+      }
+      
+      if (node.children) {
+        for (const child of node.children) {
+          if (!validateNode(child)) return false;
+        }
+      }
+      
+      return true;
+    };
+
+    return validateNode(layout.editorGrid);
   }
 }

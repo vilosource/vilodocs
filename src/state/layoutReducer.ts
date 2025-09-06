@@ -536,7 +536,7 @@ export function layoutReducer(state: EditorGridState, action: LayoutAction): Edi
     }
 
     case 'RESTORE_LAYOUT': {
-      const newRoot = action.payload;
+      const newRoot = migrateLegacyTabs(action.payload);
       const leafMap = rebuildLeafMap(newRoot);
       
       // Find first leaf to set as active if not already set
@@ -572,4 +572,46 @@ function replaceLeafInTree(root: LayoutNode, updatedLeaf: Leaf): LayoutNode {
   }
   
   return root;
+}
+
+// Migrate legacy tabs that don't have widget property
+function migrateLegacyTabs(node: LayoutNode): LayoutNode {
+  if (isLeaf(node)) {
+    return {
+      ...node,
+      tabs: node.tabs.map(tab => {
+        if (!tab.widget) {
+          // Legacy tab - create appropriate widget based on content
+          console.warn('Migrating legacy tab without widget:', tab.title);
+          
+          // If it has content property, assume it's a text editor
+          if ('content' in (tab as any)) {
+            return {
+              ...tab,
+              widget: {
+                type: 'text-editor',
+                props: { content: (tab as any).content }
+              }
+            };
+          }
+          
+          // Default to welcome widget
+          return {
+            ...tab,
+            widget: { type: 'welcome', props: {} }
+          };
+        }
+        return tab;
+      })
+    };
+  }
+  
+  if (isSplit(node)) {
+    return {
+      ...node,
+      children: node.children.map(child => migrateLegacyTabs(child))
+    };
+  }
+  
+  return node;
 }
