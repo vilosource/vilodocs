@@ -230,21 +230,16 @@ export const Shell: React.FC<ShellProps> = ({ children, onCommand, onOpenFile })
             visible={regions.panel.visible}
             position={regions.panel.position}
             height={regions.panel.height}
+            tabs={[
+              { id: 'terminal', label: 'Terminal', content: <div>Terminal functionality coming soon...</div> },
+              { id: 'problems', label: 'Problems', content: <div>No problems detected</div> },
+              { id: 'output', label: 'Output', content: <div>Output console</div> },
+              { id: 'debug-console', label: 'Debug Console', content: <div>Debug console</div> }
+            ]}
+            activeTabId="terminal"
             onClose={handlePanelClose}
             onResize={handlePanelResize}
-          >
-            <div className="panel-content">
-              <div className="panel-tabs">
-                <div className="panel-tab active">Terminal</div>
-                <div className="panel-tab">Problems</div>
-                <div className="panel-tab">Output</div>
-                <div className="panel-tab">Debug Console</div>
-              </div>
-              <div className="panel-body">
-                Terminal functionality coming soon...
-              </div>
-            </div>
-          </Panel>
+          />
         </div>
         
         <SideBar
