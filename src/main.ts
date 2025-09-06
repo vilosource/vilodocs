@@ -2,6 +2,7 @@ import { app, BrowserWindow, ipcMain, dialog, nativeTheme } from 'electron';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { Channels } from './common/ipc';
+import { registerFileSystemHandlers, cleanupFileWatchers } from './main/fileSystemHandlers';
 
 const isE2E = process.env.E2E === '1';
 let mainWindow: BrowserWindow | null = null;
@@ -71,9 +72,13 @@ app.whenReady().then(() => {
       return { path: target! };
     }
   );
+  
+  // Register file system handlers
+  registerFileSystemHandlers();
 });
 
 app.on('window-all-closed', () => {
+  cleanupFileWatchers();
   if (process.platform !== 'darwin') app.quit();
 });
 
