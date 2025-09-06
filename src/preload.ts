@@ -1,5 +1,6 @@
 import { contextBridge, ipcRenderer } from 'electron';
 import { Channels, type RendererApis, type Theme, type FileChangeEvent } from './common/ipc';
+import { ApplicationState } from './common/state-types';
 
 const api: RendererApis = {
   ping: (msg) => ipcRenderer.invoke(Channels.Ping, msg),
@@ -37,6 +38,21 @@ const api: RendererApis = {
   openWorkspace: () => ipcRenderer.invoke(Channels.OpenWorkspace),
   saveWorkspace: (workspace) => ipcRenderer.invoke(Channels.SaveWorkspace, workspace),
   getRecentWorkspaces: () => ipcRenderer.invoke(Channels.GetRecentWorkspaces),
+  
+  // State management
+  loadState: () => ipcRenderer.invoke(Channels.LoadState),
+  saveState: (state) => ipcRenderer.invoke(Channels.SaveState, state),
+  updateState: (action) => ipcRenderer.invoke(Channels.UpdateState, action),
+  onStateChanged: (cb) => {
+    const listener = (_e: unknown, state: ApplicationState) => cb(state);
+    ipcRenderer.on(Channels.StateChanged, listener);
+    return () => ipcRenderer.removeListener(Channels.StateChanged, listener);
+  },
+  
+  // Widget management
+  registerWidget: (widget) => ipcRenderer.invoke(Channels.RegisterWidget, widget),
+  updateWidgetState: (widgetId, state) => ipcRenderer.invoke(Channels.UpdateWidgetState, widgetId, state),
+  getWidgetState: (widgetId) => ipcRenderer.invoke(Channels.GetWidgetState, widgetId),
 };
 
 contextBridge.exposeInMainWorld('api', api);

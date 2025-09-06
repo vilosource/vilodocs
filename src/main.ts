@@ -3,6 +3,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { Channels } from './common/ipc';
 import { registerFileSystemHandlers, cleanupFileWatchers } from './main/fileSystemHandlers';
+import { initializeStateManager, getStateManager } from './main/stateManager';
 
 const isE2E = process.env.E2E === '1';
 let mainWindow: BrowserWindow | null = null;
@@ -48,6 +49,9 @@ function sendTheme(win: BrowserWindow) {
 }
 
 app.whenReady().then(() => {
+  // Initialize state manager before creating window
+  initializeStateManager();
+  
   createWindow();
 
   ipcMain.handle(Channels.Ping, (_e, msg: string) => `pong:${msg}`);
@@ -79,7 +83,12 @@ app.whenReady().then(() => {
 
 app.on('window-all-closed', () => {
   cleanupFileWatchers();
+  getStateManager().cleanup();
   if (process.platform !== 'darwin') app.quit();
+});
+
+app.on('before-quit', () => {
+  getStateManager().cleanup();
 });
 
 app.on('activate', () => {

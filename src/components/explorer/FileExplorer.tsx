@@ -35,7 +35,10 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
   // Load initial workspace
   useEffect(() => {
     if (initialWorkspace) {
-      workspaceService.openWorkspace(initialWorkspace);
+      console.log('FileExplorer: Loading workspace:', initialWorkspace.name || initialWorkspace.folders[0].path);
+      workspaceService.openWorkspace(initialWorkspace).catch(err => {
+        console.error('Failed to open workspace:', err);
+      });
     }
   }, [initialWorkspace, workspaceService]);
 
@@ -66,8 +69,8 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
     }
   }, [workspaceService, onWorkspaceChange]);
 
-  const handleToggleExpand = useCallback((path: string) => {
-    workspaceService.toggleFolder(path);
+  const handleToggleExpand = useCallback(async (path: string) => {
+    await workspaceService.toggleFolder(path);
   }, [workspaceService]);
 
   const handleSelectPath = useCallback((path: string) => {

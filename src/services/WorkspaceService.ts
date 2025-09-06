@@ -19,6 +19,7 @@ export class WorkspaceService {
 
   private changeListeners: Set<(state: WorkspaceState) => void> = new Set();
   private fileWatchIds: Map<string, string> = new Map(); // folder path -> watch id
+  private readonly STORAGE_KEY = 'vilodocs-workspace-state';
 
   /**
    * Opens a workspace (single or multi-root)
@@ -29,13 +30,20 @@ export class WorkspaceService {
 
     this.state.workspace = workspace;
     this.state.rootNodes.clear();
-    this.state.expandedFolders.clear();
     this.state.selectedPath = null;
     this.state.focusedPath = null;
+    
+    // Load saved expanded folders for this workspace
+    this.loadExpandedFolders();
 
     // Load root folders
     for (const folder of workspace.folders) {
       await this.loadFolder(folder);
+    }
+    
+    // Load contents of already-expanded folders
+    for (const expandedPath of this.state.expandedFolders) {
+      await this.loadFolderContents(expandedPath);
     }
 
     this.notifyListeners();
@@ -74,13 +82,29 @@ export class WorkspaceService {
    * Expands or collapses a folder
    */
   async toggleFolder(path: string): Promise<void> {
-    if (this.state.expandedFolders.has(path)) {
-      this.state.expandedFolders.delete(path);
+    console.log('toggleFolder called for:', path);
+    console.log('Current expanded folders:', Array.from(this.state.expandedFolders));
+    
+    // Create a new Set to trigger React re-render
+    const newExpandedFolders = new Set(this.state.expandedFolders);
+    
+    if (newExpandedFolders.has(path)) {
+      newExpandedFolders.delete(path);
+      console.log('Collapsed folder:', path);
     } else {
-      this.state.expandedFolders.add(path);
+      newExpandedFolders.add(path);
+      console.log('Expanding folder:', path);
       // Load children if not already loaded
       await this.loadFolderContents(path);
     }
+    
+    // Replace the Set with the new one
+    this.state.expandedFolders = newExpandedFolders;
+    
+    // Save expanded folders to localStorage
+    this.saveExpandedFolders();
+    
+    console.log('Updated expanded folders:', Array.from(this.state.expandedFolders));
     this.notifyListeners();
   }
 
@@ -101,18 +125,56 @@ export class WorkspaceService {
    * Updates tree nodes for a specific path
    */
   private updateTreeNodes(parentPath: string, children: FileNode[]): void {
+    console.log('updateTreeNodes called for:', parentPath, 'with', children.length, 'children');
     // Find and update the parent node in the tree
     for (const [folderId, nodes] of this.state.rootNodes) {
-      const updated = this.updateNodesRecursive(nodes, parentPath, children);
-      if (updated) {
-        this.state.rootNodes.set(folderId, [...nodes]);
+      const clonedNodes = this.cloneAndUpdateNodes(nodes, parentPath, children);
+      if (clonedNodes) {
+        this.state.rootNodes.set(folderId, clonedNodes);
+        console.log('Updated nodes for folder:', folderId);
         break;
       }
     }
   }
 
   /**
-   * Recursively updates nodes
+   * Clone nodes and update the target path with new children
+   */
+  private cloneAndUpdateNodes(
+    nodes: FileNode[],
+    targetPath: string,
+    newChildren: FileNode[]
+  ): FileNode[] | null {
+    let found = false;
+    
+    const clonedNodes = nodes.map(node => {
+      if (node.path === targetPath) {
+        found = true;
+        // Clone the node and update its children
+        return {
+          ...node,
+          children: newChildren
+        };
+      } else if (node.children && node.children.length > 0) {
+        // Recursively check children
+        const updatedChildren = this.cloneAndUpdateNodes(node.children, targetPath, newChildren);
+        if (updatedChildren) {
+          found = true;
+          return {
+            ...node,
+            children: updatedChildren
+          };
+        }
+      }
+      // Return the node unchanged
+      return node;
+    });
+    
+    return found ? clonedNodes : null;
+  }
+  
+  /**
+   * Recursively updates nodes (deprecated - keeping for reference)
    */
   private updateNodesRecursive(
     nodes: FileNode[],
@@ -225,8 +287,15 @@ export class WorkspaceService {
    * Notifies all listeners of state changes
    */
   private notifyListeners(): void {
+    // Create a new state object to ensure React detects changes
+    const stateSnapshot: WorkspaceState = {
+      ...this.state,
+      expandedFolders: new Set(this.state.expandedFolders),
+      rootNodes: new Map(this.state.rootNodes)
+    };
+    
     for (const listener of this.changeListeners) {
-      listener(this.state);
+      listener(stateSnapshot);
     }
   }
 
@@ -257,5 +326,57 @@ export class WorkspaceService {
    */
   isSelected(path: string): boolean {
     return this.state.selectedPath === path;
+  }
+
+  /**
+   * Gets a unique key for the current workspace
+   */
+  private getWorkspaceKey(): string {
+    if (!this.state.workspace) return 'no-workspace';
+    
+    // Use the first folder path as the key (or combine all for multi-root)
+    const folderPaths = this.state.workspace.folders.map(f => f.path).join('|');
+    // Create a simple hash of the paths
+    let hash = 0;
+    for (let i = 0; i < folderPaths.length; i++) {
+      const char = folderPaths.charCodeAt(i);
+      hash = ((hash << 5) - hash) + char;
+      hash = hash & hash; // Convert to 32-bit integer
+    }
+    return `workspace-${Math.abs(hash)}`;
+  }
+
+  /**
+   * Saves expanded folders to localStorage
+   */
+  private saveExpandedFolders(): void {
+    if (this.state.workspace) {
+      const key = `${this.STORAGE_KEY}-expanded-${this.getWorkspaceKey()}`;
+      const expandedArray = Array.from(this.state.expandedFolders);
+      localStorage.setItem(key, JSON.stringify(expandedArray));
+      console.log('Saved expanded folders:', expandedArray.length, 'folders');
+    }
+  }
+
+  /**
+   * Loads expanded folders from localStorage
+   */
+  private loadExpandedFolders(): void {
+    if (this.state.workspace) {
+      const key = `${this.STORAGE_KEY}-expanded-${this.getWorkspaceKey()}`;
+      const saved = localStorage.getItem(key);
+      if (saved) {
+        try {
+          const expandedArray = JSON.parse(saved) as string[];
+          this.state.expandedFolders = new Set(expandedArray);
+          console.log('Loaded expanded folders:', expandedArray.length, 'folders');
+        } catch (error) {
+          console.error('Failed to load expanded folders:', error);
+          this.state.expandedFolders = new Set();
+        }
+      } else {
+        this.state.expandedFolders = new Set();
+      }
+    }
   }
 }

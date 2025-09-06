@@ -24,6 +24,17 @@ export const Channels = {
   FileCreated: 'fs:file-created',
   FileDeleted: 'fs:file-deleted',
   FileRenamed: 'fs:file-renamed',
+  // State management channels
+  LoadState: 'state:load',
+  SaveState: 'state:save',
+  UpdateState: 'state:update',
+  StateChanged: 'state:changed',
+  StateSaved: 'state:saved',
+  StateError: 'state:error',
+  // Widget channels
+  RegisterWidget: 'widget:register',
+  UpdateWidgetState: 'widget:update',
+  GetWidgetState: 'widget:get',
 } as const;
 
 export type Theme = 'light' | 'dark';
@@ -66,6 +77,8 @@ export interface WorkspaceFolder {
   name?: string;
 }
 
+import { ApplicationState, StateUpdateAction, WidgetRegistration } from './state-types';
+
 export type RendererApis = {
   ping(msg: string): Promise<string>;
   onThemeChanged(cb: (t: Theme) => void): () => void;
@@ -92,4 +105,15 @@ export type RendererApis = {
   openWorkspace(): Promise<Workspace | null>;
   saveWorkspace(workspace: Workspace): Promise<string | null>;
   getRecentWorkspaces(): Promise<string[]>;
+  
+  // State management
+  loadState(): Promise<ApplicationState>;
+  saveState(state: ApplicationState): Promise<void>;
+  updateState(action: StateUpdateAction): Promise<void>;
+  onStateChanged(cb: (state: ApplicationState) => void): () => void;
+  
+  // Widget management
+  registerWidget(widget: WidgetRegistration): Promise<void>;
+  updateWidgetState(widgetId: string, state: any): Promise<void>;
+  getWidgetState(widgetId: string): Promise<any>;
 };

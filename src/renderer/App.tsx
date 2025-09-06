@@ -3,79 +3,22 @@ import { Shell } from '../components/layout/Shell';
 import { EditorGrid } from '../components/editor/EditorGrid';
 import { layoutReducer, createInitialState } from '../state/layoutReducer';
 import { DragDropManager } from '../dnd/DragDropManager';
-import { LayoutPersistence } from '../layout/persistence-browser';
 import { CommandManager } from '../commands/CommandManager';
 import { FocusManager } from '../focus/FocusManager';
 import { generateUniqueId, generateFileTabId } from '../utils/id-generator';
-import '../utils/storage-utils'; // Load storage utilities for development
+import { useApplicationState } from './state/StateProvider';
 import './App.css';
 
 // Create singleton instances
 const dragDropManager = new DragDropManager();
-const persistence = new LayoutPersistence();
 
 export const App: React.FC = () => {
   const [state, dispatch] = useReducer(layoutReducer, createInitialState());
   const [commandManager] = useState(() => new CommandManager(dispatch));
   const [focusManager] = useState(() => new FocusManager());
-  const [isLoading, setIsLoading] = useState(true);
+  const { isLoading } = useApplicationState();
 
-  // Load persisted state on mount
-  useEffect(() => {
-    // Check for clear storage flag (useful during development)
-    if (window.location.hash === '#clear' || localStorage.getItem('clear-storage') === 'true') {
-      console.log('Clearing localStorage due to clear flag');
-      localStorage.clear();
-      localStorage.removeItem('clear-storage');
-      window.location.hash = '';
-      setIsLoading(false);
-      return;
-    }
-
-    persistence.load().then(layout => {
-      if (layout && layout.editorGrid) {
-        dispatch({
-          type: 'RESTORE_LAYOUT',
-          payload: layout.editorGrid
-        });
-      }
-      setIsLoading(false);
-    }).catch(err => {
-      console.error('Failed to load layout:', err);
-      setIsLoading(false);
-    });
-  }, []);
-
-  // Save state changes
-  useEffect(() => {
-    if (!isLoading) {
-      const saveLayout = async () => {
-        try {
-          await persistence.save({
-            version: 1,
-            editorGrid: state.root,
-            regions: {
-              activityBar: { visible: true },
-              primarySideBar: { visible: true, width: 240 },
-              secondarySideBar: { visible: false, width: 240 },
-              panel: { visible: true, position: 'bottom', height: 200 },
-              statusBar: { visible: true }
-            },
-            lastFocused: {
-              region: 'editorGrid',
-              leafId: state.activeLeafId
-            }
-          });
-        } catch (err) {
-          console.error('Failed to save layout:', err);
-        }
-      };
-
-      // Debounce saves
-      const timeout = setTimeout(saveLayout, 500);
-      return () => clearTimeout(timeout);
-    }
-  }, [state, isLoading]);
+  // The state loading and saving is now handled by StateProvider
 
   // Handle commands from Shell
   const handleCommand = (commandId: string, context: any) => {
@@ -180,14 +123,14 @@ export const App: React.FC = () => {
   useEffect(() => {
     if (!commandManager) return;
 
-    // Clear storage command (development)
+    // Clear storage command (development) - now clears electron-store
     commandManager.registerCommand({
       id: 'dev.clearStorage',
-      label: 'Clear Local Storage (Dev)',
+      label: 'Clear Application State (Dev)',
       keybinding: 'Ctrl+Shift+Alt+C',
-      execute: () => {
-        if (confirm('Clear all local storage? This will reset the application state.')) {
-          localStorage.clear();
+      execute: async () => {
+        if (confirm('Clear all application state? This will reset the application.')) {
+          await window.api.saveState(null); // Clear state
           window.location.reload();
         }
       }

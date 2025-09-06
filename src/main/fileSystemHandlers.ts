@@ -31,7 +31,7 @@ async function createFileNode(filePath: string): Promise<FileNode> {
   const stats = await fs.stat(filePath);
   const name = path.basename(filePath);
   
-  return {
+  const node: FileNode = {
     id: uuidv4(),
     name,
     path: filePath,
@@ -39,6 +39,13 @@ async function createFileNode(filePath: string): Promise<FileNode> {
     size: stats.size,
     modified: stats.mtime,
   };
+  
+  // Initialize children array for directories
+  if (node.type === 'directory') {
+    node.children = [];
+  }
+  
+  return node;
 }
 
 /**

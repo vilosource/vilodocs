@@ -1,4 +1,5 @@
 import { LayoutNode } from './types';
+import { Workspace } from '../common/ipc';
 
 export interface PersistedLayout {
   version: number;
@@ -15,6 +16,8 @@ export interface PersistedLayout {
     leafId?: string;
     tabId?: string;
   };
+  workspace?: Workspace | null;
+  expandedFolders?: string[];
 }
 
 /**
@@ -35,7 +38,10 @@ export class LayoutPersistence {
         try {
           const serialized = JSON.stringify(layout);
           localStorage.setItem(this.storageKey, serialized);
-          console.log('Layout saved to localStorage');
+          console.log('Layout saved to localStorage, workspace:', layout.workspace ? 'present' : 'missing');
+          if (layout.workspace) {
+            console.log('Saved workspace:', layout.workspace.name || layout.workspace.folders[0]?.path);
+          }
           resolve();
         } catch (error) {
           console.error('Failed to save layout:', error);
@@ -62,7 +68,10 @@ export class LayoutPersistence {
         return null;
       }
       
-      console.log('Layout loaded from localStorage');
+      console.log('Layout loaded from localStorage, workspace:', layout.workspace ? 'present' : 'missing');
+      if (layout.workspace) {
+        console.log('Loaded workspace:', layout.workspace.name || layout.workspace.folders[0]?.path);
+      }
       return layout;
     } catch (error) {
       console.error('Failed to load layout:', error);

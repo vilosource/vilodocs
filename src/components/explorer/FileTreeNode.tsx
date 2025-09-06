@@ -12,7 +12,7 @@ interface FileTreeNodeProps {
   selectedPath: string | null;
   onClick: (node: FileNode, event: React.MouseEvent) => void;
   onDoubleClick: (node: FileNode) => void;
-  onToggleExpand: (path: string) => void;
+  onToggleExpand: (path: string) => void | Promise<void>;
   onStartRename: (path: string) => void;
   onCompleteRename: (path: string, newName: string) => void;
   onCancelRename: () => void;
@@ -47,10 +47,15 @@ export const FileTreeNode: React.FC<FileTreeNodeProps> = ({
 
   const handleClick = useCallback((event: React.MouseEvent) => {
     event.stopPropagation();
+    console.log('FileTreeNode clicked:', node.path, 'type:', node.type);
     onClick(node, event);
     // Also expand/collapse directories on single click
     if (node.type === 'directory') {
-      onToggleExpand(node.path);
+      console.log('Calling onToggleExpand for directory:', node.path);
+      // Handle async toggle
+      Promise.resolve(onToggleExpand(node.path)).catch(err => 
+        console.error('Failed to toggle folder:', err)
+      );
     }
   }, [node, onClick, onToggleExpand]);
 
@@ -61,7 +66,10 @@ export const FileTreeNode: React.FC<FileTreeNodeProps> = ({
 
   const handleExpandClick = useCallback((event: React.MouseEvent) => {
     event.stopPropagation();
-    onToggleExpand(node.path);
+    // Handle async toggle
+    Promise.resolve(onToggleExpand(node.path)).catch(err => 
+      console.error('Failed to toggle folder:', err)
+    );
   }, [node.path, onToggleExpand]);
 
   const handleContextMenu = useCallback((event: React.MouseEvent) => {
@@ -130,6 +138,8 @@ export const FileTreeNode: React.FC<FileTreeNodeProps> = ({
     }
   };
 
+  console.log('Rendering node:', node.path, 'isExpanded:', isExpanded);
+  
   return (
     <>
       <div

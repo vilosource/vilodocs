@@ -7,7 +7,7 @@ interface FileTreeProps {
   nodes: FileNode[];
   expandedPaths: Set<string>;
   selectedPath: string | null;
-  onToggleExpand: (path: string) => void;
+  onToggleExpand: (path: string) => void | Promise<void>;
   onSelectPath: (path: string) => void;
   onOpenFile: (path: string) => void;
   onCreateFile?: (parentPath: string) => void;
