@@ -104,6 +104,7 @@ export const EditorGrid: React.FC<EditorGridProps> = ({ state, dispatch }) => {
               });
             }
           }}
+          dispatch={dispatch}
         />
       );
     }

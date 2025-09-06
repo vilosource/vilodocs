@@ -14,6 +14,11 @@
   outline-offset: -1px;
 }
 
+.editor-leaf.drag-over {
+  outline: 2px dashed var(--vscode-focusBorder, #007acc);
+  outline-offset: -2px;
+}
+
 .editor-content {
   flex: 1;
   overflow: hidden;

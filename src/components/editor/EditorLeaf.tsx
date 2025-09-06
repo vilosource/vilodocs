@@ -1,6 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Leaf } from '../../layout/types';
 import { TabStrip } from '../shared/TabStrip';
+import { DockOverlay } from '../dnd/DockOverlay';
+import { useDragDrop } from '../../hooks/useDragDrop';
 import './EditorLeaf.css';
 
 interface EditorLeafProps {
@@ -10,6 +12,7 @@ interface EditorLeafProps {
   onTabClose: (tabId: string) => void;
   onTabReorder: (fromIndex: number, toIndex: number) => void;
   onFocus: () => void;
+  dispatch?: (action: any) => void;
 }
 
 export const EditorLeaf: React.FC<EditorLeafProps> = ({
@@ -18,19 +21,53 @@ export const EditorLeaf: React.FC<EditorLeafProps> = ({
   onTabClick,
   onTabClose,
   onTabReorder,
-  onFocus
+  onFocus,
+  dispatch
 }) => {
+  const [overlayBounds, setOverlayBounds] = useState<{ x: number; y: number; width: number; height: number } | null>(null);
+  
+  const { isOver, dropPosition, handleDragOver, handleDragLeave, handleDrop } = useDragDrop({
+    dispatch: dispatch || (() => {}),
+    leafId: leaf.id
+  });
+
   const handleTabClose = (tabId: string, event: React.MouseEvent) => {
     event.stopPropagation();
     onTabClose(tabId);
   };
 
+  const handleLeafDragOver = (e: React.DragEvent) => {
+    handleDragOver(e);
+    
+    // Update overlay bounds
+    const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+    setOverlayBounds({
+      x: rect.left,
+      y: rect.top,
+      width: rect.width,
+      height: rect.height
+    });
+  };
+
+  const handleLeafDragLeave = (e: React.DragEvent) => {
+    handleDragLeave(e);
+    setOverlayBounds(null);
+  };
+
+  const handleLeafDrop = (e: React.DragEvent) => {
+    handleDrop(e);
+    setOverlayBounds(null);
+  };
+
   return (
     <div 
-      className={`editor-leaf ${isActive ? 'active' : ''}`}
+      className={`editor-leaf ${isActive ? 'active' : ''} ${isOver ? 'drag-over' : ''}`}
       onClick={onFocus}
       role="group"
       aria-label={`Editor pane with ${leaf.tabs.length} tabs`}
+      onDragOver={handleLeafDragOver}
+      onDragLeave={handleLeafDragLeave}
+      onDrop={handleLeafDrop}
     >
       {leaf.tabs.length > 0 ? (
         <>
@@ -70,6 +107,13 @@ export const EditorLeaf: React.FC<EditorLeafProps> = ({
             </div>
           </div>
         </div>
+      )}
+      {overlayBounds && dropPosition && (
+        <DockOverlay
+          visible={isOver}
+          position={dropPosition}
+          bounds={overlayBounds}
+        />
       )}
     </div>
   );

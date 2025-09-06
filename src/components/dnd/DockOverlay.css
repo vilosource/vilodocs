@@ -1,0 +1,53 @@
+.dock-overlay {
+  pointer-events: none;
+  z-index: 9999;
+}
+
+.dock-overlay-inner {
+  width: 100%;
+  height: 100%;
+  background-color: var(--vscode-editor-selectionBackground, rgba(0, 122, 204, 0.3));
+  border: 2px solid var(--vscode-focusBorder, #007acc);
+  border-radius: 3px;
+  animation: dock-pulse 0.5s ease-in-out infinite;
+}
+
+.dock-overlay-left .dock-overlay-inner,
+.dock-overlay-right .dock-overlay-inner {
+  border-left-width: 3px;
+  border-right-width: 3px;
+}
+
+.dock-overlay-top .dock-overlay-inner,
+.dock-overlay-bottom .dock-overlay-inner {
+  border-top-width: 3px;
+  border-bottom-width: 3px;
+}
+
+.dock-overlay-center .dock-overlay-inner {
+  background-color: var(--vscode-editor-selectionBackground, rgba(0, 122, 204, 0.2));
+}
+
+@keyframes dock-pulse {
+  0%, 100% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 0.8;
+  }
+}
+
+/* Global dragging styles */
+body.dragging {
+  cursor: grabbing !important;
+  user-select: none !important;
+}
+
+body.dragging * {
+  cursor: grabbing !important;
+  user-select: none !important;
+}
+
+.drag-preview {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}

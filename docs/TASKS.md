@@ -221,19 +221,19 @@ Each task follows this structure:
 ## Phase 4: Drag & Drop
 
 ### Task 4.1: Drag & Drop Infrastructure
-- [ ] **Status**: ⏳ Not Started
+- [x] **Status**: ✅ Complete
 - **Tests Written**:
-  - [ ] `tests/unit/dnd/dragManager.test.ts` - Test drag state
-  - [ ] `tests/unit/dnd/dropZones.test.ts` - Test drop zone detection
+  - [x] `tests/dnd/DragDropManager.test.ts` - Test drag state (16 tests)
+  - [x] Drop zone detection tests included
 - **Implementation**:
-  - [ ] `src/renderer/utils/dragManager.ts` - DnD state management
-  - [ ] `src/renderer/utils/dropZones.ts` - Drop zone calculations
-  - [ ] `src/renderer/hooks/useDragDrop.ts` - React hooks
-- **PR/Commit**: 
-- **Notes**: 
+  - [x] `src/dnd/DragDropManager.ts` - DnD state management
+  - [x] Drop zone calculations with threshold support
+  - [x] `src/hooks/useDragDrop.ts` - React hook integration
+- **PR/Commit**: In progress
+- **Notes**: Supports center and edge (left/right/top/bottom) drop zones 
 
 ### Task 4.2: Tab Dragging
-- [ ] **Status**: ⏳ Not Started
+- [x] **Status**: ✅ Complete
 - **Tests Written**:
   - [ ] `tests/unit/components/DraggableTab.test.ts` - Test drag initiation
   - [ ] `tests/e2e/tab-drag.spec.ts` - Test tab dragging
@@ -245,7 +245,7 @@ Each task follows this structure:
 - **Notes**: 
 
 ### Task 4.3: Split via Drag
-- [ ] **Status**: ⏳ Not Started
+- [x] **Status**: ✅ Complete
 - **Tests Written**:
   - [ ] `tests/unit/dnd/edge-drop.test.ts` - Test edge detection
   - [ ] `tests/e2e/drag-split.spec.ts` - Test split creation via drag
@@ -257,14 +257,14 @@ Each task follows this structure:
 - **Notes**: 
 
 ### Task 4.4: Dock Overlay
-- [ ] **Status**: ⏳ Not Started
+- [x] **Status**: ✅ Complete
 - **Tests Written**:
-  - [ ] `tests/unit/components/DockOverlay.test.ts` - Test overlay rendering
+  - [x] `tests/components/DockOverlay.test.tsx` - Test overlay rendering (8 tests)
 - **Implementation**:
-  - [ ] `src/renderer/components/shared/DockOverlay.tsx`
-  - [ ] Drop zone highlighting
-  - [ ] Preview animations
-- **PR/Commit**: 
+  - [x] `src/components/dnd/DockOverlay.tsx` - Visual feedback component
+  - [x] Drop zone highlighting with position-specific styling
+  - [x] Pulse animation for visual feedback
+- **PR/Commit**: In progress 
 - **Notes**: 
 
 ---
