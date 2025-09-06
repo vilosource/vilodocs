@@ -1,5 +1,37 @@
 # State Management Architecture
 
+## UPDATE: Service-Oriented Architecture (Latest)
+
+Following research into VSCode and modern Electron app architectures, we've implemented a **service-oriented state management** pattern that avoids circular dependencies and aligns with professional Electron applications.
+
+### Key Components:
+
+1. **StateService (Renderer Process)**
+   - Singleton service that manages state outside of React
+   - Communicates with main process via IPC
+   - Uses EventEmitter for reactivity
+   - Located in `src/renderer/services/StateService.ts`
+
+2. **React Hooks Bridge**
+   - Custom hooks that bridge StateService with React components
+   - Trigger re-renders when state changes
+   - Located in `src/renderer/hooks/useStateService.ts`
+
+3. **Main Process StateManager**
+   - Uses electron-store for persistence
+   - Handles IPC requests from renderer
+   - Single source of truth for application state
+
+### Benefits:
+- No circular dependencies
+- Components can import and use state directly
+- Aligns with VSCode's architecture pattern
+- More scalable and maintainable
+
+---
+
+## Original Design (Deprecated)
+
 ## Overview
 
 This document describes the centralized state management system for vilodocs, following Electron and VSCode best practices. The architecture ensures proper separation between main and renderer processes, provides a single source of truth for application state, and supports extensible widget development.
