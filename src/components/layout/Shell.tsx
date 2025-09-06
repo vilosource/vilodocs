@@ -8,7 +8,7 @@ import { RegionManager } from '../../layout/regions';
 import { CommandManager } from '../../commands/CommandManager';
 import { FocusManager } from '../../focus/FocusManager';
 import { Workspace } from '../../common/ipc';
-import { useApplicationState, useLayoutState, useWorkspaceState } from '../../renderer/state/StateProvider';
+// import { useApplicationState, useLayoutState, useWorkspaceState } from '../../renderer/state/StateProvider';
 import './Shell.css';
 
 interface ShellProps {
@@ -18,61 +18,35 @@ interface ShellProps {
 }
 
 export const Shell: React.FC<ShellProps> = ({ children, onCommand, onOpenFile }) => {
-  const { state, isLoading } = useApplicationState();
-  const { layout, updateLayout } = useLayoutState();
-  const { workspace, updateWorkspace } = useWorkspaceState();
+  // Temporarily use local state until StateProvider integration is fixed
+  const [workspace, setWorkspace] = useState<Workspace | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
   
   const [regionManager] = useState(() => {
     const manager = new RegionManager();
     
-    // Initialize with state from global state
-    if (layout.regions) {
-      manager.setRegionState('activityBar', { visible: layout.regions.activityBar.visible });
-      manager.setRegionState('primarySideBar', layout.regions.primarySideBar);
-      manager.setRegionState('secondarySideBar', layout.regions.secondarySideBar);
-      manager.setRegionState('panel', layout.regions.panel);
-      manager.setRegionState('statusBar', layout.regions.statusBar);
-    }
+    // Initialize with default state
+    manager.setRegionState('activityBar', { visible: true });
+    manager.setRegionState('primarySideBar', { visible: true, width: 240 });
+    manager.setRegionState('secondarySideBar', { visible: false, width: 240 });
+    manager.setRegionState('panel', { visible: true, position: 'bottom', height: 200 });
+    manager.setRegionState('statusBar', { visible: true });
     
     return manager;
   });
   
   const [regions, setRegions] = useState(regionManager.getState());
-  const [activeView, setActiveView] = useState(layout.regions.primarySideBar.activeView || 'explorer');
+  const [activeView, setActiveView] = useState('explorer');
   
   const commandManagerRef = useRef<CommandManager | null>(null);
   const focusManagerRef = useRef<FocusManager | null>(null);
 
   // Update regions when manager state changes
-  const updateRegions = useCallback(async () => {
+  const updateRegions = useCallback(() => {
     const newState = regionManager.getState();
     setRegions(newState);
-    
-    // Update global state
-    await updateLayout({
-      regions: {
-        activityBar: { 
-          visible: newState.activityBar.visible,
-          selectedViewlet: activeView
-        },
-        primarySideBar: { 
-          visible: newState.primarySideBar.visible, 
-          width: newState.primarySideBar.width,
-          activeView: activeView
-        },
-        secondarySideBar: { 
-          visible: newState.secondarySideBar.visible, 
-          width: newState.secondarySideBar.width 
-        },
-        panel: { 
-          visible: newState.panel.visible, 
-          position: newState.panel.position, 
-          height: newState.panel.height 
-        },
-        statusBar: { visible: newState.statusBar.visible }
-      }
-    });
-  }, [updateLayout, activeView]);
+    // TODO: Integrate with global state when fixed
+  }, []);
 
   // Initialize command and focus managers
   useEffect(() => {
@@ -120,9 +94,7 @@ export const Shell: React.FC<ShellProps> = ({ children, onCommand, onOpenFile })
       execute: async () => {
         const newWorkspace = await window.api.openFolder();
         if (newWorkspace) {
-          await updateWorkspace({
-            current: newWorkspace
-          });
+          setWorkspace(newWorkspace);
         }
       }
     });
@@ -133,9 +105,7 @@ export const Shell: React.FC<ShellProps> = ({ children, onCommand, onOpenFile })
       execute: async () => {
         const newWorkspace = await window.api.openWorkspace();
         if (newWorkspace) {
-          await updateWorkspace({
-            current: newWorkspace
-          });
+          setWorkspace(newWorkspace);
         }
       }
     });
@@ -144,12 +114,10 @@ export const Shell: React.FC<ShellProps> = ({ children, onCommand, onOpenFile })
       id: 'workbench.action.closeFolder',
       label: 'Close Folder',
       execute: async () => {
-        await updateWorkspace({
-          current: null
-        });
+        setWorkspace(null);
       }
     });
-  }, [onCommand, updateRegions, updateWorkspace]);
+  }, [onCommand, updateRegions]);
 
   // Global keyboard event handler
   useEffect(() => {
@@ -200,11 +168,9 @@ export const Shell: React.FC<ShellProps> = ({ children, onCommand, onOpenFile })
     updateRegions();
   };
 
-  const handleWorkspaceChange = useCallback(async (newWorkspace: Workspace | null) => {
-    await updateWorkspace({
-      current: newWorkspace
-    });
-  }, [updateWorkspace]);
+  const handleWorkspaceChange = useCallback((newWorkspace: Workspace | null) => {
+    setWorkspace(newWorkspace);
+  }, []);
 
   const handleFileOpen = useCallback((path: string, content: string) => {
     onOpenFile?.(path, content);
@@ -235,7 +201,7 @@ export const Shell: React.FC<ShellProps> = ({ children, onCommand, onOpenFile })
           <div className="sidebar-view-content">
             {activeView === 'explorer' && (
               <FileExplorer
-                workspace={workspace.current}
+                workspace={workspace}
                 onOpenFile={handleFileOpen}
                 onWorkspaceChange={handleWorkspaceChange}
               />
@@ -300,7 +266,7 @@ export const Shell: React.FC<ShellProps> = ({ children, onCommand, onOpenFile })
         visible={regions.statusBar.visible}
         items={[
           { id: 'status', content: 'Ready', position: 'left', priority: 0 },
-          { id: 'workspace', content: workspace.current ? 'Workspace Open' : 'No Folder Open', position: 'left', priority: 1 },
+          { id: 'workspace', content: workspace ? 'Workspace Open' : 'No Folder Open', position: 'left', priority: 1 },
           { id: 'encoding', content: 'UTF-8', position: 'right', priority: 0 },
           { id: 'eol', content: 'LF', position: 'right', priority: 1 },
           { id: 'language', content: 'TypeScript', position: 'right', priority: 2 }
