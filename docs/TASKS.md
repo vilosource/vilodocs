@@ -136,7 +136,7 @@ Each task follows this structure:
 - **Notes**: 
 
 ### Task 2.4: Focus Ring & Accessibility
-- [ ] **Status**: ⏳ Not Started
+- [x] **Status**: ✅ Complete
 - **Tests Written**:
   - [ ] `tests/unit/components/FocusRing.test.ts` - Test focus visibility
   - [ ] `tests/e2e/accessibility.spec.ts` - Test keyboard navigation
@@ -152,16 +152,16 @@ Each task follows this structure:
 ## Phase 3: Editor Grid Core
 
 ### Task 3.1: Layout Reducer
-- [ ] **Status**: ⏳ Not Started
+- [x] **Status**: ✅ Complete
 - **Tests Written**:
-  - [ ] `tests/unit/state/layoutReducer.test.ts` - Test all actions
-  - [ ] `tests/unit/state/layoutReducer.test.ts` - Test invariants
+  - [x] `tests/state/layoutReducer.test.ts` - Test all actions (16 tests)
+  - [x] `tests/state/layoutReducer.test.ts` - Test invariants
 - **Implementation**:
-  - [ ] `src/renderer/state/layoutReducer.ts` - Pure reducer
-  - [ ] `src/renderer/state/layoutActions.ts` - Action creators
-  - [ ] `src/renderer/state/layoutSelectors.ts` - Selectors
-- **PR/Commit**: 
-- **Notes**: 
+  - [x] `src/state/layoutReducer.ts` - Pure reducer with all actions
+  - [x] Tree manipulation helpers (compact, replace, rebuild)
+  - [x] Size enforcement with minimum constraints
+- **PR/Commit**: In progress
+- **Notes**: Automatic tree compaction when leaves become empty 
 
 ### Task 3.2: Editor Grid Component
 - [ ] **Status**: ⏳ Not Started

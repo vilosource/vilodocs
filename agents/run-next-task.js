@@ -23,8 +23,11 @@ let inTaskSection = false;
 for (let i = 0; i < taskLines.length; i++) {
   const line = taskLines[i];
   
-  // Check for task markers
-  if (line.includes('**Status:**') && (line.includes('❌') || line.includes('Not Started'))) {
+  // Skip the format example line
+  if (line.includes('| 🚧 In Progress |')) continue;
+  
+  // Check for task markers - look for checkbox first
+  if (line.startsWith('- [ ] **Status:**') && (line.includes('❌') || line.includes('⏳') || line.includes('Not Started'))) {
     // Found an incomplete task, get context
     let taskName = '';
     let taskPhase = '';
