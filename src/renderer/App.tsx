@@ -6,7 +6,6 @@ import { DragDropManager } from '../dnd/DragDropManager';
 import { CommandManager } from '../commands/CommandManager';
 import { FocusManager } from '../focus/FocusManager';
 import { generateUniqueId, generateFileTabId } from '../utils/id-generator';
-import { useApplicationState } from './state/StateProvider';
 import './App.css';
 
 // Create singleton instances
@@ -16,9 +15,12 @@ export const App: React.FC = () => {
   const [state, dispatch] = useReducer(layoutReducer, createInitialState());
   const [commandManager] = useState(() => new CommandManager(dispatch));
   const [focusManager] = useState(() => new FocusManager());
-  const { isLoading } = useApplicationState();
+  const [isLoading, setIsLoading] = useState(false);
 
   // The state loading and saving is now handled by StateProvider
+  useEffect(() => {
+    setIsLoading(false);
+  }, []);
 
   // Handle commands from Shell
   const handleCommand = (commandId: string, context: any) => {
