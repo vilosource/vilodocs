@@ -1,7 +1,7 @@
 {
   "name": "vilodocs",
   "productName": "vilodocs",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "A document editor built with Electron",
   "main": ".vite/build/main.js",
   "scripts": {
