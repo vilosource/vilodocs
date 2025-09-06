@@ -1,8 +1,10 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
-import { StateProvider } from './state/StateProvider';
 import './index.css';
+
+// Initialize state service (singleton will be created)
+import './services/StateService';
 
 // Create root element
 const container = document.getElementById('root');
@@ -12,11 +14,9 @@ if (!container) {
 
 const root = ReactDOM.createRoot(container);
 
-// Render app with state provider
+// Render app without state provider wrapper
 root.render(
   <React.StrictMode>
-    <StateProvider>
-      <App />
-    </StateProvider>
+    <App />
   </React.StrictMode>
 );
