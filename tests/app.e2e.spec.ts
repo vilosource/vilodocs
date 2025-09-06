@@ -7,27 +7,41 @@ import {
   type TestContext 
 } from './helpers/e2e';
 
-let context: TestContext;
+let context: TestContext | undefined;
 
 test.beforeAll(async () => {
-  // Launch the Electron app
-  context = await launchElectronE2E();
-  
-  // Capture any renderer errors
-  context.errors = captureRendererErrors(context.page);
-  
-  // Monitor main process
-  setupMainProcessMonitoring(context.app);
+  try {
+    // Launch the Electron app
+    context = await launchElectronE2E();
+    
+    // Capture any renderer errors
+    context.errors = captureRendererErrors(context.page);
+    
+    // Monitor main process
+    setupMainProcessMonitoring(context.app);
+  } catch (error) {
+    console.error('Failed to launch Electron app:', error);
+    throw error;
+  }
 });
 
 test.afterAll(async () => {
-  // Close the app
-  await closeApp(context);
+  // Close the app if it was launched
+  if (context) {
+    await closeApp(context);
+  }
 });
 
 test.describe('vilodocs E2E Tests', () => {
+  test.beforeEach(async () => {
+    // Skip test if app didn't launch
+    if (!context) {
+      throw new Error('Electron app not available - skipping test');
+    }
+  });
+
   test('app launches without errors', async () => {
-    const { page, errors } = context;
+    const { page, errors } = context!;
     
     // Wait for app to be ready
     await page.waitForLoadState('networkidle');
@@ -43,7 +57,7 @@ test.describe('vilodocs E2E Tests', () => {
   });
 
   test('main UI elements are visible', async () => {
-    const { page } = context;
+    const { page } = context!;
     
     // Check for the main editor area
     const editor = page.locator('#editor');
@@ -65,7 +79,7 @@ test.describe('vilodocs E2E Tests', () => {
   });
 
   test('editor accepts text input', async () => {
-    const { page, errors } = context;
+    const { page, errors } = context!;
     
     // Get the editor
     const editor = page.locator('#editor');
@@ -86,7 +100,7 @@ test.describe('vilodocs E2E Tests', () => {
   });
 
   test('Open button can be clicked without errors', async () => {
-    const { page, errors } = context;
+    const { page, errors } = context!;
     
     // Click the Open button
     const openButton = page.locator('#open');
@@ -105,7 +119,7 @@ test.describe('vilodocs E2E Tests', () => {
   });
 
   test('Save button can be clicked without errors', async () => {
-    const { page, errors } = context;
+    const { page, errors } = context!;
     
     // Add some content to save
     const editor = page.locator('#editor');
@@ -128,7 +142,7 @@ test.describe('vilodocs E2E Tests', () => {
   });
 
   test('app version is valid', async () => {
-    const { app } = context;
+    const { app } = context!;
     
     // Query the app version from main process
     const version = await app.evaluate(async ({ app }) => {
@@ -141,7 +155,7 @@ test.describe('vilodocs E2E Tests', () => {
   });
 
   test('window title is correct', async () => {
-    const { page } = context;
+    const { page } = context!;
     
     // Get the window title
     const title = await page.title();
@@ -151,7 +165,7 @@ test.describe('vilodocs E2E Tests', () => {
   });
 
   test('theme switching works', async () => {
-    const { page } = context;
+    const { page } = context!;
     
     // Check that theme is set on document
     const theme = await page.evaluate(() => 
@@ -163,7 +177,7 @@ test.describe('vilodocs E2E Tests', () => {
   });
 
   test('no console errors after all interactions', async () => {
-    const { errors } = context;
+    const { errors } = context!;
     
     // Final check - no errors should have been logged
     expect(errors, `Console errors detected:\n${errors.join('\n')}`).toHaveLength(0);

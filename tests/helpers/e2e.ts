@@ -13,10 +13,16 @@ export async function launchElectronE2E(): Promise<TestContext> {
     ? path.join(__dirname, '../../node_modules/.bin/electron.cmd')
     : path.join(__dirname, '../../node_modules/.bin/electron');
 
+  // In CI, we need to disable the sandbox due to permission issues
+  const args = ['.'];
+  if (process.env.CI) {
+    args.push('--no-sandbox');
+  }
+
   // Launch Electron app in E2E mode
   const app: ElectronApplication = await electron.launch({
     executablePath: electronPath,
-    args: ['.'],
+    args,
     env: { 
       ...process.env, 
       E2E: '1', 
@@ -69,7 +75,12 @@ export function setupMainProcessMonitoring(app: ElectronApplication): void {
   });
 }
 
-export async function closeApp(context: TestContext): Promise<void> {
+export async function closeApp(context: TestContext | undefined): Promise<void> {
+  if (!context || !context.app) {
+    console.warn('No app context to close');
+    return;
+  }
+  
   try {
     // Close the app gracefully
     await context.app.close();
