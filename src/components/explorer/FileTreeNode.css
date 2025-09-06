@@ -1,0 +1,151 @@
+.file-tree-node {
+  display: flex;
+  align-items: center;
+  height: 22px;
+  cursor: pointer;
+  position: relative;
+  white-space: nowrap;
+}
+
+.file-tree-node:hover {
+  background-color: var(--hover-background, rgba(0, 0, 0, 0.04));
+}
+
+.file-tree-node.selected {
+  background-color: var(--selection-background, #e4e6f1);
+}
+
+.file-tree:focus .file-tree-node.selected {
+  background-color: var(--selection-background-focused, #0060c0);
+  color: var(--selection-text-focused, white);
+}
+
+/* Arrow for folders */
+.tree-arrow {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  margin-right: 2px;
+  font-size: 10px;
+  color: var(--arrow-color, #646464);
+  transition: transform 0.1s ease;
+  flex-shrink: 0;
+}
+
+.tree-arrow.expanded {
+  transform: rotate(90deg);
+}
+
+.tree-arrow:hover {
+  background-color: var(--arrow-hover-background, rgba(0, 0, 0, 0.1));
+  border-radius: 3px;
+}
+
+/* Icon */
+.tree-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  margin-right: 4px;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+/* Label */
+.tree-label {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding-right: 8px;
+}
+
+/* Rename input */
+.tree-rename-input {
+  flex: 1;
+  height: 18px;
+  padding: 0 2px;
+  margin: 0;
+  border: 1px solid var(--input-border, #0078d4);
+  border-radius: 2px;
+  background: var(--input-background, white);
+  color: var(--input-text, inherit);
+  font-family: inherit;
+  font-size: inherit;
+  outline: none;
+}
+
+.tree-rename-input:focus {
+  border-color: var(--input-border-focus, #0078d4);
+  box-shadow: 0 0 0 1px var(--input-border-focus, #0078d4);
+}
+
+/* Children container */
+.tree-children {
+  position: relative;
+}
+
+/* Indentation guides (optional) */
+.tree-children::before {
+  content: '';
+  position: absolute;
+  left: 10px;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: var(--indent-guide, rgba(0, 0, 0, 0.1));
+  pointer-events: none;
+}
+
+/* File state indicators */
+.file-tree-node.modified::after {
+  content: '●';
+  position: absolute;
+  right: 8px;
+  color: var(--modified-indicator, #e5c07b);
+  font-size: 8px;
+}
+
+.file-tree-node.git-added .tree-label {
+  color: var(--git-added, #73c991);
+}
+
+.file-tree-node.git-modified .tree-label {
+  color: var(--git-modified, #e5c07b);
+}
+
+.file-tree-node.git-deleted .tree-label {
+  color: var(--git-deleted, #f48771);
+  text-decoration: line-through;
+}
+
+.file-tree-node.git-ignored {
+  opacity: 0.5;
+}
+
+/* Drag and drop */
+.file-tree-node.drag-over {
+  background-color: var(--drag-over-background, rgba(0, 120, 212, 0.2));
+  border: 1px solid var(--drag-over-border, #0078d4);
+}
+
+.file-tree-node.dragging {
+  opacity: 0.5;
+}
+
+/* Context menu hint */
+.file-tree-node:hover .context-menu-hint {
+  opacity: 1;
+}
+
+.context-menu-hint {
+  position: absolute;
+  right: 4px;
+  opacity: 0;
+  transition: opacity 0.2s;
+  color: var(--text-secondary, #666);
+  font-size: 12px;
+}

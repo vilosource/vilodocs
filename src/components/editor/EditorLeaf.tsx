@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Leaf } from '../../layout/types';
 import { TabStrip } from '../shared/TabStrip';
 import { DockOverlay } from '../dnd/DockOverlay';
+import { WidgetRenderer } from '../widgets/WidgetRenderer';
 import { useDragDrop } from '../../hooks/useDragDrop';
 import { FocusManager } from '../../focus/FocusManager';
 import './EditorLeaf.css';
@@ -111,14 +112,30 @@ export const EditorLeaf: React.FC<EditorLeafProps> = ({
             draggable={true}
           />
           <div className="editor-content">
-            {leaf.activeTabId && (
-              <div className="editor-widget">
-                {/* Widget content would be rendered here based on active tab */}
-                <div className="widget-placeholder">
-                  {leaf.tabs.find(t => t.id === leaf.activeTabId)?.title || 'No content'}
+            {leaf.activeTabId && (() => {
+              const activeTab = leaf.tabs.find(t => t.id === leaf.activeTabId);
+              return activeTab ? (
+                <div className="editor-widget">
+                  <WidgetRenderer 
+                    tab={activeTab}
+                    onContentChange={(tabId, content) => {
+                      // Handle content changes here
+                      console.log('Content changed for tab', tabId, content);
+                    }}
+                    onDirtyChange={(tabId, isDirty) => {
+                      // Handle dirty state changes
+                      console.log('Dirty state changed for tab', tabId, isDirty);
+                      if (dispatch) {
+                        dispatch({
+                          type: 'UPDATE_TAB_DIRTY',
+                          payload: { tabId, dirty: isDirty }
+                        });
+                      }
+                    }}
+                  />
                 </div>
-              </div>
-            )}
+              ) : null;
+            })()}
           </div>
         </>
       ) : (

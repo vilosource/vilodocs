@@ -18,6 +18,8 @@ export type LayoutAction =
   | { type: 'RESIZE_SPLIT'; payload: { splitId: string; sizes: number[] } }
   | { type: 'CLOSE_ALL_TABS'; payload: { leafId: string } }
   | { type: 'CLOSE_TABS_TO_RIGHT'; payload: { leafId: string; fromIndex: number } }
+  | { type: 'UPDATE_TAB_DIRTY'; payload: { tabId: string; dirty: boolean } }
+  | { type: 'FOCUS_LEAF'; payload: { leafId: string } }
   | { type: 'RESTORE_LAYOUT'; payload: LayoutNode };
 
 let nextId = 1;
@@ -503,6 +505,36 @@ export function layoutReducer(state: EditorGridState, action: LayoutAction): Edi
       };
     }
     
+    case 'UPDATE_TAB_DIRTY': {
+      const { tabId, dirty } = action.payload;
+      const leaf = findLeafWithTab(state, tabId);
+      if (!leaf) return state;
+
+      const updatedTabs = leaf.tabs.map(tab =>
+        tab.id === tabId ? { ...tab, dirty } : tab
+      );
+
+      const updatedLeaf = { ...leaf, tabs: updatedTabs };
+      const newRoot = replaceLeafInTree(state.root, updatedLeaf);
+      
+      return {
+        ...state,
+        root: newRoot,
+        leafMap: rebuildLeafMap(newRoot)
+      };
+    }
+
+    case 'FOCUS_LEAF': {
+      const { leafId } = action.payload;
+      if (!state.leafMap.has(leafId)) return state;
+
+      return {
+        ...state,
+        activeLeafId: leafId,
+        focusHistory: [...state.focusHistory.filter(id => id !== leafId), leafId]
+      };
+    }
+
     case 'RESTORE_LAYOUT': {
       const newRoot = action.payload;
       const leafMap = rebuildLeafMap(newRoot);
@@ -525,4 +557,19 @@ export function layoutReducer(state: EditorGridState, action: LayoutAction): Edi
     default:
       return state;
   }
+}
+
+function replaceLeafInTree(root: LayoutNode, updatedLeaf: Leaf): LayoutNode {
+  if (isLeaf(root)) {
+    return root.id === updatedLeaf.id ? updatedLeaf : root;
+  }
+  
+  if (isSplit(root)) {
+    return {
+      ...root,
+      children: root.children.map(child => replaceLeafInTree(child, updatedLeaf))
+    };
+  }
+  
+  return root;
 }

@@ -3,22 +3,26 @@ import { ActivityBar, ActivityBarItem } from './ActivityBar';
 import { SideBar } from './SideBar';
 import { Panel } from './Panel';
 import { StatusBar, StatusBarItem } from './StatusBar';
+import { FileExplorer } from '../explorer/FileExplorer';
 import { RegionManager } from '../../layout/regions';
 import { LayoutPersistence } from '../../layout/persistence-browser';
 import { CommandManager } from '../../commands/CommandManager';
 import { FocusManager } from '../../focus/FocusManager';
+import { Workspace } from '../../common/ipc';
 import './Shell.css';
 
 interface ShellProps {
   children?: React.ReactNode; // Editor Grid will go here
   onCommand?: (commandId: string, context?: any) => void;
+  onOpenFile?: (path: string, content: string) => void;
 }
 
-export const Shell: React.FC<ShellProps> = ({ children, onCommand }) => {
+export const Shell: React.FC<ShellProps> = ({ children, onCommand, onOpenFile }) => {
   const [regionManager] = useState(() => new RegionManager());
   const [persistence] = useState(() => new LayoutPersistence());
   const [regions, setRegions] = useState(regionManager.getState());
   const [activeView, setActiveView] = useState('explorer');
+  const [workspace, setWorkspace] = useState<Workspace | null>(null);
   const commandManagerRef = useRef<CommandManager | null>(null);
   const focusManagerRef = useRef<FocusManager | null>(null);
 
@@ -87,6 +91,40 @@ export const Shell: React.FC<ShellProps> = ({ children, onCommand }) => {
       execute: () => {
         regionManager.toggleRegion('panel');
         updateRegions();
+      }
+    });
+
+    // Workspace commands
+    cmdManager.registerCommand({
+      id: 'workbench.action.files.openFolder',
+      label: 'Open Folder',
+      keybinding: 'Ctrl+K Ctrl+O',
+      execute: async () => {
+        const newWorkspace = await window.api.openFolder();
+        if (newWorkspace) {
+          setWorkspace(newWorkspace);
+          if (!regions.primarySideBar.visible) {
+            regionManager.toggleRegion('primarySideBar');
+            updateRegions();
+          }
+          setActiveView('explorer');
+        }
+      }
+    });
+
+    cmdManager.registerCommand({
+      id: 'workbench.action.files.openWorkspace',
+      label: 'Open Workspace',
+      execute: async () => {
+        const newWorkspace = await window.api.openWorkspace();
+        if (newWorkspace) {
+          setWorkspace(newWorkspace);
+          if (!regions.primarySideBar.visible) {
+            regionManager.toggleRegion('primarySideBar');
+            updateRegions();
+          }
+          setActiveView('explorer');
+        }
       }
     });
 
@@ -174,6 +212,14 @@ export const Shell: React.FC<ShellProps> = ({ children, onCommand }) => {
     updateRegions();
   };
 
+  const handleWorkspaceChange = useCallback((newWorkspace: Workspace | null) => {
+    setWorkspace(newWorkspace);
+  }, []);
+
+  const handleFileOpen = useCallback((path: string, content: string) => {
+    onOpenFile?.(path, content);
+  }, [onOpenFile]);
+
   return (
     <div className="shell">
       <div className="shell-main">
@@ -194,7 +240,13 @@ export const Shell: React.FC<ShellProps> = ({ children, onCommand }) => {
           data-focus-group="primary-sidebar"
         >
           <div className="sidebar-view-content">
-            {activeView === 'explorer' && <div>File Explorer</div>}
+            {activeView === 'explorer' && (
+              <FileExplorer
+                workspace={workspace}
+                onOpenFile={handleFileOpen}
+                onWorkspaceChange={handleWorkspaceChange}
+              />
+            )}
             {activeView === 'search' && <div>Search</div>}
             {activeView === 'scm' && <div>Source Control</div>}
             {activeView === 'debug' && <div>Debug</div>}

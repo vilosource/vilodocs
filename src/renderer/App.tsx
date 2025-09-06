@@ -72,6 +72,79 @@ export const App: React.FC = () => {
     }
   };
 
+  // Handle file opening from explorer
+  const handleFileOpen = useCallback((filePath: string, content: string) => {
+    const fileName = filePath.split('/').pop() || 'Untitled';
+    const leafId = state.activeLeafId || state.root.id;
+    
+    // Check if file is already open
+    const existingTab = Array.from(state.leafMap.values())
+      .flatMap(leaf => leaf.tabs)
+      .find(tab => tab.filePath === filePath);
+    
+    if (existingTab) {
+      // Switch to existing tab
+      const leaf = Array.from(state.leafMap.values())
+        .find(l => l.tabs.some(t => t.id === existingTab.id));
+      
+      if (leaf) {
+        dispatch({
+          type: 'FOCUS_LEAF',
+          payload: { leafId: leaf.id }
+        });
+        dispatch({
+          type: 'ACTIVATE_TAB',
+          payload: { leafId: leaf.id, tabId: existingTab.id }
+        });
+      }
+    } else {
+      // Create new tab
+      dispatch({
+        type: 'ADD_TAB',
+        payload: {
+          leafId,
+          tab: {
+            id: `file-${Date.now()}`,
+            title: fileName,
+            icon: getFileIcon(fileName),
+            closeable: true,
+            dirty: false,
+            filePath,
+            widget: {
+              type: 'text-editor',
+              props: { content }
+            }
+          }
+        }
+      });
+    }
+  }, [state, dispatch]);
+
+  // Get file icon based on extension
+  const getFileIcon = (fileName: string): string => {
+    const ext = fileName.split('.').pop()?.toLowerCase();
+    switch (ext) {
+      case 'ts':
+      case 'tsx':
+        return '📘';
+      case 'js':
+      case 'jsx':
+        return '📙';
+      case 'css':
+      case 'scss':
+      case 'less':
+        return '🎨';
+      case 'json':
+        return '📋';
+      case 'md':
+        return '📝';
+      case 'html':
+        return '🌐';
+      default:
+        return '📄';
+    }
+  };
+
   // Add welcome tab if empty
   useEffect(() => {
     if (!isLoading && state.root.tabs?.length === 0) {
@@ -82,9 +155,9 @@ export const App: React.FC = () => {
           tab: {
             id: 'welcome',
             title: 'Welcome',
-            content: 'Welcome to vilodocs!',
             icon: '📄',
-            closeable: true
+            closeable: true,
+            widget: { type: 'welcome', props: {} }
           }
         }
       });
@@ -111,11 +184,15 @@ export const App: React.FC = () => {
                 leafId,
                 tab: {
                   id: `file-${Date.now()}`,
-                  title: file.name || 'Untitled',
-                  content: file.content,
-                  icon: '📄',
+                  title: file.path.split('/').pop() || 'Untitled',
+                  icon: getFileIcon(file.path.split('/').pop() || ''),
                   closeable: true,
-                  dirty: false
+                  dirty: false,
+                  filePath: file.path,
+                  widget: {
+                    type: 'text-editor',
+                    props: { content: file.content }
+                  }
                 }
               }
             });
@@ -156,7 +233,10 @@ export const App: React.FC = () => {
 
   return (
     <div className="app">
-      <Shell onCommand={handleCommand}>
+      <Shell 
+        onCommand={handleCommand}
+        onOpenFile={handleFileOpen}
+      >
         <EditorGrid 
           state={state} 
           dispatch={dispatch}

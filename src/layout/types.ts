@@ -28,6 +28,7 @@ export interface Tab {
   dirty?: boolean;
   closeable?: boolean;
   widget: WidgetRef;
+  filePath?: string; // Optional file path for file tabs
 }
 
 export interface WidgetRef {
