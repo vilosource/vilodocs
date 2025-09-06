@@ -104,3 +104,8 @@ CLAUDE.md
 work-in-progress/
 wip/
 WIP/
+
+# Playwright
+playwright-report/
+test-results/
+playwright/.cache/

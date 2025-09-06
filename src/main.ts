@@ -3,6 +3,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { Channels } from './common/ipc';
 
+const isE2E = process.env.E2E === '1';
 let mainWindow: BrowserWindow | null = null;
 
 function createWindow() {
@@ -29,6 +30,13 @@ function createWindow() {
   nativeTheme.on('updated', () => {
     for (const w of BrowserWindow.getAllWindows()) sendTheme(w);
   });
+
+  // In E2E mode, add a data attribute to help with testing
+  if (isE2E) {
+    mainWindow.webContents.executeJavaScript(`
+      document.documentElement.setAttribute('data-e2e', 'true');
+    `);
+  }
 }
 
 function sendTheme(win: BrowserWindow) {
