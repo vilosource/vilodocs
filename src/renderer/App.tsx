@@ -6,6 +6,7 @@ import { DragDropManager } from '../dnd/DragDropManager';
 import { LayoutPersistence } from '../layout/persistence-browser';
 import { CommandManager } from '../commands/CommandManager';
 import { FocusManager } from '../focus/FocusManager';
+import { generateUniqueId, generateFileTabId } from '../utils/id-generator';
 import './App.css';
 
 // Create singleton instances
@@ -98,13 +99,13 @@ export const App: React.FC = () => {
         });
       }
     } else {
-      // Create new tab
+      // Create new tab with unique ID
       dispatch({
         type: 'ADD_TAB',
         payload: {
           leafId,
           tab: {
-            id: `file-${Date.now()}`,
+            id: generateFileTabId(filePath),
             title: fileName,
             icon: getFileIcon(fileName),
             closeable: true,
@@ -183,7 +184,7 @@ export const App: React.FC = () => {
               payload: {
                 leafId,
                 tab: {
-                  id: `file-${Date.now()}`,
+                  id: generateFileTabId(file.path),
                   title: file.path.split('/').pop() || 'Untitled',
                   icon: getFileIcon(file.path.split('/').pop() || ''),
                   closeable: true,

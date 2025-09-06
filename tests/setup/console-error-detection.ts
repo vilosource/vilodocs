@@ -8,6 +8,15 @@ const originalWarn = console.warn;
 let consoleErrors: Array<any> = [];
 let consoleWarnings: Array<any> = [];
 
+// Critical React warnings that should fail tests
+const CRITICAL_WARNINGS = [
+  'Encountered two children with the same key',
+  'Each child in a list should have a unique "key" prop',
+  'Cannot update a component',
+  'Cannot read properties of undefined',
+  'Warning: Failed prop type'
+];
+
 beforeAll(() => {
   // Override console.error
   console.error = (...args: any[]) => {
@@ -36,7 +45,26 @@ afterEach(() => {
     );
   }
 
-  // Optionally check warnings (can be configured)
+  // Check for critical warnings that should always fail tests
+  const criticalWarningsFound: string[] = [];
+  for (const warning of consoleWarnings) {
+    const warningText = warning.join(' ');
+    for (const criticalPattern of CRITICAL_WARNINGS) {
+      if (warningText.includes(criticalPattern)) {
+        criticalWarningsFound.push(warningText);
+      }
+    }
+  }
+  
+  if (criticalWarningsFound.length > 0) {
+    consoleWarnings = [];
+    throw new Error(
+      `Test logged critical warning(s):\n${criticalWarningsFound.join('\n')}\n\n` +
+      `These warnings indicate serious issues like duplicate React keys or undefined errors.`
+    );
+  }
+
+  // Optionally check all warnings (can be configured)
   if (process.env.FAIL_ON_CONSOLE_WARN === 'true' && consoleWarnings.length > 0) {
     const warnings = [...consoleWarnings];
     consoleWarnings = [];
