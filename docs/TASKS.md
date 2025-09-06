@@ -164,55 +164,57 @@ Each task follows this structure:
 - **Notes**: Automatic tree compaction when leaves become empty 
 
 ### Task 3.2: Editor Grid Component
-- [ ] **Status**: ⏳ Not Started
+- [x] **Status**: ✅ Complete
 - **Tests Written**:
-  - [ ] `tests/unit/components/EditorGrid.test.ts` - Test tree rendering
-  - [ ] `tests/e2e/editor-grid.spec.ts` - Test grid interactions
+  - [x] `tests/components/EditorGrid.test.tsx` - Test tree rendering (9 tests)
+  - [x] Tests for splits, tabs, keyboard shortcuts, resize
 - **Implementation**:
-  - [ ] `src/renderer/components/EditorGrid.tsx` - Main grid
-  - [ ] `src/renderer/components/EditorLeaf.tsx` - Leaf nodes
-  - [ ] `src/renderer/components/EditorSplit.tsx` - Split nodes
-- **PR/Commit**: 
-- **Notes**: 
+  - [x] `src/components/editor/EditorGrid.tsx` - Main grid with keyboard shortcuts
+  - [x] `src/components/editor/EditorLeaf.tsx` - Leaf nodes with tab strip
+  - [x] `src/components/editor/EditorSplit.tsx` - Split nodes with resize
+- **PR/Commit**: In progress
+- **Notes**: Integrated with shared components (TabStrip, SplitContainer) 
 
 ### Task 3.3: Split/Merge Actions
-- [ ] **Status**: ⏳ Not Started
+- [x] **Status**: ✅ Complete
 - **Tests Written**:
-  - [ ] `tests/unit/state/split-merge.test.ts` - Test split logic
-  - [ ] `tests/unit/state/split-merge.test.ts` - Test merge & compaction
-  - [ ] `tests/e2e/split-merge.spec.ts` - Test user interactions
+  - [x] Included in `tests/state/layoutReducer.test.ts`
+  - [x] Test split logic (horizontal and vertical)
+  - [x] Test merge & automatic compaction
 - **Implementation**:
-  - [ ] Add SPLIT_LEAF action to reducer
-  - [ ] Add MERGE_LEAF action to reducer
-  - [ ] Implement tree compaction logic
-- **PR/Commit**: 
-- **Notes**: 
+  - [x] SPLIT_LEAF action in reducer
+  - [x] MERGE_LEAF action in reducer
+  - [x] Automatic tree compaction when leaves become empty
+- **PR/Commit**: In progress
+- **Notes**: Split creates Welcome tab, auto-merges empty leaves 
 
 ### Task 3.4: Tab Lifecycle Actions
-- [ ] **Status**: ⏳ Not Started
+- [x] **Status**: ✅ Complete
 - **Tests Written**:
-  - [ ] `tests/unit/state/tab-actions.test.ts` - Test tab CRUD
-  - [ ] `tests/e2e/tabs.spec.ts` - Test tab interactions
+  - [x] Included in `tests/state/layoutReducer.test.ts`
+  - [x] Test tab CRUD operations
+  - [x] Test dirty tab protection
 - **Implementation**:
-  - [ ] Add ADD_TAB action
-  - [ ] Add CLOSE_TAB action
-  - [ ] Add ACTIVATE_TAB action
-  - [ ] Add MOVE_TAB action
-  - [ ] Add REORDER_TABS action
-- **PR/Commit**: 
-- **Notes**: 
+  - [x] ADD_TAB action with index support
+  - [x] CLOSE_TAB action with dirty protection
+  - [x] ACTIVATE_TAB action with focus tracking
+  - [x] MOVE_TAB action between leaves
+  - [x] REORDER_TABS action within leaf
+- **PR/Commit**: In progress
+- **Notes**: Includes dirty tab protection and focus history 
 
 ### Task 3.5: Resize Split Action
-- [ ] **Status**: ⏳ Not Started
+- [x] **Status**: ✅ Complete
 - **Tests Written**:
-  - [ ] `tests/unit/state/resize.test.ts` - Test resize calculations
-  - [ ] `tests/unit/state/resize.test.ts` - Test min size constraints
+  - [x] Included in `tests/state/layoutReducer.test.ts`
+  - [x] Test resize with size normalization
+  - [x] Test minimum size constraints (10%)
 - **Implementation**:
-  - [ ] Add RESIZE_SPLIT action
-  - [ ] Implement size normalization
-  - [ ] Enforce minimum sizes
-- **PR/Commit**: 
-- **Notes**: 
+  - [x] RESIZE_SPLIT action in reducer
+  - [x] Size normalization to always sum to 100%
+  - [x] Intelligent minimum size enforcement
+- **PR/Commit**: In progress
+- **Notes**: Redistributes space when hitting minimums 
 
 ---
 

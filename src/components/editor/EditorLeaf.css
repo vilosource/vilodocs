@@ -1,0 +1,90 @@
+.editor-leaf {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  min-width: 100px;
+  min-height: 100px;
+  background-color: var(--vscode-editor-background, #1e1e1e);
+  position: relative;
+}
+
+.editor-leaf.active {
+  outline: 1px solid var(--vscode-focusBorder, #007acc);
+  outline-offset: -1px;
+}
+
+.editor-content {
+  flex: 1;
+  overflow: hidden;
+  position: relative;
+}
+
+.editor-widget {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.widget-placeholder {
+  padding: 20px;
+  text-align: center;
+  color: var(--vscode-editor-foreground, #cccccc);
+  opacity: 0.6;
+  font-size: 14px;
+}
+
+.editor-empty {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+}
+
+.empty-message {
+  text-align: center;
+  max-width: 400px;
+}
+
+.empty-message h2 {
+  margin: 0 0 16px 0;
+  font-size: 24px;
+  font-weight: 300;
+  color: var(--vscode-editor-foreground, #cccccc);
+}
+
+.empty-message p {
+  margin: 0 0 24px 0;
+  font-size: 14px;
+  color: var(--vscode-editor-foreground, #cccccc);
+  opacity: 0.7;
+}
+
+.empty-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+
+.empty-action {
+  padding: 8px 16px;
+  background-color: var(--vscode-button-background, #0e639c);
+  color: var(--vscode-button-foreground, #ffffff);
+  border: none;
+  border-radius: 2px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background-color 0.1s;
+}
+
+.empty-action:hover {
+  background-color: var(--vscode-button-hoverBackground, #1177bb);
+}
+
+.empty-action:focus {
+  outline: 1px solid var(--vscode-focusBorder, #007acc);
+  outline-offset: 2px;
+}
