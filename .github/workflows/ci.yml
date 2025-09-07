@@ -36,6 +36,13 @@ jobs:
       - name: Run unit tests
         run: make test-unit-coverage
       
+      - name: Build application for E2E tests
+        run: |
+          # Use custom build script that builds without launching
+          node scripts/build-for-tests.js
+          echo "Build complete, checking for main.js..."
+          ls -la .vite/build/ || echo "Build directory not found"
+      
       - name: Run E2E tests
         run: xvfb-run -a make test-e2e
         env:
