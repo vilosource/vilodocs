@@ -190,7 +190,7 @@ check_action_results() {
     local has_pending=false
     
     # Check each workflow run
-    echo "$current_runs" | jq -c '.[]' | while IFS= read -r run; do
+    while IFS= read -r run; do
         local name=$(echo "$run" | jq -r '.workflowName')
         local status=$(echo "$run" | jq -r '.status')
         local conclusion=$(echo "$run" | jq -r '.conclusion')
@@ -210,7 +210,7 @@ check_action_results() {
         else
             print_warning "$name: $conclusion"
         fi
-    done
+    done <<< "$(echo "$current_runs" | jq -c '.[]')"
     
     # Set exit code based on results
     if [ "$has_failures" = true ]; then
