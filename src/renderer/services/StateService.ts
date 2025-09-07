@@ -6,7 +6,7 @@
  * and communicates with the main process via IPC.
  */
 
-import { EventEmitter } from 'events';
+import { EventEmitter } from '../utils/EventEmitter';
 import {
   ApplicationState,
   DEFAULT_APPLICATION_STATE,
