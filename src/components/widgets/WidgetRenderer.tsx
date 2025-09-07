@@ -1,19 +1,25 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { Tab } from '../../layout/types';
 import { TextEditor } from './TextEditor';
 import { WelcomeWidget } from './WelcomeWidget';
+import { MarkdownViewer } from './MarkdownViewer';
+import WidgetRegistryService from '../../services/WidgetRegistry';
 
 interface WidgetRendererProps {
   tab: Tab;
   onContentChange?: (tabId: string, content: string) => void;
   onDirtyChange?: (tabId: string, isDirty: boolean) => void;
+  onSwitchWidget?: (tabId: string, newWidgetType: string) => void;
 }
 
 export const WidgetRenderer: React.FC<WidgetRendererProps> = ({
   tab,
   onContentChange,
   onDirtyChange,
+  onSwitchWidget,
 }) => {
+  const registry = WidgetRegistryService.getInstance();
+
   const handleContentChange = (content: string) => {
     onContentChange?.(tab.id, content);
   };
@@ -21,6 +27,14 @@ export const WidgetRenderer: React.FC<WidgetRendererProps> = ({
   const handleDirtyChange = (isDirty: boolean) => {
     onDirtyChange?.(tab.id, isDirty);
   };
+
+  const handleSwitchToEdit = useCallback(() => {
+    onSwitchWidget?.(tab.id, 'text-editor');
+  }, [tab.id, onSwitchWidget]);
+
+  const handleSwitchToViewer = useCallback(() => {
+    onSwitchWidget?.(tab.id, 'markdown-viewer');
+  }, [tab.id, onSwitchWidget]);
 
   // Handle tabs without widget property (legacy tabs)
   if (!tab.widget) {
@@ -42,6 +56,18 @@ export const WidgetRenderer: React.FC<WidgetRendererProps> = ({
           filePath={tab.filePath}
           onContentChange={handleContentChange}
           onDirtyChange={handleDirtyChange}
+          onSwitchToViewer={tab.filePath?.endsWith('.md') ? handleSwitchToViewer : undefined}
+        />
+      );
+    
+    case 'markdown-viewer':
+      return (
+        <MarkdownViewer
+          content={tab.widget.props?.content as string}
+          filePath={tab.filePath}
+          onSwitchToEdit={handleSwitchToEdit}
+          onContentChange={handleContentChange}
+          onDirtyChange={handleDirtyChange}
         />
       );
     
@@ -49,6 +75,25 @@ export const WidgetRenderer: React.FC<WidgetRendererProps> = ({
       return <WelcomeWidget />;
     
     default:
+      // Try to render with registered widget from registry
+      const provider = registry.getWidgetProvider(tab.widget.type);
+      if (provider) {
+        // Use lazy component from registry
+        const LazyComponent = provider.component;
+        return (
+          <React.Suspense fallback={<div className="widget-loading">Loading...</div>}>
+            <LazyComponent
+              content={tab.widget.props?.content}
+              filePath={tab.filePath}
+              onContentChange={handleContentChange}
+              onDirtyChange={handleDirtyChange}
+              onSwitchToEdit={handleSwitchToEdit}
+              onSwitchToViewer={handleSwitchToViewer}
+            />
+          </React.Suspense>
+        );
+      }
+
       return (
         <div className="widget-error">
           <h3>Unknown widget type: {tab.widget.type}</h3>

@@ -7,6 +7,7 @@ interface TextEditorProps {
   filePath?: string;
   onContentChange?: (content: string) => void;
   onDirtyChange?: (isDirty: boolean) => void;
+  onSwitchToViewer?: () => void;
 }
 
 export const TextEditor: React.FC<TextEditorProps> = ({
@@ -15,6 +16,7 @@ export const TextEditor: React.FC<TextEditorProps> = ({
   filePath,
   onContentChange,
   onDirtyChange,
+  onSwitchToViewer,
 }) => {
   const [editorContent, setEditorContent] = useState(content);
   const [isDirty, setIsDirty] = useState(false);
@@ -35,6 +37,22 @@ export const TextEditor: React.FC<TextEditorProps> = ({
     
     onContentChange?.(newContent);
   }, [content, isDirty, onContentChange, onDirtyChange]);
+
+  // Handle keyboard shortcuts
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Ctrl+Shift+V to switch to markdown viewer (only for markdown files)
+      if (e.ctrlKey && e.shiftKey && e.key === 'V' && filePath?.endsWith('.md')) {
+        e.preventDefault();
+        onSwitchToViewer?.();
+      }
+      // Ctrl+K V (VS Code style) - chord sequence for markdown preview
+      // TODO: Implement chord sequence handling in the future
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [onSwitchToViewer, filePath]);
 
   const getLanguageFromFileName = (fileName: string) => {
     const ext = fileName.split('.').pop()?.toLowerCase();

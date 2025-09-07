@@ -8,16 +8,16 @@
 }
 
 .file-tree-node:hover {
-  background-color: var(--hover-background, rgba(0, 0, 0, 0.04));
+  background-color: var(--vscode-list-hoverBackground);
 }
 
 .file-tree-node.selected {
-  background-color: var(--selection-background, #e4e6f1);
+  background-color: var(--vscode-list-inactiveSelectionBackground);
 }
 
 .file-tree:focus .file-tree-node.selected {
-  background-color: var(--selection-background-focused, #0060c0);
-  color: var(--selection-text-focused, white);
+  background-color: var(--vscode-list-activeSelectionBackground);
+  color: var(--vscode-list-activeSelectionForeground);
 }
 
 /* Arrow for folders */
@@ -29,7 +29,7 @@
   height: 16px;
   margin-right: 2px;
   font-size: 10px;
-  color: var(--arrow-color, #646464);
+  color: var(--vscode-icon-foreground);
   transition: transform 0.1s ease;
   flex-shrink: 0;
 }
@@ -39,7 +39,7 @@
 }
 
 .tree-arrow:hover {
-  background-color: var(--arrow-hover-background, rgba(0, 0, 0, 0.1));
+  background-color: var(--vscode-list-hoverBackground);
   border-radius: 3px;
 }
 
@@ -69,18 +69,18 @@
   height: 18px;
   padding: 0 2px;
   margin: 0;
-  border: 1px solid var(--input-border, #0078d4);
+  border: 1px solid var(--vscode-input-border);
   border-radius: 2px;
-  background: var(--input-background, white);
-  color: var(--input-text, inherit);
+  background: var(--vscode-input-background);
+  color: var(--vscode-input-foreground);
   font-family: inherit;
   font-size: inherit;
   outline: none;
 }
 
 .tree-rename-input:focus {
-  border-color: var(--input-border-focus, #0078d4);
-  box-shadow: 0 0 0 1px var(--input-border-focus, #0078d4);
+  border-color: var(--vscode-inputOption-activeBorder);
+  box-shadow: 0 0 0 1px var(--vscode-inputOption-activeBorder);
 }
 
 /* Children container */
@@ -96,7 +96,7 @@
   top: 0;
   bottom: 0;
   width: 1px;
-  background: var(--indent-guide, rgba(0, 0, 0, 0.1));
+  background: var(--vscode-tree-indentGuidesStroke);
   pointer-events: none;
 }
 
@@ -105,20 +105,20 @@
   content: '●';
   position: absolute;
   right: 8px;
-  color: var(--modified-indicator, #e5c07b);
+  color: var(--theme-color-warning);
   font-size: 8px;
 }
 
 .file-tree-node.git-added .tree-label {
-  color: var(--git-added, #73c991);
+  color: var(--theme-color-success);
 }
 
 .file-tree-node.git-modified .tree-label {
-  color: var(--git-modified, #e5c07b);
+  color: var(--theme-color-warning);
 }
 
 .file-tree-node.git-deleted .tree-label {
-  color: var(--git-deleted, #f48771);
+  color: var(--theme-color-error);
   text-decoration: line-through;
 }
 
@@ -128,8 +128,8 @@
 
 /* Drag and drop */
 .file-tree-node.drag-over {
-  background-color: var(--drag-over-background, rgba(0, 120, 212, 0.2));
-  border: 1px solid var(--drag-over-border, #0078d4);
+  background-color: var(--vscode-list-dropBackground);
+  border: 1px solid var(--vscode-focusBorder);
 }
 
 .file-tree-node.dragging {
@@ -146,6 +146,6 @@
   right: 4px;
   opacity: 0;
   transition: opacity 0.2s;
-  color: var(--text-secondary, #666);
+  color: var(--vscode-descriptionForeground);
   font-size: 12px;
 }

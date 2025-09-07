@@ -1,11 +1,29 @@
 .editor-split {
-  width: 100%;
-  height: 100%;
+  flex: 1;
   display: flex;
   position: relative;
+  min-width: 0; /* Allow shrinking */
+}
+
+.editor-split.horizontal {
+  flex-direction: row;
+}
+
+.editor-split.vertical {
+  flex-direction: column;
 }
 
 .editor-split .split-container {
-  width: 100%;
-  height: 100%;
+  flex: 1;
+  display: flex;
+  min-width: 0; /* Allow shrinking */
+  min-height: 0; /* Allow shrinking */
+}
+
+.editor-split.horizontal > * {
+  flex: 1;
+}
+
+.editor-split.vertical > * {
+  flex: 1;
 }

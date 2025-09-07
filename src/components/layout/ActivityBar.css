@@ -1,15 +1,15 @@
 .activity-bar {
   width: 48px;
-  background-color: var(--vscode-activityBar-background, #333333);
+  background-color: var(--vscode-activityBar-background);
   display: flex;
   flex-direction: column;
-  border-right: 1px solid var(--vscode-activityBar-border, #222222);
+  border-right: 1px solid var(--vscode-activityBar-border);
 }
 
 .activity-bar-items {
   display: flex;
   flex-direction: column;
-  padding: 8px 0;
+  padding: var(--theme-spacing-sm) 0;
 }
 
 .activity-bar-item {
@@ -17,21 +17,21 @@
   height: 48px;
   border: none;
   background: transparent;
-  color: var(--vscode-activityBar-foreground, #cccccc);
+  color: var(--vscode-activityBar-foreground);
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   position: relative;
-  transition: background-color 0.1s;
+  transition: background-color var(--theme-transition-fast);
 }
 
 .activity-bar-item:hover {
-  background-color: var(--vscode-activityBar-hoverBackground, rgba(255, 255, 255, 0.1));
+  background-color: var(--vscode-activityBar-hoverBackground);
 }
 
 .activity-bar-item.active {
-  color: var(--vscode-activityBar-activeForeground, #ffffff);
+  color: var(--vscode-activityBar-activeForeground, var(--vscode-activityBar-foreground));
 }
 
 .activity-bar-item.active::before {
@@ -41,10 +41,10 @@
   top: 0;
   bottom: 0;
   width: 2px;
-  background-color: var(--vscode-activityBar-activeBorder, #007acc);
+  background-color: var(--vscode-activityBar-activeBorder);
 }
 
 .activity-bar-icon {
-  font-size: 24px;
+  font-size: var(--theme-font-size-2xl);
   line-height: 1;
 }

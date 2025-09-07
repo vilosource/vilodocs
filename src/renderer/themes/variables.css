@@ -1,0 +1,246 @@
+/* Theme Variables Architecture
+ * This file defines the CSS variable structure for theming.
+ * Variables are automatically set by ThemeService at runtime.
+ */
+
+@layer base, theme, components, utilities;
+
+@layer theme {
+  :root {
+    /* Color Palette Variables - Set by ThemeService */
+    --theme-color-primary: #007ACC;
+    --theme-color-secondary: #5A9FD4;
+    --theme-color-accent: #007ACC;
+    --theme-color-error: #F48771;
+    --theme-color-warning: #FFD166;
+    --theme-color-success: #89D185;
+    --theme-color-info: #71B7FF;
+    
+    /* Gray Scale - Set by ThemeService */
+    --theme-color-gray-50: #FAFAFA;
+    --theme-color-gray-100: #F4F4F4;
+    --theme-color-gray-200: #E4E4E4;
+    --theme-color-gray-300: #D3D3D3;
+    --theme-color-gray-400: #A2A2A2;
+    --theme-color-gray-500: #737373;
+    --theme-color-gray-600: #525252;
+    --theme-color-gray-700: #404040;
+    --theme-color-gray-800: #262626;
+    --theme-color-gray-900: #171717;
+    
+    /* Semantic Variables - Set by ThemeService */
+    /* These map to VS Code compatible names */
+    --theme-editor-background: #1E1E1E;
+    --theme-editor-foreground: #CCCCCC;
+    --theme-editor-selectionBackground: #264F78;
+    --theme-editor-lineHighlightBackground: #2A2A2A;
+    
+    --theme-activityBar-background: #333333;
+    --theme-activityBar-foreground: #CCCCCC;
+    --theme-activityBar-activeBorder: #007ACC;
+    
+    --theme-sideBar-background: #252526;
+    --theme-sideBar-foreground: #CCCCCC;
+    --theme-sideBar-border: #333333;
+    
+    --theme-statusBar-background: #007ACC;
+    --theme-statusBar-foreground: #FFFFFF;
+    
+    --theme-panel-background: #1E1E1E;
+    --theme-panel-border: #333333;
+    
+    --theme-tab-activeBackground: #1E1E1E;
+    --theme-tab-activeForeground: #FFFFFF;
+    --theme-tab-inactiveBackground: #2D2D30;
+    --theme-tab-inactiveForeground: #FFFFFF80;
+    
+    /* VS Code Compatibility Layer */
+    /* These variables ensure compatibility with VS Code themes */
+    --vscode-editor-background: var(--theme-editor-background);
+    --vscode-editor-foreground: var(--theme-editor-foreground);
+    --vscode-editor-selectionBackground: var(--theme-editor-selectionBackground);
+    --vscode-editor-lineHighlightBackground: var(--theme-editor-lineHighlightBackground);
+    --vscode-editorGutter-background: var(--theme-editor-background);
+    --vscode-editorLineNumber-foreground: var(--theme-color-gray-500);
+    
+    --vscode-activityBar-background: var(--theme-activityBar-background);
+    --vscode-activityBar-foreground: var(--theme-activityBar-foreground);
+    --vscode-activityBar-activeBorder: var(--theme-activityBar-activeBorder);
+    --vscode-activityBar-border: var(--theme-activityBar-border, var(--theme-activityBar-background));
+    --vscode-activityBar-inactiveForeground: var(--theme-activityBar-inactiveForeground, var(--theme-activityBar-foreground));
+    --vscode-activityBar-hoverBackground: var(--theme-activityBar-hoverBackground, rgba(255, 255, 255, 0.1));
+    
+    --vscode-sideBar-background: var(--theme-sideBar-background);
+    --vscode-sideBar-foreground: var(--theme-sideBar-foreground);
+    --vscode-sideBar-border: var(--theme-sideBar-border);
+    
+    --vscode-statusBar-background: var(--theme-statusBar-background);
+    --vscode-statusBar-foreground: var(--theme-statusBar-foreground);
+    --vscode-statusBar-border: var(--theme-statusBar-border, transparent);
+    --vscode-statusBar-hoverBackground: var(--theme-statusBar-hoverBackground, rgba(255, 255, 255, 0.1));
+    
+    --vscode-panel-background: var(--theme-panel-background);
+    --vscode-panel-border: var(--theme-panel-border);
+    --vscode-panelTitle-activeBorder: var(--theme-panelTitle-activeBorder, var(--theme-color-accent));
+    --vscode-panelTitle-activeForeground: var(--theme-panelTitle-activeForeground);
+    --vscode-panelTitle-inactiveForeground: var(--theme-panelTitle-inactiveForeground);
+    
+    --vscode-tab-activeBackground: var(--theme-tab-activeBackground);
+    --vscode-tab-activeForeground: var(--theme-tab-activeForeground);
+    --vscode-tab-inactiveBackground: var(--theme-tab-inactiveBackground);
+    --vscode-tab-inactiveForeground: var(--theme-tab-inactiveForeground);
+    --vscode-tab-border: var(--theme-tab-border, var(--theme-sideBar-background));
+    --vscode-tab-activeBorder: var(--theme-tab-activeBorder, var(--theme-color-accent));
+    
+    --vscode-focusBorder: var(--theme-focusBorder, var(--theme-color-accent));
+    --vscode-foreground: var(--theme-foreground, var(--theme-editor-foreground));
+    
+    /* List and tree variables */
+    --vscode-list-activeSelectionBackground: var(--theme-list-activeSelectionBackground, #094771);
+    --vscode-list-activeSelectionForeground: var(--theme-list-activeSelectionForeground, #FFFFFF);
+    --vscode-list-inactiveSelectionBackground: var(--theme-list-inactiveSelectionBackground, #37373D);
+    --vscode-list-inactiveSelectionForeground: var(--theme-list-inactiveSelectionForeground, var(--theme-editor-foreground));
+    --vscode-list-hoverBackground: var(--theme-list-hoverBackground, #2A2D2E);
+    --vscode-list-hoverForeground: var(--theme-list-hoverForeground, var(--theme-editor-foreground));
+    --vscode-list-dropBackground: var(--theme-list-dropBackground, #062F4A);
+    --vscode-tree-indentGuidesStroke: var(--theme-tree-indentGuidesStroke, #585858);
+    
+    /* Input variables */
+    --vscode-input-background: var(--theme-input-background, #3C3C3C);
+    --vscode-input-foreground: var(--theme-input-foreground, var(--theme-editor-foreground));
+    --vscode-input-border: var(--theme-input-border, transparent);
+    --vscode-input-placeholderForeground: var(--theme-input-placeholderForeground, #CCCCCC80);
+    --vscode-inputOption-activeBorder: var(--theme-inputOption-activeBorder, var(--theme-color-accent));
+    
+    /* Scrollbar variables */
+    --vscode-scrollbar-shadow: var(--theme-scrollbar-shadow, #000000);
+    --vscode-scrollbarSlider-background: var(--theme-scrollbarSlider-background, #79797966);
+    --vscode-scrollbarSlider-hoverBackground: var(--theme-scrollbarSlider-hoverBackground, #646464B3);
+    --vscode-scrollbarSlider-activeBackground: var(--theme-scrollbarSlider-activeBackground, #BFBFBF66);
+    
+    /* Description and icon */
+    --vscode-descriptionForeground: var(--theme-descriptionForeground, #CCCCCCB3);
+    --vscode-icon-foreground: var(--theme-icon-foreground, #C5C5C5);
+    
+    /* Syntax Highlighting Variables (for future use) */
+    --theme-syntax-comment: #6A9955;
+    --theme-syntax-string: #CE9178;
+    --theme-syntax-keyword: #569CD6;
+    --theme-syntax-number: #B5CEA8;
+    --theme-syntax-regexp: #D16969;
+    --theme-syntax-operator: #D4D4D4;
+    --theme-syntax-namespace: #4EC9B0;
+    --theme-syntax-type: #4EC9B0;
+    --theme-syntax-struct: #4EC9B0;
+    --theme-syntax-class: #4EC9B0;
+    --theme-syntax-interface: #B8D7A3;
+    --theme-syntax-enum: #B8D7A3;
+    --theme-syntax-typeParameter: #B8D7A3;
+    --theme-syntax-function: #DCDCAA;
+    --theme-syntax-member: #DCDCAA;
+    --theme-syntax-macro: #569CD6;
+    --theme-syntax-variable: #9CDCFE;
+    --theme-syntax-parameter: #9CDCFE;
+    --theme-syntax-property: #9CDCFE;
+    --theme-syntax-label: #C586C0;
+    --theme-syntax-constant: #4FC1FF;
+    
+    /* Spacing Variables */
+    --theme-spacing-xs: 4px;
+    --theme-spacing-sm: 8px;
+    --theme-spacing-md: 12px;
+    --theme-spacing-lg: 16px;
+    --theme-spacing-xl: 24px;
+    --theme-spacing-2xl: 32px;
+    
+    /* Border Radius Variables */
+    --theme-radius-sm: 2px;
+    --theme-radius-md: 4px;
+    --theme-radius-lg: 6px;
+    --theme-radius-xl: 8px;
+    
+    /* Font Variables */
+    --theme-font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    --theme-font-family-mono: 'Cascadia Code', 'Fira Code', Consolas, 'Courier New', monospace;
+    --theme-font-size-xs: 11px;
+    --theme-font-size-sm: 12px;
+    --theme-font-size-md: 13px;
+    --theme-font-size-lg: 14px;
+    --theme-font-size-xl: 16px;
+    --theme-font-size-2xl: 18px;
+    
+    /* Shadow Variables */
+    --theme-shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --theme-shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    --theme-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    --theme-shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+    
+    /* Transition Variables */
+    --theme-transition-fast: 100ms ease;
+    --theme-transition-normal: 200ms ease;
+    --theme-transition-slow: 300ms ease;
+    
+    /* Z-Index Variables */
+    --theme-z-dropdown: 1000;
+    --theme-z-sticky: 1020;
+    --theme-z-fixed: 1030;
+    --theme-z-modal-backdrop: 1040;
+    --theme-z-modal: 1050;
+    --theme-z-popover: 1060;
+    --theme-z-tooltip: 1070;
+  }
+  
+  /* Light theme overrides */
+  [data-theme="light"] {
+    /* These will be set by ThemeService at runtime */
+  }
+  
+  /* Dark theme is default (defined in :root) */
+  [data-theme="dark"] {
+    /* These will be set by ThemeService at runtime */
+  }
+  
+  /* Auto theme follows system preference */
+  [data-theme="auto"] {
+    /* Handled by ThemeService based on system preference */
+  }
+}
+
+/* Utility classes for common theme usage */
+@layer utilities {
+  .theme-bg-primary {
+    background-color: var(--theme-color-primary);
+  }
+  
+  .theme-bg-secondary {
+    background-color: var(--theme-color-secondary);
+  }
+  
+  .theme-bg-accent {
+    background-color: var(--theme-color-accent);
+  }
+  
+  .theme-text-primary {
+    color: var(--theme-color-primary);
+  }
+  
+  .theme-text-secondary {
+    color: var(--theme-color-secondary);
+  }
+  
+  .theme-text-accent {
+    color: var(--theme-color-accent);
+  }
+  
+  .theme-border {
+    border-color: var(--theme-panel-border);
+  }
+  
+  .theme-shadow {
+    box-shadow: var(--theme-shadow-md);
+  }
+  
+  .theme-transition {
+    transition: all var(--theme-transition-normal);
+  }
+}

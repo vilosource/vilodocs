@@ -19,6 +19,7 @@ export type LayoutAction =
   | { type: 'CLOSE_ALL_TABS'; payload: { leafId: string } }
   | { type: 'CLOSE_TABS_TO_RIGHT'; payload: { leafId: string; fromIndex: number } }
   | { type: 'UPDATE_TAB_DIRTY'; payload: { tabId: string; dirty: boolean } }
+  | { type: 'SWITCH_TAB_WIDGET'; payload: { tabId: string; widgetType: string } }
   | { type: 'FOCUS_LEAF'; payload: { leafId: string } }
   | { type: 'RESTORE_LAYOUT'; payload: LayoutNode };
 
@@ -292,7 +293,28 @@ export function layoutReducer(state: EditorGridState, action: LayoutAction): Edi
       if (!leaf) return state;
       
       const newLeafId = generateId();
-      const newLeaf = createLeaf(newLeafId, [createWelcomeTab()]);
+      
+      // If the current leaf has an active tab, duplicate it to the new pane
+      let newLeafTabs: Tab[] = [];
+      if (leaf.activeTabId && leaf.tabs.length > 0) {
+        const activeTab = leaf.tabs.find(t => t.id === leaf.activeTabId);
+        if (activeTab) {
+          // Clone the active tab for the new pane
+          const clonedTab: Tab = {
+            ...activeTab,
+            id: `${activeTab.id}-split-${generateId()}`, // Generate unique ID
+            title: activeTab.title
+          };
+          newLeafTabs = [clonedTab];
+        }
+      }
+      
+      // If no tabs to duplicate, create a welcome tab
+      if (newLeafTabs.length === 0) {
+        newLeafTabs = [createWelcomeTab()];
+      }
+      
+      const newLeaf = createLeaf(newLeafId, newLeafTabs);
       
       const splitId = generateId();
       const split = createSplit(
@@ -524,6 +546,34 @@ export function layoutReducer(state: EditorGridState, action: LayoutAction): Edi
       };
     }
 
+    case 'SWITCH_TAB_WIDGET': {
+      const { tabId, widgetType } = action.payload;
+      const leaf = findLeafWithTab(state, tabId);
+      if (!leaf) return state;
+      
+      const updatedTabs = leaf.tabs.map(tab => {
+        if (tab.id === tabId) {
+          return {
+            ...tab,
+            widget: {
+              ...tab.widget,
+              type: widgetType
+            }
+          };
+        }
+        return tab;
+      });
+      
+      const updatedLeaf = { ...leaf, tabs: updatedTabs };
+      const newRoot = replaceLeafInTree(state.root, updatedLeaf);
+      
+      return {
+        ...state,
+        root: newRoot,
+        leafMap: rebuildLeafMap(newRoot)
+      };
+    }
+    
     case 'FOCUS_LEAF': {
       const { leafId } = action.payload;
       if (!state.leafMap.has(leafId)) return state;

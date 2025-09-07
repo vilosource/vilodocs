@@ -8,6 +8,7 @@ import { FocusManager } from '../focus/FocusManager';
 import { generateUniqueId, generateFileTabId } from '../utils/id-generator';
 import { useLayoutState } from './hooks/useStateService';
 import { stateService } from './services/StateService';
+import WidgetRegistryService from '../services/WidgetRegistry';
 import './App.css';
 
 // Create singleton instances
@@ -62,6 +63,10 @@ export const App: React.FC = () => {
     const fileName = filePath.split('/').pop() || 'Untitled';
     const leafId = state.activeLeafId || state.root.id;
     
+    // Use Widget Registry to determine appropriate widget
+    const registry = WidgetRegistryService.getInstance();
+    const widgetType = registry.getWidgetForFile(filePath);
+    
     // Check if file is already open
     const existingTab = Array.from(state.leafMap.values())
       .flatMap(leaf => leaf.tabs)
@@ -83,7 +88,7 @@ export const App: React.FC = () => {
         });
       }
     } else {
-      // Create new tab with unique ID
+      // Create new tab with appropriate widget type
       dispatch({
         type: 'ADD_TAB',
         payload: {
@@ -96,8 +101,8 @@ export const App: React.FC = () => {
             dirty: false,
             filePath,
             widget: {
-              type: 'text-editor',
-              props: { content }
+              type: widgetType,
+              props: { content, filePath }
             }
           }
         }
@@ -176,6 +181,9 @@ export const App: React.FC = () => {
           const file = await window.api.openFile();
           if (file) {
             const leafId = state.activeLeafId || state.root.id;
+            const registry = WidgetRegistryService.getInstance();
+            const widgetType = registry.getWidgetForFile(file.path);
+            
             dispatch({
               type: 'ADD_TAB',
               payload: {
@@ -188,8 +196,8 @@ export const App: React.FC = () => {
                   dirty: false,
                   filePath: file.path,
                   widget: {
-                    type: 'text-editor',
-                    props: { content: file.content }
+                    type: widgetType,
+                    props: { content: file.content, filePath: file.path }
                   }
                 }
               }

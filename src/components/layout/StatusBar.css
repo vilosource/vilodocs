@@ -1,13 +1,13 @@
 .status-bar {
   height: 22px;
-  background-color: var(--vscode-statusBar-background, #007acc);
-  color: var(--vscode-statusBar-foreground, #ffffff);
+  background-color: var(--vscode-statusBar-background);
+  color: var(--vscode-statusBar-foreground);
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0 8px;
-  font-size: 12px;
-  border-top: 1px solid var(--vscode-statusBar-border, transparent);
+  padding: 0 var(--theme-spacing-sm);
+  font-size: var(--theme-font-size-sm);
+  border-top: 1px solid var(--vscode-statusBar-border);
   user-select: none;
 }
 
@@ -15,28 +15,28 @@
 .status-bar-right {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: var(--theme-spacing-md);
 }
 
 .status-bar-item {
   display: flex;
   align-items: center;
-  gap: 4px;
-  padding: 0 4px;
+  gap: var(--theme-spacing-xs);
+  padding: 0 var(--theme-spacing-xs);
   height: 100%;
   white-space: nowrap;
 }
 
 .status-bar-item.clickable {
   cursor: pointer;
-  transition: background-color 0.1s;
+  transition: background-color var(--theme-transition-fast);
 }
 
 .status-bar-item.clickable:hover {
-  background-color: var(--vscode-statusBar-hoverBackground, rgba(255, 255, 255, 0.1));
+  background-color: var(--vscode-statusBar-hoverBackground);
 }
 
 .status-bar-item.clickable:focus {
-  outline: 1px solid var(--vscode-focusBorder, #ffffff);
+  outline: 1px solid var(--vscode-focusBorder);
   outline-offset: -1px;
 }

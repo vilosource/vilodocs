@@ -4,11 +4,11 @@
   overflow-y: auto;
   overflow-x: hidden;
   user-select: none;
-  font-family: var(--font-family, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif);
-  font-size: 13px;
+  font-family: var(--theme-font-family);
+  font-size: var(--theme-font-size-md);
   line-height: 22px;
-  color: var(--text-color, #333);
-  background: var(--tree-background, transparent);
+  color: var(--vscode-sideBar-foreground);
+  background: transparent;
 }
 
 .file-tree:focus {
@@ -16,13 +16,13 @@
 }
 
 .file-tree:focus .file-tree-node.selected {
-  background-color: var(--selection-background-focused, #0060c0);
-  color: var(--selection-text-focused, white);
+  background-color: var(--vscode-list-activeSelectionBackground);
+  color: var(--vscode-list-activeSelectionForeground);
 }
 
 .file-tree .file-tree-node.selected {
-  background-color: var(--selection-background, #e4e6f1);
-  color: var(--selection-text, inherit);
+  background-color: var(--vscode-list-inactiveSelectionBackground);
+  color: var(--vscode-list-inactiveSelectionForeground);
 }
 
 /* Scrollbar styling */
@@ -36,19 +36,19 @@
 }
 
 .file-tree::-webkit-scrollbar-thumb {
-  background: var(--scrollbar-thumb, rgba(0, 0, 0, 0.2));
+  background: var(--vscode-scrollbarSlider-background);
   border-radius: 5px;
 }
 
 .file-tree::-webkit-scrollbar-thumb:hover {
-  background: var(--scrollbar-thumb-hover, rgba(0, 0, 0, 0.4));
+  background: var(--vscode-scrollbarSlider-hoverBackground);
 }
 
 /* Empty state */
 .file-tree-empty {
   padding: 20px;
   text-align: center;
-  color: var(--text-secondary, #666);
+  color: var(--vscode-descriptionForeground);
   font-style: italic;
 }
 
@@ -58,7 +58,7 @@
   align-items: center;
   justify-content: center;
   padding: 20px;
-  color: var(--text-secondary, #666);
+  color: var(--vscode-descriptionForeground);
 }
 
 .file-tree-loading::before {

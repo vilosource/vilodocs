@@ -1,3 +1,7 @@
+/* Import theme variables first */
+@import './themes/variables.css';
+@import './themes/scrollbars.css';
+
 * {
   margin: 0;
   padding: 0;

@@ -181,10 +181,10 @@
 }
 
 .workspace-folders::-webkit-scrollbar-thumb {
-  background: var(--scrollbar-thumb, rgba(0, 0, 0, 0.2));
+  background: var(--vscode-scrollbarSlider-background);
   border-radius: 4px;
 }
 
 .workspace-folders::-webkit-scrollbar-thumb:hover {
-  background: var(--scrollbar-thumb-hover, rgba(0, 0, 0, 0.4));
+  background: var(--vscode-scrollbarSlider-hoverBackground);
 }

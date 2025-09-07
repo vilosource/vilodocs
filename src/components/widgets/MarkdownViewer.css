@@ -1,0 +1,511 @@
+/* Markdown Viewer Styles */
+.markdown-viewer {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: var(--vscode-editor-background);
+  color: var(--vscode-editor-foreground);
+  font-family: var(--theme-font-family);
+}
+
+/* Header */
+.markdown-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--theme-spacing-sm) var(--theme-spacing-md);
+  border-bottom: 1px solid var(--vscode-panel-border);
+  background: var(--vscode-editor-background);
+  min-height: 40px;
+  flex-shrink: 0;
+}
+
+.markdown-actions {
+  display: flex;
+  gap: var(--theme-spacing-sm);
+}
+
+.action-button {
+  padding: var(--theme-spacing-xs) var(--theme-spacing-sm);
+  background: var(--vscode-button-secondaryBackground);
+  border: 1px solid var(--vscode-button-border, transparent);
+  color: var(--vscode-button-secondaryForeground);
+  cursor: pointer;
+  border-radius: var(--theme-radius-sm);
+  font-size: var(--theme-font-size-sm);
+  transition: all var(--theme-transition-fast);
+  display: flex;
+  align-items: center;
+  gap: var(--theme-spacing-xs);
+}
+
+.action-button:hover {
+  background: var(--vscode-button-secondaryHoverBackground);
+}
+
+.action-button:focus {
+  outline: 1px solid var(--vscode-focusBorder);
+  outline-offset: -1px;
+}
+
+.markdown-info {
+  display: flex;
+  align-items: center;
+  gap: var(--theme-spacing-sm);
+  font-size: var(--theme-font-size-sm);
+  color: var(--vscode-descriptionForeground);
+}
+
+.file-name {
+  font-weight: 500;
+  color: var(--vscode-editor-foreground);
+}
+
+.separator {
+  color: var(--vscode-descriptionForeground);
+  opacity: 0.5;
+}
+
+.word-count,
+.reading-time {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Main Content Area */
+.markdown-body-wrapper {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+  min-height: 0;
+}
+
+/* Table of Contents */
+.markdown-toc {
+  width: 250px;
+  padding: var(--theme-spacing-md);
+  border-right: 1px solid var(--vscode-panel-border);
+  overflow-y: auto;
+  background: var(--vscode-sideBar-background);
+  flex-shrink: 0;
+}
+
+.toc-header {
+  margin-bottom: var(--theme-spacing-md);
+}
+
+.toc-header h3 {
+  margin: 0;
+  font-size: var(--theme-font-size-sm);
+  text-transform: uppercase;
+  color: var(--vscode-descriptionForeground);
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.toc-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.toc-item {
+  padding: var(--theme-spacing-xs) 0;
+  cursor: pointer;
+  transition: all var(--theme-transition-fast);
+  border-radius: var(--theme-radius-sm);
+  padding-left: var(--theme-spacing-xs);
+  padding-right: var(--theme-spacing-xs);
+}
+
+.toc-item:hover {
+  background: var(--vscode-list-hoverBackground);
+  color: var(--vscode-list-hoverForeground);
+}
+
+.toc-text {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  line-height: 1.4;
+}
+
+/* TOC Indentation */
+.toc-level-1 { 
+  padding-left: var(--theme-spacing-xs); 
+  font-weight: 600; 
+  font-size: var(--theme-font-size-sm);
+}
+.toc-level-2 { 
+  padding-left: calc(var(--theme-spacing-xs) + var(--theme-spacing-md)); 
+  font-size: var(--theme-font-size-sm);
+}
+.toc-level-3 { 
+  padding-left: calc(var(--theme-spacing-xs) + var(--theme-spacing-md) * 2); 
+  font-size: var(--theme-font-size-xs);
+}
+.toc-level-4 { 
+  padding-left: calc(var(--theme-spacing-xs) + var(--theme-spacing-md) * 3); 
+  font-size: var(--theme-font-size-xs);
+}
+.toc-level-5 { 
+  padding-left: calc(var(--theme-spacing-xs) + var(--theme-spacing-md) * 4); 
+  font-size: var(--theme-font-size-xs);
+}
+.toc-level-6 { 
+  padding-left: calc(var(--theme-spacing-xs) + var(--theme-spacing-md) * 5); 
+  font-size: var(--theme-font-size-xs);
+}
+
+/* Content Wrapper */
+.markdown-content-wrapper {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+/* Markdown Content */
+.markdown-content {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: var(--theme-spacing-xl);
+  width: 100%;
+  line-height: 1.6;
+}
+
+/* GitHub Markdown Overrides for Theme Compatibility */
+.markdown-content.github-markdown-body {
+  background: transparent;
+  color: var(--vscode-editor-foreground);
+  font-family: var(--theme-font-family);
+  font-size: var(--theme-font-size-md);
+}
+
+/* Headings */
+.markdown-content.github-markdown-body h1,
+.markdown-content.github-markdown-body h2,
+.markdown-content.github-markdown-body h3,
+.markdown-content.github-markdown-body h4,
+.markdown-content.github-markdown-body h5,
+.markdown-content.github-markdown-body h6 {
+  border-bottom-color: var(--vscode-panel-border);
+  color: var(--vscode-editor-foreground);
+  margin-top: 1.5em;
+  margin-bottom: 0.5em;
+}
+
+.markdown-content.github-markdown-body h1 {
+  font-size: 2em;
+}
+
+.markdown-content.github-markdown-body h2 {
+  font-size: 1.5em;
+}
+
+/* Code Blocks */
+.markdown-content.github-markdown-body code {
+  background: var(--vscode-textCodeBlock-background, rgba(255, 255, 255, 0.08));
+  color: var(--vscode-editor-foreground);
+  padding: 0.2em 0.4em;
+  border-radius: var(--theme-radius-sm);
+  font-family: var(--theme-font-family-mono);
+}
+
+.markdown-content.github-markdown-body pre {
+  background: var(--vscode-textCodeBlock-background, rgba(0, 0, 0, 0.3));
+  border: 1px solid var(--vscode-panel-border);
+  border-radius: var(--theme-radius-md);
+  padding: 0;
+  margin: var(--theme-spacing-md) 0;
+}
+
+.markdown-content.github-markdown-body pre code {
+  background: transparent;
+  padding: var(--theme-spacing-md);
+  display: block;
+  overflow-x: auto;
+}
+
+/* Code Block with Header */
+.code-block-wrapper {
+  position: relative;
+  margin: var(--theme-spacing-md) 0;
+  border: 1px solid var(--vscode-panel-border);
+  border-radius: var(--theme-radius-md);
+  background: var(--vscode-textCodeBlock-background, rgba(0, 0, 0, 0.3));
+}
+
+.code-block-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--theme-spacing-xs) var(--theme-spacing-md);
+  border-bottom: 1px solid var(--vscode-panel-border);
+  background: rgba(0, 0, 0, 0.1);
+}
+
+.code-language {
+  font-size: var(--theme-font-size-xs);
+  color: var(--vscode-descriptionForeground);
+  text-transform: uppercase;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+}
+
+.copy-button {
+  padding: var(--theme-spacing-xs) var(--theme-spacing-sm);
+  background: var(--vscode-button-secondaryBackground);
+  color: var(--vscode-button-secondaryForeground);
+  border: none;
+  border-radius: var(--theme-radius-sm);
+  cursor: pointer;
+  font-size: var(--theme-font-size-xs);
+  transition: all var(--theme-transition-fast);
+  display: flex;
+  align-items: center;
+  gap: var(--theme-spacing-xs);
+}
+
+.copy-button:hover {
+  background: var(--vscode-button-secondaryHoverBackground);
+}
+
+.code-block-wrapper pre {
+  margin: 0;
+  border: none;
+  background: transparent;
+}
+
+/* Blockquotes */
+.markdown-content.github-markdown-body blockquote {
+  border-left: 4px solid var(--vscode-textBlockQuote-border, var(--theme-color-accent));
+  color: var(--vscode-textBlockQuote-foreground, var(--vscode-descriptionForeground));
+  background: var(--vscode-textBlockQuote-background, rgba(255, 255, 255, 0.02));
+  padding: var(--theme-spacing-md);
+  margin: var(--theme-spacing-md) 0;
+  border-radius: 0 var(--theme-radius-sm) var(--theme-radius-sm) 0;
+}
+
+/* Tables */
+.markdown-content.github-markdown-body table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: var(--theme-spacing-md) 0;
+  border: 1px solid var(--vscode-panel-border);
+  border-radius: var(--theme-radius-sm);
+  overflow: hidden;
+}
+
+.markdown-content.github-markdown-body table tr {
+  background: var(--vscode-editor-background);
+  border-top: 1px solid var(--vscode-panel-border);
+}
+
+.markdown-content.github-markdown-body table tr:nth-child(2n) {
+  background: var(--vscode-list-hoverBackground);
+}
+
+.markdown-content.github-markdown-body table th,
+.markdown-content.github-markdown-body table td {
+  border: 1px solid var(--vscode-panel-border);
+  padding: var(--theme-spacing-sm) var(--theme-spacing-md);
+  text-align: left;
+}
+
+.markdown-content.github-markdown-body table th {
+  background: var(--vscode-textCodeBlock-background, rgba(255, 255, 255, 0.05));
+  font-weight: 600;
+}
+
+/* Links */
+.markdown-content.github-markdown-body a {
+  color: var(--vscode-textLink-foreground, var(--theme-color-accent));
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: all var(--theme-transition-fast);
+}
+
+.markdown-content.github-markdown-body a:hover {
+  color: var(--vscode-textLink-activeForeground, var(--theme-color-accent));
+  border-bottom-color: currentColor;
+}
+
+/* Task Lists */
+.markdown-content.github-markdown-body .task-list-item {
+  list-style: none;
+}
+
+.task-checkbox {
+  margin-right: var(--theme-spacing-sm);
+  cursor: pointer;
+  accent-color: var(--theme-color-accent);
+}
+
+/* Horizontal Rules */
+.markdown-content.github-markdown-body hr {
+  border: none;
+  height: 1px;
+  background: var(--vscode-panel-border);
+  margin: var(--theme-spacing-xl) 0;
+}
+
+/* Lists */
+.markdown-content.github-markdown-body ul,
+.markdown-content.github-markdown-body ol {
+  padding-left: 2em;
+}
+
+.markdown-content.github-markdown-body li {
+  margin: 0.25em 0;
+}
+
+/* Images */
+.markdown-content.github-markdown-body img {
+  max-width: 100%;
+  height: auto;
+  border-radius: var(--theme-radius-md);
+  box-shadow: var(--theme-shadow-md);
+}
+
+/* Keyboard shortcuts */
+.markdown-content.github-markdown-body kbd {
+  background: var(--vscode-textCodeBlock-background, rgba(255, 255, 255, 0.1));
+  border: 1px solid var(--vscode-panel-border);
+  border-radius: var(--theme-radius-sm);
+  color: var(--vscode-editor-foreground);
+  font-family: var(--theme-font-family-mono);
+  padding: 0.2em 0.4em;
+  font-size: 0.85em;
+}
+
+/* Math expressions */
+.markdown-content .katex {
+  font-size: 1.1em;
+}
+
+.markdown-content .katex-display {
+  margin: var(--theme-spacing-md) 0;
+  padding: var(--theme-spacing-md);
+  background: var(--vscode-textCodeBlock-background, rgba(255, 255, 255, 0.02));
+  border-radius: var(--theme-radius-md);
+  overflow-x: auto;
+}
+
+/* Scrollbar styling */
+.markdown-content-wrapper::-webkit-scrollbar,
+.markdown-toc::-webkit-scrollbar {
+  width: 10px;
+}
+
+.markdown-content-wrapper::-webkit-scrollbar-thumb,
+.markdown-toc::-webkit-scrollbar-thumb {
+  background: var(--vscode-scrollbarSlider-background);
+  border-radius: 5px;
+}
+
+.markdown-content-wrapper::-webkit-scrollbar-thumb:hover,
+.markdown-toc::-webkit-scrollbar-thumb:hover {
+  background: var(--vscode-scrollbarSlider-hoverBackground);
+}
+
+/* Print styles */
+@media print {
+  .markdown-viewer {
+    color: black;
+    background: white;
+  }
+  
+  .markdown-header,
+  .markdown-toc {
+    display: none;
+  }
+  
+  .markdown-content {
+    max-width: none;
+    margin: 0;
+    padding: 0;
+  }
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .markdown-toc {
+    width: 200px;
+  }
+  
+  .markdown-content {
+    padding: var(--theme-spacing-md);
+  }
+  
+  .markdown-header {
+    flex-direction: column;
+    gap: var(--theme-spacing-sm);
+    padding: var(--theme-spacing-md);
+  }
+  
+  .markdown-info {
+    font-size: var(--theme-font-size-xs);
+  }
+}
+
+/* Focus styles for accessibility */
+.toc-item:focus {
+  outline: 1px solid var(--vscode-focusBorder);
+  outline-offset: -1px;
+}
+
+.task-checkbox:focus {
+  outline: 2px solid var(--vscode-focusBorder);
+  outline-offset: 2px;
+}
+
+/* Animation for smooth interactions */
+.markdown-toc {
+  transition: width var(--theme-transition-normal);
+}
+
+.toc-item {
+  transition: all var(--theme-transition-fast);
+}
+
+/* Loading state placeholder */
+.markdown-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 200px;
+  color: var(--vscode-descriptionForeground);
+  font-style: italic;
+}
+
+/* Error state */
+.markdown-error {
+  padding: var(--theme-spacing-xl);
+  text-align: center;
+  color: var(--vscode-errorForeground);
+}
+
+.markdown-error h3 {
+  margin-bottom: var(--theme-spacing-md);
+}
+
+/* Empty state */
+.markdown-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 300px;
+  color: var(--vscode-descriptionForeground);
+  text-align: center;
+}
+
+.markdown-empty h3 {
+  margin-bottom: var(--theme-spacing-md);
+  font-size: var(--theme-font-size-lg);
+}
+
+.markdown-empty p {
+  opacity: 0.7;
+  margin-bottom: var(--theme-spacing-lg);
+}

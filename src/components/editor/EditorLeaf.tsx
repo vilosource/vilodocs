@@ -132,6 +132,15 @@ export const EditorLeaf: React.FC<EditorLeafProps> = ({
                         });
                       }
                     }}
+                    onSwitchWidget={(tabId, newWidgetType) => {
+                      // Handle widget switching
+                      if (dispatch) {
+                        dispatch({
+                          type: 'SWITCH_TAB_WIDGET',
+                          payload: { tabId, widgetType: newWidgetType }
+                        });
+                      }
+                    }}
                   />
                 </div>
               ) : null;

@@ -4,7 +4,7 @@
   height: 100vh;
   width: 100vw;
   overflow: hidden;
-  background-color: var(--vscode-editor-background, #1e1e1e);
+  background-color: var(--vscode-editor-background);
 }
 
 .shell-main {
@@ -13,19 +13,27 @@
   overflow: hidden;
 }
 
+.shell-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  min-width: 0; /* Allow shrinking */
+}
+
 .shell-editor-area {
   flex: 1;
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  min-width: 200px;
+  min-width: 0; /* Allow shrinking */
 }
 
 .editor-grid {
   flex: 1;
   display: flex;
-  background-color: var(--vscode-editor-background, #1e1e1e);
-  color: var(--vscode-editor-foreground, #cccccc);
+  background-color: var(--vscode-editor-background);
+  color: var(--vscode-editor-foreground);
   overflow: hidden;
 }
 
@@ -35,11 +43,11 @@
   justify-content: center;
   width: 100%;
   height: 100%;
-  font-size: 24px;
-  color: var(--vscode-editor-foreground, #cccccc);
+  font-size: var(--theme-font-size-2xl);
+  color: var(--vscode-editor-foreground);
   opacity: 0.5;
 }
 
 .sidebar-view-content {
-  padding: 12px;
+  padding: var(--theme-spacing-md);
 }

@@ -2,9 +2,9 @@
   width: 100vw;
   height: 100vh;
   overflow: hidden;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-  background: var(--background-color, #1e1e1e);
-  color: var(--foreground-color, #cccccc);
+  font-family: var(--theme-font-family);
+  background: var(--theme-editor-background);
+  color: var(--theme-editor-foreground);
 }
 
 .app-loading {
@@ -13,40 +13,23 @@
   justify-content: center;
   width: 100vw;
   height: 100vh;
-  background: var(--background-color, #1e1e1e);
-  color: var(--foreground-color, #cccccc);
-  font-size: 18px;
+  background: var(--theme-editor-background);
+  color: var(--theme-editor-foreground);
+  font-size: var(--theme-font-size-2xl);
 }
 
-/* CSS Variables for theming */
+/* Legacy variable mappings for backwards compatibility */
 :root {
-  /* Dark theme (default) */
-  --background-color: #1e1e1e;
-  --foreground-color: #cccccc;
-  --border-color: #3c3c3c;
-  --hover-background: #2a2a2a;
-  --active-background: #094771;
-  --focus-border: #007acc;
-  --tab-background: #2d2d2d;
-  --tab-active-background: #1e1e1e;
-  --sidebar-background: #252525;
-  --panel-background: #1e1e1e;
-  --statusbar-background: #007acc;
-  --statusbar-foreground: #ffffff;
-}
-
-/* Light theme */
-[data-theme="light"] {
-  --background-color: #ffffff;
-  --foreground-color: #333333;
-  --border-color: #e1e1e1;
-  --hover-background: #f3f3f3;
-  --active-background: #e4f1ff;
-  --focus-border: #0090f1;
-  --tab-background: #f3f3f3;
-  --tab-active-background: #ffffff;
-  --sidebar-background: #f3f3f3;
-  --panel-background: #f3f3f3;
-  --statusbar-background: #007acc;
-  --statusbar-foreground: #ffffff;
+  --background-color: var(--theme-editor-background);
+  --foreground-color: var(--theme-editor-foreground);
+  --border-color: var(--theme-panel-border);
+  --hover-background: var(--theme-list-hoverBackground);
+  --active-background: var(--theme-list-activeSelectionBackground);
+  --focus-border: var(--theme-focusBorder);
+  --tab-background: var(--theme-tab-inactiveBackground);
+  --tab-active-background: var(--theme-tab-activeBackground);
+  --sidebar-background: var(--theme-sideBar-background);
+  --panel-background: var(--theme-panel-background);
+  --statusbar-background: var(--theme-statusBar-background);
+  --statusbar-foreground: var(--theme-statusBar-foreground);
 }

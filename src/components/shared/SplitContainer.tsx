@@ -135,7 +135,11 @@ export const SplitContainer: React.FC<SplitContainerProps> = ({
         <React.Fragment key={index}>
           <div 
             className="split-panel"
-            style={{ flex: localSizes[index] }}
+            style={{ 
+              flex: `${localSizes[index]} 1 0`,
+              minHeight: direction === 'vertical' ? '50px' : '0',
+              minWidth: direction === 'horizontal' ? '50px' : '0'
+            }}
           >
             {child}
           </div>

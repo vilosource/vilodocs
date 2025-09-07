@@ -1,38 +1,38 @@
 .sidebar {
   position: relative;
-  background-color: var(--vscode-sideBar-background, #252526);
-  color: var(--vscode-sideBar-foreground, #cccccc);
+  background-color: var(--vscode-sideBar-background);
+  color: var(--vscode-sideBar-foreground);
   display: flex;
   flex-direction: column;
   overflow: hidden;
 }
 
 .sidebar-left {
-  border-right: 1px solid var(--vscode-sideBar-border, #222222);
+  border-right: 1px solid var(--vscode-sideBar-border);
 }
 
 .sidebar-right {
-  border-left: 1px solid var(--vscode-sideBar-border, #222222);
+  border-left: 1px solid var(--vscode-sideBar-border);
 }
 
 .sidebar-content {
   flex: 1;
   overflow: auto;
-  padding: 8px;
+  padding: var(--theme-spacing-sm);
 }
 
 .sidebar-header {
-  padding: 8px 12px;
-  border-bottom: 1px solid var(--vscode-sideBar-border, #222222);
+  padding: var(--theme-spacing-sm) var(--theme-spacing-md);
+  border-bottom: 1px solid var(--vscode-sideBar-border);
 }
 
 .sidebar-title {
   margin: 0;
-  font-size: 11px;
+  font-size: var(--theme-font-size-xs);
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  color: var(--vscode-sideBar-foreground, #cccccc);
+  color: var(--vscode-sideBar-foreground);
 }
 
 .sidebar-gutter {
@@ -42,12 +42,12 @@
   width: 4px;
   cursor: ew-resize;
   background: transparent;
-  transition: background-color 0.1s;
+  transition: background-color var(--theme-transition-fast);
 }
 
 .sidebar-gutter:hover,
 .sidebar-gutter:focus {
-  background-color: var(--vscode-sash-hoverBorder, #007acc);
+  background-color: var(--vscode-sash-hoverBorder, var(--theme-color-accent));
 }
 
 .sidebar-gutter-left {
