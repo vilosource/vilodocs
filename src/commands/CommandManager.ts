@@ -217,6 +217,38 @@ export class CommandManager {
       }
     });
 
+    // Zoom commands
+    this.registerCommand({
+      id: 'view.zoomIn',
+      label: 'Zoom In',
+      keybinding: 'Ctrl+=',
+      execute: () => {
+        // Zoom is handled by the useZoom hook in each widget
+        // This command registration is mainly for documentation
+        console.log('Zoom in: Use Ctrl+Plus or Ctrl+Scroll wheel up');
+      }
+    });
+
+    this.registerCommand({
+      id: 'view.zoomOut',
+      label: 'Zoom Out',
+      keybinding: 'Ctrl+-',
+      execute: () => {
+        // Zoom is handled by the useZoom hook in each widget
+        console.log('Zoom out: Use Ctrl+Minus or Ctrl+Scroll wheel down');
+      }
+    });
+
+    this.registerCommand({
+      id: 'view.resetZoom',
+      label: 'Reset Zoom',
+      keybinding: 'Ctrl+0',
+      execute: () => {
+        // Zoom is handled by the useZoom hook in each widget
+        console.log('Reset zoom: Use Ctrl+0');
+      }
+    });
+
     // Tab navigation
     this.registerCommand({
       id: 'tab.next',

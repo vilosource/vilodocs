@@ -67,8 +67,17 @@
 }
 
 .word-count,
-.reading-time {
+.reading-time,
+.zoom-level {
   font-variant-numeric: tabular-nums;
+}
+
+.zoom-level {
+  background: var(--vscode-badge-background, rgba(255, 255, 255, 0.1));
+  padding: 2px 6px;
+  border-radius: var(--theme-radius-sm);
+  font-weight: 500;
+  cursor: help;
 }
 
 /* Main Content Area */
@@ -160,8 +169,16 @@
 /* Content Wrapper */
 .markdown-content-wrapper {
   flex: 1;
-  overflow-y: auto;
-  overflow-x: hidden;
+  overflow: auto;
+  position: relative;
+}
+
+/* Zoom Container */
+.markdown-content-zoom-container {
+  transform-origin: top left;
+  transition: transform 0.1s ease-out;
+  min-width: 100%;
+  min-height: 100%;
 }
 
 /* Markdown Content */

@@ -6,6 +6,7 @@ import remarkEmoji from 'remark-emoji';
 import rehypeHighlight from 'rehype-highlight';
 import rehypeKatex from 'rehype-katex';
 import { useScrollableKeyboardNavigation } from '../../hooks/useScrollableKeyboardNavigation';
+import { useZoom, formatZoomLevel } from '../../hooks/useZoom';
 import 'github-markdown-css/github-markdown.css';
 import 'katex/dist/katex.min.css';
 import 'highlight.js/styles/github-dark.css';
@@ -37,14 +38,24 @@ export const MarkdownViewer: React.FC<MarkdownViewerProps> = ({
   const [toc, setToc] = useState<TocItem[]>([]);
   const [showToc, setShowToc] = useState(false);
   const contentRef = useRef<HTMLDivElement>(null);
+  const contentWrapperRef = useRef<HTMLDivElement>(null);
   const [searchTerm, setSearchTerm] = useState('');
   
   // Add keyboard navigation to the scrollable content
-  useScrollableKeyboardNavigation(contentRef, {
+  useScrollableKeyboardNavigation(contentWrapperRef, {
     isActive,
     arrowKeyStep: 40,
     pageStep: 0.9,
     enableVimNavigation: true, // Enable j/k navigation for markdown
+  });
+  
+  // Add zoom functionality
+  const { zoomLevel, zoomIn, zoomOut, resetZoom } = useZoom(contentRef, {
+    isActive,
+    initialZoom: 100,
+    minZoom: 50,
+    maxZoom: 200,
+    zoomStep: 10,
   });
 
   // Extract table of contents from markdown
@@ -255,6 +266,8 @@ export const MarkdownViewer: React.FC<MarkdownViewerProps> = ({
           <span className="word-count">{wordCount} words</span>
           <span className="separator">•</span>
           <span className="reading-time">{readingTime} min read</span>
+          <span className="separator">•</span>
+          <span className="zoom-level" title="Ctrl+Scroll to zoom">{formatZoomLevel(zoomLevel)}</span>
         </div>
       </div>
 
@@ -281,13 +294,14 @@ export const MarkdownViewer: React.FC<MarkdownViewerProps> = ({
 
         {/* Markdown Content */}
         <div 
-          ref={contentRef}
+          ref={contentWrapperRef}
           className="markdown-content-wrapper"
           onDoubleClick={handleDoubleClick}
           tabIndex={0}
           aria-label="Markdown content viewer"
         >
-          <div className="markdown-content github-markdown-body">
+          <div ref={contentRef} className="markdown-content-zoom-container">
+            <div className="markdown-content github-markdown-body">
             <ReactMarkdown
               remarkPlugins={[remarkGfm, remarkMath, remarkEmoji]}
               rehypePlugins={[rehypeHighlight, rehypeKatex]}
@@ -295,6 +309,7 @@ export const MarkdownViewer: React.FC<MarkdownViewerProps> = ({
             >
               {content}
             </ReactMarkdown>
+            </div>
           </div>
         </div>
       </div>

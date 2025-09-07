@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { useZoom, formatZoomLevel } from '../../hooks/useZoom';
 import './TextEditor.css';
 
 interface TextEditorProps {
@@ -23,6 +24,16 @@ export const TextEditor: React.FC<TextEditorProps> = ({
   const [editorContent, setEditorContent] = useState(content);
   const [isDirty, setIsDirty] = useState(false);
   const textareaRef = React.useRef<HTMLTextAreaElement>(null);
+  const editorRef = React.useRef<HTMLDivElement>(null);
+  
+  // Add zoom functionality
+  const { zoomLevel } = useZoom(editorRef, {
+    isActive,
+    initialZoom: 100,
+    minZoom: 50,
+    maxZoom: 200,
+    zoomStep: 10,
+  });
 
   useEffect(() => {
     setEditorContent(content);
@@ -102,7 +113,7 @@ export const TextEditor: React.FC<TextEditorProps> = ({
         )}
       </div>
       
-      <div className="editor-main">
+      <div ref={editorRef} className="editor-main">
         <div className="line-numbers">
           {editorContent.split('\n').map((_, index) => (
             <div key={index + 1} className="line-number">
@@ -131,6 +142,7 @@ export const TextEditor: React.FC<TextEditorProps> = ({
           {fileName && (
             <span>Language: {getLanguageFromFileName(fileName)}</span>
           )}
+          <span className="zoom-indicator" title="Ctrl+Scroll to zoom">{formatZoomLevel(zoomLevel)}</span>
         </div>
       </div>
     </div>
