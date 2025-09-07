@@ -148,7 +148,7 @@ export const Shell: React.FC<ShellProps> = ({ children, onCommand, onOpenFile })
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (commandManagerRef.current) {
-        commandManagerRef.current.handleKeyboard(e);
+        commandManagerRef.current.handleKeyboardEvent(e);
       }
     };
 
