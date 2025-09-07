@@ -224,26 +224,62 @@ check_action_results() {
 
 show_failure_details() {
     print_error "Some GitHub Actions failed. Getting details..."
+    echo
     
     local runs=$(gh run list --limit 10 --json status,conclusion,workflowName,createdAt,url,headSha)
     local current_sha=$(git rev-parse HEAD)
     local failed_runs=$(echo "$runs" | jq --arg sha "$current_sha" '[.[] | select(.headSha == $sha and .conclusion == "failure")]')
     
+    local failure_count=$(echo "$failed_runs" | jq length)
+    print_error "Found $failure_count failed workflow(s):"
+    echo
+    
     echo "$failed_runs" | jq -c '.[]' | while IFS= read -r run; do
         local name=$(echo "$run" | jq -r '.workflowName')
         local url=$(echo "$run" | jq -r '.url')
+        local created_at=$(echo "$run" | jq -r '.createdAt')
         
-        print_error "Failed workflow: $name"
+        print_error "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+        print_error "FAILED: $name"
+        print_info "Created: $created_at"
         print_info "URL: $url"
+        echo
         
-        # Try to get job details
+        # Try to get detailed job information
         local run_id=$(echo "$run" | jq -r '.url' | grep -o '[0-9]*$')
         if [ -n "$run_id" ]; then
-            print_info "Job details:"
-            gh run view "$run_id" --log-failed 2>/dev/null | head -20 | sed 's/^/  /' || true
+            print_info "Job Summary:"
+            local job_info=$(gh run view "$run_id" --json jobs 2>/dev/null || echo '{"jobs":[]}')
+            local failed_jobs=$(echo "$job_info" | jq -r '.jobs[] | select(.conclusion == "failure") | "  • \(.name): \(.conclusion)"' 2>/dev/null || echo "  • Unable to retrieve job details")
+            
+            if [ -n "$failed_jobs" ]; then
+                echo "$failed_jobs"
+            else
+                echo "  • No specific job failure information available"
+            fi
+            echo
+            
+            print_info "Error Logs (last 30 lines):"
+            local logs=$(gh run view "$run_id" --log-failed 2>/dev/null | tail -30 | sed 's/^/  │ /')
+            if [ -n "$logs" ]; then
+                echo "$logs"
+            else
+                echo "  │ No error logs available or logs too large to display"
+            fi
+        else
+            print_warning "Unable to extract run ID from URL: $url"
         fi
         echo
+        echo
     done
+    
+    print_error "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    print_error "SUMMARY: $failure_count workflow(s) failed on commit $(git rev-parse --short HEAD)"
+    print_info "Next steps:"
+    echo "  1. Click the URLs above to view detailed logs in GitHub"
+    echo "  2. Fix the failing tests/builds locally"
+    echo "  3. Commit your fixes and run this script again"
+    print_error "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 }
 
 main() {
