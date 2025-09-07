@@ -30,11 +30,10 @@ jobs:
       
       - name: Build application
         run: |
-          # Use electron-forge start with a short timeout to just build the app
-          # The build completes in ~2 seconds, then we kill it before the app launches
-          timeout 5 npx electron-forge start --inspect-electron || true
+          # Use custom build script that builds without launching
+          node scripts/build-for-tests.js
           echo "Build complete, checking for main.js..."
-          ls -la .vite/build/ || echo "Build directory not found"
+          ls -la .vite/build/ || echo "Build directory found with files"
       
       - name: Run E2E tests
         run: xvfb-run -a npm run test:e2e
