@@ -6,21 +6,49 @@ import { DragDropManager } from '../dnd/DragDropManager';
 import { CommandManager } from '../commands/CommandManager';
 import { FocusManager } from '../focus/FocusManager';
 import { generateUniqueId, generateFileTabId } from '../utils/id-generator';
+import { useLayoutState } from './hooks/useStateService';
+import { stateService } from './services/StateService';
 import './App.css';
 
 // Create singleton instances
 const dragDropManager = new DragDropManager();
 
 export const App: React.FC = () => {
+  const { layout, updateLayout, isLoading } = useLayoutState();
   const [state, dispatch] = useReducer(layoutReducer, createInitialState());
   const [commandManager] = useState(() => new CommandManager(dispatch));
   const [focusManager] = useState(() => new FocusManager());
-  const [isLoading, setIsLoading] = useState(false);
+  const [hasInitialized, setHasInitialized] = useState(false);
 
-  // The state loading and saving is now handled by StateProvider
+  // Load saved editor grid state on mount
   useEffect(() => {
-    setIsLoading(false);
-  }, []);
+    if (!isLoading && layout.editorGrid && !hasInitialized) {
+      dispatch({
+        type: 'RESTORE_LAYOUT',
+        payload: layout.editorGrid
+      });
+      setHasInitialized(true);
+    }
+  }, [isLoading, layout.editorGrid, hasInitialized]);
+
+  // Save editor grid state when it changes
+  useEffect(() => {
+    if (hasInitialized && state.root) {
+      const saveState = async () => {
+        await updateLayout({
+          editorGrid: state.root,
+          lastFocused: {
+            region: 'editorGrid',
+            leafId: state.activeLeafId
+          }
+        });
+      };
+      
+      // Debounce saves
+      const timeout = setTimeout(saveState, 500);
+      return () => clearTimeout(timeout);
+    }
+  }, [state, hasInitialized, updateLayout]);
 
   // Handle commands from Shell
   const handleCommand = (commandId: string, context: any) => {

@@ -36,7 +36,7 @@ export interface RecentWorkspace {
  * Layout and UI state
  */
 export interface LayoutState {
-  editorGrid: LayoutNode;
+  editorGrid: any; // Editor grid state from layoutReducer
   regions: {
     activityBar: {
       visible: boolean;
