@@ -43,6 +43,9 @@ export function useZoom(
     container.style.transformOrigin = 'top left';
     container.style.transform = `scale(${zoomLevel / 100})`;
     
+    // Ensure pointer events work correctly with transform
+    container.style.pointerEvents = 'auto';
+    
     // Adjust container dimensions to account for scaling
     const parent = container.parentElement;
     if (parent) {

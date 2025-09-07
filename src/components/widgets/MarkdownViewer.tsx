@@ -100,7 +100,12 @@ export const MarkdownViewer: React.FC<MarkdownViewerProps> = ({
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [onSwitchToEdit]);
 
-  const handleDoubleClick = useCallback(() => {
+  const handleDoubleClick = useCallback((e: React.MouseEvent) => {
+    // Only switch to edit if double-clicking on the content area, not on buttons or other controls
+    const target = e.target as HTMLElement;
+    if (target.closest('.markdown-header') || target.closest('.markdown-toc')) {
+      return;
+    }
     onSwitchToEdit?.();
   }, [onSwitchToEdit]);
 

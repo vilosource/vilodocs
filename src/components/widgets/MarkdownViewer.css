@@ -179,6 +179,7 @@
   transition: transform 0.1s ease-out;
   min-width: 100%;
   min-height: 100%;
+  pointer-events: auto;
 }
 
 /* Markdown Content */
