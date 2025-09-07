@@ -130,7 +130,7 @@ describe('EditorGrid', () => {
       
       expect(mockDispatch).toHaveBeenCalledWith({
         type: 'CLOSE_TAB',
-        payload: { tabId: 'tab1' }
+        payload: { tabId: 'tab1', force: true }
       });
     }
   });

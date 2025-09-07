@@ -7,6 +7,11 @@ export default defineConfig({
     globals: true,
     environment: 'happy-dom',
     setupFiles: ['./tests/setup.ts'],
+    exclude: [
+      'node_modules/**',
+      'tests/**/*.e2e.spec.ts',  // Exclude E2E tests (these are for Playwright)
+      'tests/**/*.e2e.spec.tsx'
+    ],
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html'],

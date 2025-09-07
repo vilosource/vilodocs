@@ -38,8 +38,8 @@ describe('SplitContainer', () => {
     );
 
     const panels = container.querySelectorAll('.split-panel');
-    expect(panels[0]).toHaveStyle({ flex: '30' });
-    expect(panels[1]).toHaveStyle({ flex: '70' });
+    expect(panels[0]).toHaveStyle({ flex: '0 0 30%' });
+    expect(panels[1]).toHaveStyle({ flex: '0 0 70%' });
   });
 
   test('renders resize gutters between children', () => {

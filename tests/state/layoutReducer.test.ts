@@ -183,11 +183,11 @@ describe('layoutReducer', () => {
           expect(firstChild.tabs[0].id).toBe('tab1');
         }
         
-        // Second child should be empty with Welcome tab
+        // Second child should have a duplicated tab from the original
         const secondChild = newState.root.children[1];
         if (secondChild.type === 'leaf') {
           expect(secondChild.tabs).toHaveLength(1);
-          expect(secondChild.tabs[0].title).toContain('Welcome');
+          expect(secondChild.tabs[0].title).toBe('File'); // Duplicated from the original tab
         }
       }
     });

@@ -75,6 +75,9 @@ describe('WorkspaceService', () => {
     });
 
     it('should handle workspace opening errors gracefully', async () => {
+      // Mock console.error to prevent test failure on expected error logging
+      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+      
       mockApi.readDirectory.mockRejectedValue(new Error('Access denied'));
       
       await workspaceService.openWorkspace(mockWorkspace);
@@ -82,6 +85,14 @@ describe('WorkspaceService', () => {
       const state = workspaceService.getState();
       expect(state.workspace).toBe(mockWorkspace);
       expect(state.rootNodes.get('folder-1')).toEqual([]);
+      
+      // Verify error was logged
+      expect(consoleErrorSpy).toHaveBeenCalledWith(
+        expect.stringContaining('Failed to load folder'),
+        expect.any(Error)
+      );
+      
+      consoleErrorSpy.mockRestore();
     });
   });
 
