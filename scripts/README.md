@@ -2,6 +2,149 @@
 
 This directory contains build and automation scripts for the vilodocs project.
 
+## auto-fix-build.js
+
+An intelligent Claude Code agent that automatically runs the GitHub build pipeline and attempts to fix any failures.
+
+### Features
+
+- 🤖 **Automated Build Execution**: Runs the GitHub build script automatically
+- 🔍 **Error Analysis**: Intelligently analyzes build failures and categorizes errors
+- 🔧 **Automatic Fixes**: Applies appropriate fixes based on error types
+- 🔄 **Retry Logic**: Continues fixing and retrying until all issues are resolved or max attempts reached
+- 📊 **Progress Tracking**: Shows detailed progress and fix attempts
+- 📝 **Auto-Commit**: Automatically commits successful fixes
+- 📋 **Summary Report**: Provides comprehensive summary of all fix attempts
+
+### Supported Error Types & Auto-Fixes
+
+| Error Type | Auto-Fix Action | Description |
+|------------|----------------|-------------|
+| **Lint Errors** | `npm run lint -- --fix` | Runs ESLint auto-fix for code style issues |
+| **TypeScript Errors** | Type analysis & fixes | Attempts to resolve TypeScript compilation errors |
+| **Test Failures** | Smart test fixes | Analyzes and fixes common test patterns (timeouts, selectors) |
+| **Dependency Issues** | `npm install` | Installs missing dependencies |
+| **Build Failures** | Build analysis | Analyzes compilation errors and suggests fixes |
+| **E2E Test Issues** | Selector & timeout fixes | Updates Playwright test selectors and timeouts |
+
+### Usage
+
+**Option 1: Via npm script (recommended)**
+```bash
+npm run auto-fix-build
+```
+
+**Option 2: Direct execution**
+```bash
+node ./scripts/auto-fix-build.js
+```
+
+### Workflow
+
+1. **🚀 Build Execution**
+   - Runs the GitHub build script (`npm run github-build`)
+   - Waits for complete build pipeline completion
+   - Captures all output and error information
+
+2. **🔍 Error Analysis**
+   - Parses build output for error patterns
+   - Categorizes errors by type (lint, test, TypeScript, etc.)
+   - Extracts relevant error details and logs
+
+3. **🔧 Fix Application**
+   - Determines appropriate fixes for each error type
+   - Applies fixes automatically where possible
+   - Commits successful fixes to git
+
+4. **🔄 Retry Cycle**
+   - Re-runs build pipeline after applying fixes
+   - Repeats up to 3 times or until all issues resolved
+   - Provides detailed progress updates
+
+5. **📊 Final Report**
+   - Shows summary of all attempts and fixes
+   - Lists successful and failed fix attempts
+   - Provides guidance for manual intervention if needed
+
+### Configuration
+
+The agent can be configured by modifying the constructor parameters:
+
+```javascript
+class AutoBuildFixer {
+    constructor() {
+        this.maxRetries = 3;           // Maximum retry attempts
+        this.buildScriptPath = './scripts/github-build.sh';  // Build script path
+    }
+}
+```
+
+### Example Output
+
+```
+🤖 Automated GitHub Build Fixer Starting...
+======================================================
+
+🚀 Build Attempt 1/4
+==================================================
+🔄 Running GitHub build script...
+[GitHub build output...]
+📊 Build script completed with exit code: 1
+
+🔍 Build failed. Analyzing errors...
+🔍 Analyzing error in workflow: Build
+  📝 Error type: lint_error - ESLint error detected
+
+🔧 Applying 1 fix(es)...
+  🔨 Run ESLint auto-fix
+    Output: ✓ 15 problems fixed automatically
+  ✅ Fix applied: Run ESLint auto-fix
+  📝 Committed fixes: Run ESLint auto-fix
+
+🚀 Build Attempt 2/4
+==================================================
+[Build succeeds...]
+🎉 BUILD SUCCESS! All GitHub Actions passed.
+✅ No fixes needed. Build pipeline completed successfully.
+```
+
+### Integration with Development Workflow
+
+Use this agent when you want to automatically resolve build failures:
+
+```bash
+# Make your changes
+git add .
+git commit -m "your changes"
+
+# Let the agent handle the build pipeline and any failures
+npm run auto-fix-build
+
+# Agent will automatically:
+# 1. Run the build
+# 2. Fix any issues it can
+# 3. Retry until success or max attempts
+# 4. Commit any fixes applied
+```
+
+### Manual Intervention
+
+The agent will clearly indicate when manual intervention is required:
+- Unknown error types that can't be automatically fixed
+- Complex test failures requiring human analysis
+- Build failures that need architectural changes
+- Maximum retry attempts exceeded
+
+### Error Analysis Patterns
+
+The agent uses regex patterns to identify error types:
+
+- **Lint Errors**: `/npm.*test.*failed|test.*failed|expect.*received/`
+- **TypeScript**: `/typescript.*error|ts.*error|cannot find module/`
+- **Tests**: `/npm.*test.*failed|test.*failed|expect.*received/`
+- **Dependencies**: `/package.*not.*found|module.*not.*found/`
+- **E2E Tests**: `/playwright.*error|browser.*error/`
+
 ## github-build.sh
 
 A comprehensive build pipeline script that handles the complete CI/CD workflow.
