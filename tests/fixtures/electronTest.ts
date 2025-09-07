@@ -10,7 +10,7 @@ export interface ElectronTestFixtures {
 
 // Custom test fixture that provides the shared Electron app instance
 export const test = base.extend<ElectronTestFixtures>({
-  electronApp: async (_, use) => {
+  electronApp: async ({}, use) => {
     // Check if we're using global setup
     if ((global as any).__ELECTRON_APP__) {
       await use((global as any).__ELECTRON_APP__);
