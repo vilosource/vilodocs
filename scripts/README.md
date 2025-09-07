@@ -26,7 +26,7 @@ A comprehensive build pipeline script that handles the complete CI/CD workflow.
 
 **Option 1: Via npm script (recommended)**
 ```bash
-npm run build
+npm run github-build
 ```
 
 **Option 2: Direct execution**
@@ -119,7 +119,7 @@ git add .
 git commit -m "your changes"
 
 # 2. Run the build pipeline
-npm run build
+npm run github-build
 
 # 3. Script handles push + CI monitoring automatically
 ```
