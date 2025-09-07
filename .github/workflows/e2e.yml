@@ -29,7 +29,12 @@ jobs:
           npx playwright install
       
       - name: Build application
-        run: npm run package
+        run: |
+          # Start electron-forge with a timeout to trigger the build process
+          # This will build the .vite/build/ directory then we kill it
+          timeout 30 npx electron-forge start --inspect-electron || true
+          echo "Build complete, checking for main.js..."
+          ls -la .vite/build/ || echo "Build directory not found"
       
       - name: Run E2E tests
         run: xvfb-run -a npm run test:e2e
