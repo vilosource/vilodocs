@@ -17,7 +17,7 @@
     "test:e2e:headed": "playwright test --headed",
     "test:e2e:ui": "playwright test --ui",
     "github-build": "./scripts/github-build.sh",
-    "auto-fix-build": "node ./scripts/auto-fix-build.js"
+    "ci-build": "./scripts/ci-trigger-and-monitor.sh"
   },
   "keywords": [],
   "author": "vilosource",
