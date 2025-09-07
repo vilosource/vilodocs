@@ -7,6 +7,7 @@ import WidgetRegistryService from '../../services/WidgetRegistry';
 
 interface WidgetRendererProps {
   tab: Tab;
+  isActive?: boolean;
   onContentChange?: (tabId: string, content: string) => void;
   onDirtyChange?: (tabId: string, isDirty: boolean) => void;
   onSwitchWidget?: (tabId: string, newWidgetType: string) => void;
@@ -14,6 +15,7 @@ interface WidgetRendererProps {
 
 export const WidgetRenderer: React.FC<WidgetRendererProps> = ({
   tab,
+  isActive = false,
   onContentChange,
   onDirtyChange,
   onSwitchWidget,
@@ -54,6 +56,7 @@ export const WidgetRenderer: React.FC<WidgetRendererProps> = ({
           content={tab.widget.props?.content as string}
           fileName={tab.title}
           filePath={tab.filePath}
+          isActive={isActive}
           onContentChange={handleContentChange}
           onDirtyChange={handleDirtyChange}
           onSwitchToViewer={tab.filePath?.endsWith('.md') ? handleSwitchToViewer : undefined}
@@ -65,6 +68,7 @@ export const WidgetRenderer: React.FC<WidgetRendererProps> = ({
         <MarkdownViewer
           content={tab.widget.props?.content as string}
           filePath={tab.filePath}
+          isActive={isActive}
           onSwitchToEdit={handleSwitchToEdit}
           onContentChange={handleContentChange}
           onDirtyChange={handleDirtyChange}

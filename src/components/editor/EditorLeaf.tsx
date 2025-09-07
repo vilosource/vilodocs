@@ -118,6 +118,7 @@ export const EditorLeaf: React.FC<EditorLeafProps> = ({
                 <div className="editor-widget">
                   <WidgetRenderer 
                     tab={activeTab}
+                    isActive={isActive}
                     onContentChange={(tabId, content) => {
                       // Handle content changes here
                       console.log('Content changed for tab', tabId, content);

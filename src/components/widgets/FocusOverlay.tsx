@@ -100,6 +100,7 @@ export const FocusOverlay: React.FC<FocusOverlayProps> = ({
         <div ref={contentRef} className="focus-overlay-content">
           <WidgetRenderer
             tab={tab}
+            isActive={true}
             onContentChange={onContentChange}
             onDirtyChange={onDirtyChange}
             onSwitchWidget={onSwitchWidget}

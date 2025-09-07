@@ -5,6 +5,7 @@ interface TextEditorProps {
   content?: string;
   fileName?: string;
   filePath?: string;
+  isActive?: boolean;
   onContentChange?: (content: string) => void;
   onDirtyChange?: (isDirty: boolean) => void;
   onSwitchToViewer?: () => void;
@@ -14,17 +15,26 @@ export const TextEditor: React.FC<TextEditorProps> = ({
   content = '',
   fileName,
   filePath,
+  isActive = false,
   onContentChange,
   onDirtyChange,
   onSwitchToViewer,
 }) => {
   const [editorContent, setEditorContent] = useState(content);
   const [isDirty, setIsDirty] = useState(false);
+  const textareaRef = React.useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
     setEditorContent(content);
     setIsDirty(false);
   }, [content, filePath]); // Reset when content or file changes
+  
+  // Focus textarea when widget becomes active
+  useEffect(() => {
+    if (isActive && textareaRef.current) {
+      textareaRef.current.focus();
+    }
+  }, [isActive]);
 
   const handleContentChange = useCallback((newContent: string) => {
     setEditorContent(newContent);
@@ -102,6 +112,7 @@ export const TextEditor: React.FC<TextEditorProps> = ({
         </div>
         
         <textarea
+          ref={textareaRef}
           className={`editor-textarea language-${fileName ? getLanguageFromFileName(fileName) : 'text'}`}
           value={editorContent}
           onChange={(e) => handleContentChange(e.target.value)}

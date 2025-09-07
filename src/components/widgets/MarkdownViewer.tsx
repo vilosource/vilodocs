@@ -5,6 +5,7 @@ import remarkMath from 'remark-math';
 import remarkEmoji from 'remark-emoji';
 import rehypeHighlight from 'rehype-highlight';
 import rehypeKatex from 'rehype-katex';
+import { useScrollableKeyboardNavigation } from '../../hooks/useScrollableKeyboardNavigation';
 import 'github-markdown-css/github-markdown.css';
 import 'katex/dist/katex.min.css';
 import 'highlight.js/styles/github-dark.css';
@@ -13,6 +14,7 @@ import './MarkdownViewer.css';
 interface MarkdownViewerProps {
   content?: string;
   filePath?: string;
+  isActive?: boolean;
   onSwitchToEdit?: () => void;
   onContentChange?: (content: string) => void;
   onDirtyChange?: (isDirty: boolean) => void;
@@ -27,6 +29,7 @@ interface TocItem {
 export const MarkdownViewer: React.FC<MarkdownViewerProps> = ({
   content = '',
   filePath,
+  isActive = false,
   onSwitchToEdit,
   onContentChange,
   onDirtyChange,
@@ -35,6 +38,14 @@ export const MarkdownViewer: React.FC<MarkdownViewerProps> = ({
   const [showToc, setShowToc] = useState(false);
   const contentRef = useRef<HTMLDivElement>(null);
   const [searchTerm, setSearchTerm] = useState('');
+  
+  // Add keyboard navigation to the scrollable content
+  useScrollableKeyboardNavigation(contentRef, {
+    isActive,
+    arrowKeyStep: 40,
+    pageStep: 0.9,
+    enableVimNavigation: true, // Enable j/k navigation for markdown
+  });
 
   // Extract table of contents from markdown
   useEffect(() => {
@@ -273,6 +284,8 @@ export const MarkdownViewer: React.FC<MarkdownViewerProps> = ({
           ref={contentRef}
           className="markdown-content-wrapper"
           onDoubleClick={handleDoubleClick}
+          tabIndex={0}
+          aria-label="Markdown content viewer"
         >
           <div className="markdown-content github-markdown-body">
             <ReactMarkdown
