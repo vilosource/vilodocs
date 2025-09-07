@@ -50,7 +50,7 @@ export const EditorLeaf: React.FC<EditorLeafProps> = ({
   }, [isActive, focusManager, leaf.id]);
   
   const { isOver, dropPosition, handleDragOver, handleDragLeave, handleDrop } = useDragDrop({
-    dispatch: dispatch || (() => {}),
+    dispatch: dispatch || (() => { /* no-op */ }),
     leafId: leaf.id
   });
 

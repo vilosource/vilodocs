@@ -79,7 +79,7 @@ export const FileTree: React.FC<FileTreeProps> = ({
         }
         break;
       
-      case 'Enter':
+      case 'Enter': {
         event.preventDefault();
         const selectedNode = findNodeByPath(nodes, selectedPath);
         if (selectedNode) {
@@ -90,6 +90,7 @@ export const FileTree: React.FC<FileTreeProps> = ({
           }
         }
         break;
+      }
       
       case 'ArrowUp':
       case 'ArrowDown':
@@ -110,7 +111,7 @@ export const FileTree: React.FC<FileTreeProps> = ({
         }
         break;
       
-      case 'ArrowRight':
+      case 'ArrowRight': {
         event.preventDefault();
         const node = findNodeByPath(nodes, selectedPath);
         if (node?.type === 'directory') {
@@ -122,6 +123,7 @@ export const FileTree: React.FC<FileTreeProps> = ({
           }
         }
         break;
+      }
     }
   }, [selectedPath, nodes, expandedPaths, onToggleExpand, onOpenFile, onSelectPath, onDelete]);
 

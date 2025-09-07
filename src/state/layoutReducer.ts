@@ -469,7 +469,7 @@ export function layoutReducer(state: EditorGridState, action: LayoutAction): Edi
     case 'RESIZE_SPLIT': {
       const { splitId, sizes } = action.payload;
       
-      function updateSplit(node: LayoutNode): LayoutNode {
+      const updateSplit = (node: LayoutNode): LayoutNode => {
         if (isSplit(node) && node.id === splitId) {
           const enforcedSizes = enforceMinimumSizes(sizes);
           return {
@@ -486,7 +486,7 @@ export function layoutReducer(state: EditorGridState, action: LayoutAction): Edi
         }
         
         return node;
-      }
+      };
       
       const newRoot = updateSplit(state.root);
       

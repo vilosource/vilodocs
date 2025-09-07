@@ -78,7 +78,7 @@ export const WidgetRenderer: React.FC<WidgetRendererProps> = ({
     case 'welcome':
       return <WelcomeWidget />;
     
-    default:
+    default: {
       // Try to render with registered widget from registry
       const provider = registry.getWidgetProvider(tab.widget.type);
       if (provider) {
@@ -104,5 +104,6 @@ export const WidgetRenderer: React.FC<WidgetRendererProps> = ({
           <p>This widget type is not supported.</p>
         </div>
       );
+    }
   }
 };

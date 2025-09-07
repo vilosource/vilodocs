@@ -9,7 +9,7 @@ describe('ResizeGutter', () => {
     const { rerender } = render(
       <ResizeGutter 
         orientation="vertical"
-        onResize={() => {}}
+        onResize={() => { /* no-op */ }}
       />
     );
 
@@ -20,7 +20,7 @@ describe('ResizeGutter', () => {
     rerender(
       <ResizeGutter 
         orientation="horizontal"
-        onResize={() => {}}
+        onResize={() => { /* no-op */ }}
       />
     );
 
@@ -106,7 +106,7 @@ describe('ResizeGutter', () => {
     render(
       <ResizeGutter 
         orientation="vertical"
-        onResize={() => {}}
+        onResize={() => { /* no-op */ }}
         onDoubleClick={handleDoubleClick}
       />
     );
@@ -141,7 +141,7 @@ describe('ResizeGutter', () => {
     render(
       <ResizeGutter 
         orientation="vertical"
-        onResize={() => {}}
+        onResize={() => { /* no-op */ }}
       />
     );
 
@@ -153,7 +153,7 @@ describe('ResizeGutter', () => {
     render(
       <ResizeGutter 
         orientation="vertical"
-        onResize={() => {}}
+        onResize={() => { /* no-op */ }}
       />
     );
 
@@ -170,7 +170,7 @@ describe('ResizeGutter', () => {
     render(
       <ResizeGutter 
         orientation="vertical"
-        onResize={() => {}}
+        onResize={() => { /* no-op */ }}
       />
     );
 

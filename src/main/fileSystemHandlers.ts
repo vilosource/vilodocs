@@ -4,6 +4,7 @@ import fsSync from 'node:fs';
 import path from 'node:path';
 import { watch } from 'chokidar';
 import { Channels, type FileNode, type FileStats, type Workspace, type WorkspaceFolder } from '../common/ipc';
+// eslint-disable-next-line import/no-unresolved
 import { v4 as uuidv4 } from 'uuid';
 
 // Store active file watchers
@@ -189,7 +190,7 @@ export function registerFileSystemHandlers(): void {
       persistent: true,
       ignoreInitial: true,
       depth: 1,
-      ignored: /(^|[\/\\])\../, // Ignore dotfiles
+      ignored: /(^|[/\\])\../, // Ignore dotfiles
     });
     
     const sender = event.sender;

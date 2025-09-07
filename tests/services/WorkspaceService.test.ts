@@ -14,8 +14,8 @@ const mockApi = {
   readFileContent: vi.fn()
 };
 
-// @ts-ignore
-global.window = { api: mockApi };
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+(global as any).window = { api: mockApi };
 
 describe('WorkspaceService', () => {
   let workspaceService: WorkspaceService;

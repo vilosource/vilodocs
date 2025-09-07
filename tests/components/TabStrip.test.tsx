@@ -16,7 +16,7 @@ describe('TabStrip', () => {
       <TabStrip 
         tabs={mockTabs}
         activeTabId="tab1"
-        onTabClick={() => {}}
+        onTabClick={() => { /* no-op */ }}
       />
     );
 
@@ -30,7 +30,7 @@ describe('TabStrip', () => {
       <TabStrip 
         tabs={mockTabs}
         activeTabId="tab2"
-        onTabClick={() => {}}
+        onTabClick={() => { /* no-op */ }}
       />
     );
 
@@ -44,7 +44,7 @@ describe('TabStrip', () => {
       <TabStrip 
         tabs={mockTabs}
         activeTabId="tab1"
-        onTabClick={() => {}}
+        onTabClick={() => { /* no-op */ }}
       />
     );
 
@@ -71,8 +71,8 @@ describe('TabStrip', () => {
       <TabStrip 
         tabs={mockTabs}
         activeTabId="tab1"
-        onTabClick={() => {}}
-        onTabClose={() => {}}
+        onTabClick={() => { /* no-op */ }}
+        onTabClose={() => { /* no-op */ }}
       />
     );
 
@@ -90,7 +90,7 @@ describe('TabStrip', () => {
       <TabStrip 
         tabs={mockTabs}
         activeTabId="tab1"
-        onTabClick={() => {}}
+        onTabClick={() => { /* no-op */ }}
         onTabClose={handleClose}
       />
     );
@@ -149,7 +149,7 @@ describe('TabStrip', () => {
       <TabStrip 
         tabs={mockTabs}
         activeTabId="tab1"
-        onTabClick={() => {}}
+        onTabClick={() => { /* no-op */ }}
         draggable
       />
     );
