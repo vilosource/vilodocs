@@ -1,14 +1,63 @@
 # vilodocs
 
-A document editor built with Electron, featuring a clean interface for editing text files.
+A modern document editor built with Electron, featuring VS Code-style panes, workspace support, and advanced markdown capabilities.
 
 ## Features
 
-- 📝 Simple text editor interface
-- 📂 Open and save files
-- 🎨 Automatic theme detection (light/dark)
-- 🔒 Secure IPC communication
-- 🧪 Comprehensive E2E testing
+### 📝 **Text Editing**
+- Advanced text editor with syntax highlighting
+- Line numbers and editor statistics
+- Multi-tab support with drag & drop reordering
+- File path display and dirty state indicators
+
+### 📖 **Markdown Support**
+- GitHub Flavored Markdown rendering
+- Syntax highlighting for code blocks
+- Math expressions with KaTeX support
+- Interactive table of contents (Ctrl+Shift+O)
+- Task lists, tables, and emoji support
+- Code copy buttons and link navigation
+- Bidirectional editing (Ctrl+E ↔ Ctrl+Shift+V)
+
+### 🎛️ **VS Code-Style Interface**
+- Split panes (horizontal: Ctrl+\, vertical: Ctrl+Alt+\)
+- Drag-resizable splits with 50%/50% defaults
+- Activity bar and sidebar navigation
+- Status bar with file information
+- File explorer with workspace support
+
+### 🎨 **Theming & UI**
+- VS Code-compatible dark theme
+- Consistent styling across all components
+- Proper focus management and keyboard navigation
+- Responsive layout with proper scrollbars
+
+### 🏗️ **Architecture**
+- Extensible Widget Registry for file type associations
+- Service-oriented state management
+- Layout persistence across sessions
+- Type-safe IPC communication
+- Comprehensive testing suite
+
+## ⌨️ Keyboard Shortcuts
+
+### **File & Navigation**
+- `Ctrl+K Ctrl+O` - Open folder
+- `Ctrl+B` - Toggle sidebar
+- `Ctrl+J` - Toggle panel
+- `F6` - Navigate between panes
+
+### **Editor & Splits**
+- `Ctrl+\` - Split editor horizontally (side by side)
+- `Ctrl+Alt+\` - Split editor vertically (top/bottom)
+- `Ctrl+Tab` - Next tab
+- `Ctrl+Shift+Tab` - Previous tab
+
+### **Markdown**
+- `Ctrl+E` - Switch to markdown editor
+- `Ctrl+Shift+V` - Switch to markdown viewer
+- `Ctrl+Shift+O` - Toggle table of contents
+- Double-click - Switch to edit mode
 
 ## Development
 
@@ -100,18 +149,47 @@ GitHub Actions will automatically create a draft release with Linux packages.
 
 ## Architecture
 
-- **Main Process** (`src/main.ts`) - Electron main process
-- **Renderer Process** (`src/renderer.ts`) - UI code
+### **Core Components**
+- **Main Process** (`src/main.ts`) - Electron main process and window management
+- **Renderer Process** (`src/renderer.ts`) - React-based UI with VS Code-style layout
 - **Preload Script** (`src/preload.ts`) - Secure bridge between main and renderer
 - **IPC Contract** (`src/common/ipc.ts`) - Type-safe IPC communication
 
+### **Key Services**
+- **Widget Registry** (`src/services/WidgetRegistry.ts`) - File type to widget mapping
+- **Theme Service** (`src/services/ThemeService.ts`) - VS Code-compatible theming
+- **State Service** - Layout and tab persistence
+- **Command Manager** - Keyboard shortcuts and command palette
+
+### **Documentation**
+Comprehensive architecture documentation is available in [`docs/architecture/`](docs/architecture/):
+- [Architecture Overview](docs/architecture/ARCHITECTURE.md)
+- [Widget Registry System](docs/architecture/WIDGET-REGISTRY.md)
+- [Markdown Viewer Implementation](docs/architecture/MARKDOWN-VIEWER-IMPLEMENTATION.md)
+- [Theme System](docs/architecture/THEME-SYSTEM.md)
+- [Developer Guide](docs/architecture/DEVELOPER-GUIDE.md)
+
 ## Technologies
 
-- [Electron](https://www.electronjs.org/) - Desktop framework
-- [TypeScript](https://www.typescriptlang.org/) - Type safety
-- [Vite](https://vitejs.dev/) - Build tool
+### **Core Framework**
+- [Electron](https://www.electronjs.org/) - Desktop application framework
+- [React](https://react.dev/) - UI component library
+- [TypeScript](https://www.typescriptlang.org/) - Type safety and enhanced development experience
+
+### **Build & Development**
+- [Vite](https://vitejs.dev/) - Fast build tool and development server
 - [Electron Forge](https://www.electronforge.io/) - Packaging and distribution
-- [Playwright](https://playwright.dev/) - E2E testing
+- [ESLint](https://eslint.org/) - Code linting and formatting
+
+### **Markdown & Rendering**
+- [react-markdown](https://github.com/remarkjs/react-markdown) - Markdown parsing and rendering
+- [remark-gfm](https://github.com/remarkjs/remark-gfm) - GitHub Flavored Markdown support
+- [rehype-highlight](https://github.com/rehypejs/rehype-highlight) - Syntax highlighting
+- [KaTeX](https://katex.org/) - Math expression rendering
+
+### **Testing**
+- [Playwright](https://playwright.dev/) - End-to-end testing
+- [Vitest](https://vitest.dev/) - Unit testing framework
 
 ## License
 
