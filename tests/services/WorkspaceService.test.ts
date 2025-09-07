@@ -76,7 +76,9 @@ describe('WorkspaceService', () => {
 
     it('should handle workspace opening errors gracefully', async () => {
       // Mock console.error to prevent test failure on expected error logging
-      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {
+        // Intentionally empty - we're suppressing console.error for this test
+      });
       
       mockApi.readDirectory.mockRejectedValue(new Error('Access denied'));
       
