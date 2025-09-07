@@ -21,6 +21,7 @@
   min-height: 0;
   display: flex;
   flex-direction: column;
+  flex-shrink: 0;
 }
 
 .split-gutter {
@@ -39,7 +40,7 @@
 .split-gutter-horizontal {
   width: 1px;
   cursor: ew-resize;
-  margin: 0 2px;
+  margin: 0;
 }
 
 .split-gutter-horizontal::before {
@@ -53,9 +54,9 @@
 }
 
 .split-gutter-vertical {
-  height: 4px;
+  height: 1px;
   cursor: ns-resize;
-  margin: 2px 0;
+  margin: 0;
 }
 
 .split-gutter-vertical::before {

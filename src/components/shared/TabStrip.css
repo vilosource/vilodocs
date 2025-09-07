@@ -1,6 +1,8 @@
 .tab-strip {
   display: flex;
   height: 35px;
+  min-height: 35px;
+  flex-shrink: 0;
   background-color: var(--vscode-editorGroupHeader-tabsBackground, #252526);
   border-bottom: 1px solid var(--vscode-editorGroupHeader-tabsBorder, #252526);
   overflow-x: auto;

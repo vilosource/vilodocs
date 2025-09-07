@@ -136,9 +136,10 @@ export const SplitContainer: React.FC<SplitContainerProps> = ({
           <div 
             className="split-panel"
             style={{ 
-              flex: `${localSizes[index]} 1 0`,
-              minHeight: direction === 'vertical' ? '50px' : '0',
-              minWidth: direction === 'horizontal' ? '50px' : '0'
+              flex: `0 0 ${localSizes[index]}%`,
+              minHeight: direction === 'vertical' ? '100px' : '0',
+              minWidth: direction === 'horizontal' ? '100px' : '0',
+              overflow: 'hidden'
             }}
           >
             {child}
