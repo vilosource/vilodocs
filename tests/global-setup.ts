@@ -1,5 +1,4 @@
-import { chromium, FullConfig } from '@playwright/test';
-import { _electron as electron } from '@playwright/test';
+import { FullConfig, _electron as electron } from '@playwright/test';
 import path from 'node:path';
 
 async function globalSetup(config: FullConfig) {

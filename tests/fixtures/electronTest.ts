@@ -1,5 +1,4 @@
-import { test as base, expect, Page, ElectronApplication } from '@playwright/test';
-import { _electron as electron } from '@playwright/test';
+import { test as base, expect, Page, ElectronApplication, _electron as electron } from '@playwright/test';
 import path from 'node:path';
 
 export interface ElectronTestFixtures {
@@ -11,7 +10,7 @@ export interface ElectronTestFixtures {
 
 // Custom test fixture that provides the shared Electron app instance
 export const test = base.extend<ElectronTestFixtures>({
-  electronApp: async ({}, use, testInfo) => {
+  electronApp: async (_, use) => {
     // Check if we're using global setup
     if ((global as any).__ELECTRON_APP__) {
       await use((global as any).__ELECTRON_APP__);
@@ -85,7 +84,9 @@ export const test = base.extend<ElectronTestFixtures>({
       // Clear any modals or dialogs
       try {
         await page.keyboard.press('Escape');
-      } catch {}
+      } catch {
+        // Ignore error - Escape key might not have any effect
+      }
       
       // Reset to a clean state by navigating to root
       // This is better than reload for Electron apps
