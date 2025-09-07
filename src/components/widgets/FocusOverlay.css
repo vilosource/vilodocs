@@ -13,15 +13,15 @@
 }
 
 .focus-overlay-container {
-  width: 90%;
-  height: 90%;
+  width: 100%;
+  height: 100%;
   background-color: var(--vscode-editor-background);
-  border: 1px solid var(--vscode-panel-border);
-  border-radius: var(--theme-radius-lg);
+  border: none;
+  border-radius: 0;
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  box-shadow: var(--theme-shadow-xl);
+  box-shadow: none;
   animation: focus-overlay-scale-in 0.2s ease-out;
 }
 
@@ -175,8 +175,8 @@
 /* Responsive adjustments */
 @media (max-width: 768px) {
   .focus-overlay-container {
-    width: 95%;
-    height: 95%;
+    width: 100%;
+    height: 100%;
   }
   
   .focus-overlay-header {
