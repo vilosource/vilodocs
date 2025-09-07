@@ -269,24 +269,6 @@ export function layoutReducer(state: EditorGridState, action: LayoutAction): Edi
         }
       }
       
-      // Check if this is the last tab and root is a leaf (no other splits)
-      if (newTabs.length === 0 && isLeaf(state.root) && state.root.id === leaf.id) {
-        // Show welcome page instead of leaving empty
-        const welcomeTab = createWelcomeTab();
-        const updatedLeaf: Leaf = {
-          ...leaf,
-          tabs: [welcomeTab],
-          activeTabId: welcomeTab.id
-        };
-        
-        const newRoot = replaceNode(state.root, leaf.id, updatedLeaf);
-        
-        return {
-          ...state,
-          root: newRoot,
-          leafMap: rebuildLeafMap(newRoot)
-        };
-      }
       
       const updatedLeaf: Leaf = {
         ...leaf,
@@ -296,15 +278,28 @@ export function layoutReducer(state: EditorGridState, action: LayoutAction): Edi
       
       let newRoot = replaceNode(state.root, leaf.id, updatedLeaf);
       
-      // If leaf is now empty and there are splits, remove the empty leaf
+      // Handle empty leaf cases
       if (newTabs.length === 0) {
-        const parent = findParentSplit(state.root, leaf.id);
-        if (parent && parent.children.length === 2) {
-          // Remove empty leaf and promote sibling
-          const sibling = parent.children.find(c => c.id !== leaf.id);
-          if (sibling) {
-            newRoot = replaceNode(newRoot, parent.id, sibling);
-            newRoot = compactTree(newRoot);
+        // Check if this is the root leaf (no splits)
+        if (isLeaf(state.root) && state.root.id === leaf.id) {
+          // Show welcome page instead of leaving empty
+          const welcomeTab = createWelcomeTab();
+          const welcomeLeaf: Leaf = {
+            ...updatedLeaf,
+            tabs: [welcomeTab],
+            activeTabId: welcomeTab.id
+          };
+          newRoot = replaceNode(newRoot, leaf.id, welcomeLeaf);
+        } else {
+          // If there are splits, remove the empty leaf
+          const parent = findParentSplit(state.root, leaf.id);
+          if (parent && parent.children.length === 2) {
+            // Remove empty leaf and promote sibling
+            const sibling = parent.children.find(c => c.id !== leaf.id);
+            if (sibling) {
+              newRoot = replaceNode(newRoot, parent.id, sibling);
+              newRoot = compactTree(newRoot);
+            }
           }
         }
       }
