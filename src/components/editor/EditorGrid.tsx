@@ -76,7 +76,7 @@ export const EditorGrid: React.FC<EditorGridProps> = ({ state, dispatch, command
   const handleTabClose = useCallback((tabId: string) => {
     dispatch({
       type: 'CLOSE_TAB',
-      payload: { tabId }
+      payload: { tabId, force: true } // Force close when clicking X button
     });
   }, [dispatch]);
 

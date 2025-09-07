@@ -112,6 +112,7 @@ export const TabStrip: React.FC<TabStripProps> = ({
         const isDragging = tab.id === draggedTab;
         const isDragOver = tab.id === dragOverTab;
         const isCloseable = tab.closeable !== false;
+        
 
         return (
           <div
