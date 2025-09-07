@@ -269,6 +269,25 @@ export function layoutReducer(state: EditorGridState, action: LayoutAction): Edi
         }
       }
       
+      // Check if this is the last tab and root is a leaf (no other splits)
+      if (newTabs.length === 0 && isLeaf(state.root) && state.root.id === leaf.id) {
+        // Show welcome page instead of leaving empty
+        const welcomeTab = createWelcomeTab();
+        const updatedLeaf: Leaf = {
+          ...leaf,
+          tabs: [welcomeTab],
+          activeTabId: welcomeTab.id
+        };
+        
+        const newRoot = replaceNode(state.root, leaf.id, updatedLeaf);
+        
+        return {
+          ...state,
+          root: newRoot,
+          leafMap: rebuildLeafMap(newRoot)
+        };
+      }
+      
       const updatedLeaf: Leaf = {
         ...leaf,
         tabs: newTabs,
@@ -277,7 +296,7 @@ export function layoutReducer(state: EditorGridState, action: LayoutAction): Edi
       
       let newRoot = replaceNode(state.root, leaf.id, updatedLeaf);
       
-      // If leaf is now empty, try to merge
+      // If leaf is now empty and there are splits, remove the empty leaf
       if (newTabs.length === 0) {
         const parent = findParentSplit(state.root, leaf.id);
         if (parent && parent.children.length === 2) {
