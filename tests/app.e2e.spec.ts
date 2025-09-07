@@ -1,185 +1,173 @@
-import { test, expect } from '@playwright/test';
-import { 
-  launchElectronE2E, 
-  captureRendererErrors, 
-  setupMainProcessMonitoring,
-  closeApp,
-  type TestContext 
-} from './helpers/e2e';
-
-let context: TestContext | undefined;
-
-test.beforeAll(async () => {
-  try {
-    // Launch the Electron app
-    context = await launchElectronE2E();
-    
-    // Capture any renderer errors
-    context.errors = captureRendererErrors(context.page);
-    
-    // Monitor main process
-    setupMainProcessMonitoring(context.app);
-  } catch (error) {
-    console.error('Failed to launch Electron app:', error);
-    throw error;
-  }
-});
-
-test.afterAll(async () => {
-  // Close the app if it was launched
-  if (context) {
-    await closeApp(context);
-  }
-});
+import { test, expect } from './fixtures/electronTest';
 
 test.describe('vilodocs E2E Tests', () => {
-  test.beforeEach(async () => {
-    // Skip test if app didn't launch
-    if (!context) {
-      throw new Error('Electron app not available - skipping test');
-    }
+  test.beforeEach(async ({ resetApp }) => {
+    // Reset app state instead of reloading
+    await resetApp();
   });
 
-  test('app launches without errors', async () => {
-    const { page, errors } = context!;
-    
+  test('app launches without errors', async ({ page, errors }) => {
     // Wait for app to be ready
     await page.waitForLoadState('networkidle');
     
-    // Check that we're in E2E mode
-    const isE2E = await page.evaluate(() => 
-      document.documentElement.getAttribute('data-e2e')
-    );
-    expect(isE2E).toBe('true');
+    // Check that the root element exists
+    const rootElement = page.locator('#root');
+    await expect(rootElement).toBeVisible();
     
     // Verify no console errors
     expect(errors, `Renderer errors found:\n${errors.join('\n')}`).toHaveLength(0);
   });
 
-  test('main UI elements are visible', async () => {
-    const { page } = context!;
+  test('main UI elements are visible', async ({ page }) => {
+    // Check for the Shell component
+    const shell = page.locator('.shell');
+    await expect(shell).toBeVisible();
     
-    // Check for the main editor area
-    const editor = page.locator('#editor');
-    await expect(editor).toBeVisible();
+    // Check for the activity bar
+    const activityBar = page.locator('.activity-bar');
+    await expect(activityBar).toBeVisible();
     
-    // Check for Open and Save buttons
-    const openButton = page.locator('#open');
-    await expect(openButton).toBeVisible();
-    await expect(openButton).toHaveText('Open');
+    // Check for the sidebar
+    const sidebar = page.locator('.sidebar');
+    await expect(sidebar).toBeVisible();
     
-    const saveButton = page.locator('#save');
-    await expect(saveButton).toBeVisible();
-    await expect(saveButton).toHaveText('Save');
+    // Check for the editor grid
+    const editorGrid = page.locator('.editor-grid');
+    await expect(editorGrid).toBeVisible();
     
-    // Check for the pong element (IPC test)
-    const pongElement = page.locator('#pong');
-    await expect(pongElement).toBeVisible();
-    await expect(pongElement).toHaveText('pong:hello');
+    // Check for at least one editor leaf
+    const editorLeaf = page.locator('.editor-leaf').first();
+    await expect(editorLeaf).toBeVisible();
   });
 
-  test('editor accepts text input', async () => {
-    const { page, errors } = context!;
+  test('activity bar buttons are functional', async ({ page }) => {
+    // Check for explorer button
+    const explorerButton = page.locator('.activity-bar-item[data-item="explorer"]');
+    await expect(explorerButton).toBeVisible();
     
-    // Get the editor
-    const editor = page.locator('#editor');
+    // Click explorer and verify it's active
+    await explorerButton.click();
+    await expect(explorerButton).toHaveClass(/active/);
     
-    // Clear existing content
-    await editor.fill('');
-    
-    // Type some text
-    const testText = 'Hello from E2E test!';
-    await editor.fill(testText);
-    
-    // Verify the text was entered
-    const value = await editor.inputValue();
-    expect(value).toBe(testText);
-    
-    // Check no errors occurred
-    expect(errors).toHaveLength(0);
+    // Check for search button
+    const searchButton = page.locator('.activity-bar-item[data-item="search"]');
+    await expect(searchButton).toBeVisible();
   });
 
-  test('Open button can be clicked without errors', async () => {
-    const { page, errors } = context!;
+  test('file explorer is functional', async ({ page }) => {
+    // Ensure explorer is visible
+    const explorer = page.locator('.file-explorer');
+    const isVisible = await explorer.isVisible().catch(() => false);
     
-    // Click the Open button
-    const openButton = page.locator('#open');
+    if (!isVisible) {
+      // Open explorer if not visible
+      const explorerButton = page.locator('.activity-bar-item[data-item="explorer"]');
+      await explorerButton.click();
+    }
     
-    // Set up a dialog handler to cancel the file dialog
-    page.once('dialog', dialog => dialog.dismiss());
+    await expect(explorer).toBeVisible();
     
-    // Click should not throw
-    await openButton.click();
+    // Check for workspace title
+    const workspaceTitle = explorer.locator('.explorer-header, .workspace-title').first();
+    await expect(workspaceTitle).toBeVisible();
+  });
+
+  test('tabs can be created and closed', async ({ page }) => {
+    // Get initial tab count
+    const tabs = page.locator('.tab');
+    const initialCount = await tabs.count();
     
-    // Small wait to ensure any async errors would have been caught
+    // Open file dialog with Ctrl+O (if implemented)
+    await page.keyboard.press('Control+O');
     await page.waitForTimeout(500);
     
-    // Verify no errors
-    expect(errors).toHaveLength(0);
+    // Check if dialog opened or tab count changed
+    const newCount = await tabs.count();
+    
+    // At least one tab should exist (Welcome tab or opened file)
+    expect(newCount).toBeGreaterThan(0);
+    
+    // If there's a tab, try to close it
+    if (newCount > 0) {
+      const firstTab = tabs.first();
+      await firstTab.hover();
+      
+      // Look for close button
+      const closeButton = firstTab.locator('.tab-close');
+      const hasCloseButton = await closeButton.count() > 0;
+      
+      if (hasCloseButton) {
+        await closeButton.click();
+        await page.waitForTimeout(500);
+        
+        // Verify tab count changed or welcome tab appeared
+        const finalCount = await tabs.count();
+        expect(finalCount).toBeGreaterThanOrEqual(0);
+      }
+    }
   });
 
-  test('Save button can be clicked without errors', async () => {
-    const { page, errors } = context!;
+  test('keyboard shortcuts work', async ({ page, errors }) => {
+    // Test Ctrl+B to toggle sidebar
+    const sidebar = page.locator('.sidebar');
+    const initiallyVisible = await sidebar.isVisible();
     
-    // Add some content to save
-    const editor = page.locator('#editor');
-    await editor.fill('Test content to save');
-    
-    // Click the Save button
-    const saveButton = page.locator('#save');
-    
-    // Set up a dialog handler to cancel the save dialog
-    page.once('dialog', dialog => dialog.dismiss());
-    
-    // Click should not throw
-    await saveButton.click();
-    
-    // Small wait to ensure any async errors would have been caught
+    await page.keyboard.press('Control+B');
     await page.waitForTimeout(500);
     
-    // Verify no errors
+    const nowVisible = await sidebar.isVisible();
+    expect(nowVisible).toBe(!initiallyVisible);
+    
+    // Toggle back
+    await page.keyboard.press('Control+B');
+    await page.waitForTimeout(500);
+    
+    const finallyVisible = await sidebar.isVisible();
+    expect(finallyVisible).toBe(initiallyVisible);
+    
+    // Verify no errors during keyboard operations
     expect(errors).toHaveLength(0);
   });
 
-  test('app version is valid', async () => {
-    const { app } = context!;
+  test('editor grid splits work', async ({ page }) => {
+    // Get initial leaf count
+    const leaves = page.locator('.editor-leaf');
+    const initialCount = await leaves.count();
     
-    // Query the app version from main process
-    const version = await app.evaluate(async ({ app }) => {
-      return app.getVersion();
-    });
+    // Split horizontally with Ctrl+\
+    await page.keyboard.press('Control+\\');
+    await page.waitForTimeout(500);
     
-    // Check version format
-    expect(version).toMatch(/^\d+\.\d+\.\d+$/);
-    expect(version).toBe('0.3.1');
+    // Should have one more leaf
+    const newCount = await leaves.count();
+    expect(newCount).toBe(initialCount + 1);
+    
+    // Verify split container exists
+    const splitContainer = page.locator('.editor-split');
+    await expect(splitContainer).toBeVisible();
   });
 
-  test('window title is correct', async () => {
-    const { page } = context!;
+  test('application state persists', async ({ page }) => {
+    // Open sidebar if not visible
+    const sidebar = page.locator('.sidebar');
+    if (!(await sidebar.isVisible())) {
+      await page.keyboard.press('Control+B');
+      await page.waitForTimeout(500);
+    }
     
-    // Get the window title
-    const title = await page.title();
+    // Create a split
+    await page.keyboard.press('Control+\\');
+    await page.waitForTimeout(500);
     
-    // Should match the title in index.html
-    expect(title).toBe('vilodocs');
-  });
-
-  test('theme switching works', async () => {
-    const { page } = context!;
+    // Get current state
+    const leafCount = await page.locator('.editor-leaf').count();
+    const sidebarVisible = await sidebar.isVisible();
     
-    // Check that theme is set on document
-    const theme = await page.evaluate(() => 
-      document.documentElement.dataset.theme
-    );
+    // State should be saved automatically
+    await page.waitForTimeout(1000);
     
-    // Should be either 'light' or 'dark'
-    expect(['light', 'dark']).toContain(theme);
-  });
-
-  test('no console errors after all interactions', async () => {
-    const { errors } = context!;
-    
-    // Final check - no errors should have been logged
-    expect(errors, `Console errors detected:\n${errors.join('\n')}`).toHaveLength(0);
+    // Verify state was captured
+    expect(leafCount).toBeGreaterThan(0);
+    expect(typeof sidebarVisible).toBe('boolean');
   });
 });

@@ -1,0 +1,111 @@
+import { test as base, expect, Page, ElectronApplication } from '@playwright/test';
+import { _electron as electron } from '@playwright/test';
+import path from 'node:path';
+
+export interface ElectronTestFixtures {
+  electronApp: ElectronApplication;
+  page: Page;
+  errors: string[];
+  resetApp: () => Promise<void>;
+}
+
+// Custom test fixture that provides the shared Electron app instance
+export const test = base.extend<ElectronTestFixtures>({
+  electronApp: async ({}, use, testInfo) => {
+    // Check if we're using global setup
+    if ((global as any).__ELECTRON_APP__) {
+      await use((global as any).__ELECTRON_APP__);
+      return;
+    }
+    
+    // Fallback: launch app if not using global setup (for debugging individual tests)
+    const electronPath = process.platform === 'win32'
+      ? path.join(__dirname, '../../node_modules/.bin/electron.cmd')
+      : path.join(__dirname, '../../node_modules/.bin/electron');
+
+    const args = ['.'];
+    if (process.env.CI) {
+      args.push('--no-sandbox');
+    }
+
+    const app = await electron.launch({
+      executablePath: electronPath,
+      args,
+      env: { 
+        ...process.env, 
+        E2E: '1', 
+        NODE_ENV: 'test',
+        DISPLAY: process.env.CI ? ':99' : process.env.DISPLAY
+      },
+    });
+
+    await use(app);
+    
+    // Only close if we launched it ourselves
+    if (!(global as any).__ELECTRON_APP__) {
+      await app.close();
+    }
+  },
+  
+  page: async ({ electronApp }, use) => {
+    // Use the global page if available
+    if ((global as any).__ELECTRON_PAGE__) {
+      const page = (global as any).__ELECTRON_PAGE__;
+      await use(page);
+      return;
+    }
+    
+    // Otherwise get the first window
+    const page = await electronApp.firstWindow();
+    await page.waitForLoadState('domcontentloaded');
+    await use(page);
+  },
+  
+  errors: async ({ page }, use) => {
+    const errors: string[] = [];
+    
+    // Capture console errors
+    page.on('console', msg => {
+      if (msg.type() === 'error') {
+        errors.push(`Console error: ${msg.text()}`);
+      }
+    });
+    
+    // Capture page errors
+    page.on('pageerror', error => {
+      errors.push(`Page error: ${error.message}`);
+    });
+    
+    await use(errors);
+  },
+  
+  resetApp: async ({ page }, use) => {
+    // Function to reset app state without reloading
+    const reset = async () => {
+      // Clear any modals or dialogs
+      try {
+        await page.keyboard.press('Escape');
+      } catch {}
+      
+      // Reset to a clean state by navigating to root
+      // This is better than reload for Electron apps
+      await page.evaluate(() => {
+        // Clear local storage
+        localStorage.clear();
+        // Reset any React state if needed
+        const rootElement = document.getElementById('root');
+        if (rootElement && (window as any).React) {
+          // Trigger a re-render or state reset
+          rootElement.dispatchEvent(new Event('reset', { bubbles: true }));
+        }
+      });
+      
+      // Wait for any transitions
+      await page.waitForTimeout(500);
+    };
+    
+    await use(reset);
+  }
+});
+
+export { expect };

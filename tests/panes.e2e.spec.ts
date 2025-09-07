@@ -1,50 +1,12 @@
-import { test, expect } from '@playwright/test';
-import { 
-  launchElectronE2E, 
-  captureRendererErrors, 
-  setupMainProcessMonitoring,
-  closeApp,
-  type TestContext 
-} from './helpers/e2e';
-
-let context: TestContext | undefined;
-
-test.beforeAll(async () => {
-  try {
-    // Launch the Electron app
-    context = await launchElectronE2E();
-    
-    // Capture any renderer errors
-    context.errors = captureRendererErrors(context.page);
-    
-    // Monitor main process
-    setupMainProcessMonitoring(context.app);
-  } catch (error) {
-    console.error('Failed to launch Electron app:', error);
-    throw error;
-  }
-});
-
-test.afterAll(async () => {
-  // Close the app if it was launched
-  if (context) {
-    await closeApp(context);
-  }
-});
+import { test, expect } from './fixtures/electronTest';
 
 test.describe('Panes Functionality E2E Tests', () => {
-  test.beforeEach(async () => {
-    if (!context?.page) {
-      throw new Error('Page not initialized');
-    }
-    // Reset any state before each test
-    await context.page.reload();
-    await context.page.waitForTimeout(500);
+  test.beforeEach(async ({ resetApp }) => {
+    // Reset app state instead of reloading
+    await resetApp();
   });
 
-  test('editor grid is visible', async () => {
-    if (!context?.page) throw new Error('Context not initialized');
-    const page = context.page;
+  test('editor grid is visible', async ({ page }) => {
     
     // Check if editor grid is present
     const editorGrid = await page.locator('.editor-grid').first();
@@ -55,9 +17,7 @@ test.describe('Panes Functionality E2E Tests', () => {
     await expect(editorLeaf).toBeVisible();
   });
 
-  test('activity bar is functional', async () => {
-    if (!context?.page) throw new Error('Context not initialized');
-    const page = context.page;
+  test('activity bar is functional', async ({ page }) => {
     
     // Check activity bar is visible
     const activityBar = await page.locator('.activity-bar');
@@ -68,9 +28,7 @@ test.describe('Panes Functionality E2E Tests', () => {
     await expect(activityItems).toHaveCount(5); // Explorer, Search, SCM, Debug, Extensions
   });
 
-  test('sidebar can be toggled with Ctrl+B', async () => {
-    if (!context?.page) throw new Error('Context not initialized');
-    const page = context.page;
+  test('sidebar can be toggled with Ctrl+B', async ({ page }) => {
     
     // Check sidebar is initially visible
     const sidebar = await page.locator('.sidebar').first();
@@ -91,9 +49,7 @@ test.describe('Panes Functionality E2E Tests', () => {
     await expect(sidebar).toBeVisible();
   });
 
-  test('panel can be toggled with Ctrl+J', async () => {
-    if (!context?.page) throw new Error('Context not initialized');
-    const page = context.page;
+  test('panel can be toggled with Ctrl+J', async ({ page }) => {
     
     // Check panel is initially visible
     const panel = await page.locator('.panel');
@@ -116,9 +72,7 @@ test.describe('Panes Functionality E2E Tests', () => {
     expect(isFinallyVisible).toBe(isInitiallyVisible);
   });
 
-  test('tabs can be added and closed', async () => {
-    if (!context?.page) throw new Error('Context not initialized');
-    const page = context.page;
+  test('tabs can be added and closed', async ({ page }) => {
     
     // Check initial tab count
     const tabs = await page.locator('.tab');
@@ -139,9 +93,7 @@ test.describe('Panes Functionality E2E Tests', () => {
     }
   });
 
-  test('editor can be split horizontally with Ctrl+\\', async () => {
-    if (!context?.page) throw new Error('Context not initialized');
-    const page = context.page;
+  test('editor can be split horizontally with Ctrl+\\', async ({ page }) => {
     
     // Count initial editor leaves
     const initialLeaves = await page.locator('.editor-leaf');
@@ -159,9 +111,7 @@ test.describe('Panes Functionality E2E Tests', () => {
     expect(newCount).toBeGreaterThanOrEqual(initialCount);
   });
 
-  test('status bar shows information', async () => {
-    if (!context?.page) throw new Error('Context not initialized');
-    const page = context.page;
+  test('status bar shows information', async ({ page }) => {
     
     // Check status bar is visible
     const statusBar = await page.locator('.status-bar');
@@ -173,9 +123,7 @@ test.describe('Panes Functionality E2E Tests', () => {
     expect(itemCount).toBeGreaterThan(0);
   });
 
-  test('welcome tab is shown when no files are open', async () => {
-    if (!context?.page) throw new Error('Context not initialized');
-    const page = context.page;
+  test('welcome tab is shown when no files are open', async ({ page }) => {
     
     // Look for welcome tab or empty state
     const emptyState = await page.locator('.editor-empty, .welcome-tab');
@@ -190,9 +138,7 @@ test.describe('Panes Functionality E2E Tests', () => {
     }
   });
 
-  test('tab navigation with Ctrl+Tab works', async () => {
-    if (!context?.page) throw new Error('Context not initialized');
-    const page = context.page;
+  test('tab navigation with Ctrl+Tab works', async ({ page }) => {
     
     // Get all tabs
     const tabs = await page.locator('.tab');
@@ -230,9 +176,7 @@ test.describe('Panes Functionality E2E Tests', () => {
 });
 
 test.describe('Panes Drag and Drop', () => {
-  test('tabs can be reordered by dragging', async () => {
-    if (!context?.page) throw new Error('Context not initialized');
-    const page = context.page;
+  test('tabs can be reordered by dragging', async ({ page }) => {
     
     // Get tabs
     const tabs = await page.locator('.tab');
@@ -263,9 +207,7 @@ test.describe('Panes Drag and Drop', () => {
     }
   });
 
-  test('resize gutter allows resizing panes', async () => {
-    if (!context?.page) throw new Error('Context not initialized');
-    const page = context.page;
+  test('resize gutter allows resizing panes', async ({ page }) => {
     
     // Look for resize gutters
     const gutters = await page.locator('.resize-gutter');

@@ -1,50 +1,12 @@
-import { test, expect } from '@playwright/test';
-import { 
-  launchElectronE2E, 
-  captureRendererErrors, 
-  setupMainProcessMonitoring,
-  closeApp,
-  type TestContext 
-} from './helpers/e2e';
-
-let context: TestContext | undefined;
-
-test.beforeAll(async () => {
-  try {
-    // Launch the Electron app
-    context = await launchElectronE2E();
-    
-    // Capture any renderer errors
-    context.errors = captureRendererErrors(context.page);
-    
-    // Monitor main process
-    setupMainProcessMonitoring(context.app);
-  } catch (error) {
-    console.error('Failed to launch Electron app:', error);
-    throw error;
-  }
-});
-
-test.afterAll(async () => {
-  // Close the app if it was launched
-  if (context) {
-    await closeApp(context);
-  }
-});
+import { test, expect } from './fixtures/electronTest';
 
 test.describe('Tab Closing Bug Reproduction', () => {
-  test.beforeEach(async () => {
-    if (!context?.page) {
-      throw new Error('Page not initialized');
-    }
-    // Reset any state before each test
-    await context.page.reload();
-    await context.page.waitForTimeout(1000); // Give time for app to initialize
+  test.beforeEach(async ({ resetApp }) => {
+    // Reset app state instead of reloading
+    await resetApp();
   });
 
-  test('close button is visible on tabs', async () => {
-    if (!context?.page) throw new Error('Context not initialized');
-    const page = context.page;
+  test('close button is visible on tabs', async ({ page }) => {
     
     // Wait for tabs to be visible
     await page.waitForSelector('.tab', { timeout: 5000 });
@@ -74,9 +36,7 @@ test.describe('Tab Closing Bug Reproduction', () => {
     }
   });
 
-  test('close button click is handled for single tab', async () => {
-    if (!context?.page) throw new Error('Context not initialized');
-    const page = context.page;
+  test('close button click is handled for single tab', async ({ page }) => {
     
     // Wait for tabs to be visible
     await page.waitForSelector('.tab', { timeout: 5000 });
@@ -136,9 +96,7 @@ test.describe('Tab Closing Bug Reproduction', () => {
     }
   });
 
-  test('close button works with multiple tabs', async () => {
-    if (!context?.page) throw new Error('Context not initialized');
-    const page = context.page;
+  test('close button works with multiple tabs', async ({ page }) => {
     
     // First, let's try to create multiple tabs by splitting
     await page.waitForSelector('.tab', { timeout: 5000 });
@@ -185,9 +143,7 @@ test.describe('Tab Closing Bug Reproduction', () => {
     }
   });
 
-  test('console errors are captured during tab closing', async () => {
-    if (!context?.page) throw new Error('Context not initialized');
-    const page = context.page;
+  test('console errors are captured during tab closing', async ({ page, errors }) => {
     
     // Capture console logs
     const consoleLogs: string[] = [];
@@ -220,15 +176,12 @@ test.describe('Tab Closing Bug Reproduction', () => {
     console.log('Console logs during test:');
     consoleLogs.forEach(log => console.log(`  ${log}`));
     
-    // Check for any errors in our context.errors
-    const { errors } = context;
+    // Check for any errors
     console.log(`Total renderer errors captured: ${errors.length}`);
     errors.forEach(error => console.log(`  Error: ${error}`));
   });
 
-  test('state changes are properly handled during tab closing', async () => {
-    if (!context?.page) throw new Error('Context not initialized');
-    const page = context.page;
+  test('state changes are properly handled during tab closing', async ({ page }) => {
     
     // Wait for tabs
     await page.waitForSelector('.tab', { timeout: 5000 });

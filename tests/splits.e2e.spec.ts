@@ -1,46 +1,13 @@
-import { test, expect } from '@playwright/test';
-import { 
-  launchElectronE2E, 
-  captureRendererErrors, 
-  setupMainProcessMonitoring,
-  closeApp,
-  type TestContext 
-} from './helpers/e2e';
-
-let context: TestContext | undefined;
-
-test.beforeAll(async () => {
-  try {
-    context = await launchElectronE2E();
-    context.errors = captureRendererErrors(context.page);
-    setupMainProcessMonitoring(context.app);
-  } catch (error) {
-    console.error('Failed to launch Electron app:', error);
-    throw error;
-  }
-});
-
-test.afterAll(async () => {
-  if (context) {
-    await closeApp(context);
-  }
-});
+import { test, expect } from './fixtures/electronTest';
 
 test.describe('Split Panes Testing', () => {
-  test.beforeEach(async () => {
-    if (!context?.page) {
-      throw new Error('Context not initialized');
-    }
-    // Clear errors before each test
-    context.errors.length = 0;
-    
-    // Wait for app to be ready
-    await context.page.waitForLoadState('domcontentloaded');
-    await context.page.waitForTimeout(1000);
+  test.beforeEach(async ({ resetApp, errors }) => {
+    // Reset app state and clear errors
+    await resetApp();
+    errors.length = 0;
   });
 
-  test('horizontal split with Ctrl+\\ creates new pane', async () => {
-    const { page, errors } = context!;
+  test('horizontal split with Ctrl+\\ creates new pane', async ({ page, errors }) => {
     
     // Count initial editor leaves (panes)
     const initialLeaves = await page.locator('.editor-leaf').count();
@@ -233,8 +200,7 @@ test.describe('Split Panes Testing', () => {
     expect(errors).toHaveLength(0);
   });
 
-  test('closing tab in split pane with Ctrl+W', async () => {
-    const { page, errors } = context!;
+  test('closing tab in split pane with Ctrl+W', async ({ page, errors }) => {
     
     // Create a split
     await page.keyboard.press('Control+\\');
