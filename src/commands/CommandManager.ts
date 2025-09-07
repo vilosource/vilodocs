@@ -202,6 +202,21 @@ export class CommandManager {
       }
     });
 
+    // Focus mode command
+    this.registerCommand({
+      id: 'editor.toggleFocusMode',
+      label: 'Toggle Focus Mode',
+      keybinding: 'Alt+M',
+      execute: (context) => {
+        this.dispatch({
+          type: 'TOGGLE_FOCUS_MODE',
+          payload: {
+            tabId: context?.activeTabId // Optional - will use current active tab if not provided
+          }
+        });
+      }
+    });
+
     // Tab navigation
     this.registerCommand({
       id: 'tab.next',

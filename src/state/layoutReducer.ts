@@ -5,6 +5,10 @@ export interface EditorGridState {
   activeLeafId: string;
   leafMap: Map<string, Leaf>;
   focusHistory: string[];
+  focusMode: {
+    active: boolean;
+    tabId: string | null;
+  };
 }
 
 export type LayoutAction =
@@ -19,8 +23,11 @@ export type LayoutAction =
   | { type: 'CLOSE_ALL_TABS'; payload: { leafId: string } }
   | { type: 'CLOSE_TABS_TO_RIGHT'; payload: { leafId: string; fromIndex: number } }
   | { type: 'UPDATE_TAB_DIRTY'; payload: { tabId: string; dirty: boolean } }
+  | { type: 'UPDATE_TAB_CONTENT'; payload: { tabId: string; content: string } }
   | { type: 'SWITCH_TAB_WIDGET'; payload: { tabId: string; widgetType: string } }
   | { type: 'FOCUS_LEAF'; payload: { leafId: string } }
+  | { type: 'TOGGLE_FOCUS_MODE'; payload: { tabId?: string } }
+  | { type: 'EXIT_FOCUS_MODE' }
   | { type: 'RESTORE_LAYOUT'; payload: LayoutNode };
 
 let nextId = 1;
@@ -175,7 +182,11 @@ export function createInitialState(): EditorGridState {
     root: rootLeaf,
     activeLeafId: rootLeaf.id,
     leafMap: new Map([[rootLeaf.id, rootLeaf]]),
-    focusHistory: [rootLeaf.id]
+    focusHistory: [rootLeaf.id],
+    focusMode: {
+      active: false,
+      tabId: null
+    }
   };
 }
 
@@ -546,6 +557,37 @@ export function layoutReducer(state: EditorGridState, action: LayoutAction): Edi
       };
     }
 
+    case 'UPDATE_TAB_CONTENT': {
+      const { tabId, content } = action.payload;
+      const leaf = findLeafWithTab(state, tabId);
+      if (!leaf) return state;
+
+      const updatedTabs = leaf.tabs.map(tab => {
+        if (tab.id === tabId) {
+          return {
+            ...tab,
+            widget: {
+              ...tab.widget,
+              props: {
+                ...tab.widget?.props,
+                content
+              }
+            }
+          };
+        }
+        return tab;
+      });
+
+      const updatedLeaf = { ...leaf, tabs: updatedTabs };
+      const newRoot = replaceLeafInTree(state.root, updatedLeaf);
+      
+      return {
+        ...state,
+        root: newRoot,
+        leafMap: rebuildLeafMap(newRoot)
+      };
+    }
+
     case 'SWITCH_TAB_WIDGET': {
       const { tabId, widgetType } = action.payload;
       const leaf = findLeafWithTab(state, tabId);
@@ -601,6 +643,57 @@ export function layoutReducer(state: EditorGridState, action: LayoutAction): Edi
         root: newRoot,
         leafMap,
         activeLeafId
+      };
+    }
+
+    case 'TOGGLE_FOCUS_MODE': {
+      const { tabId } = action.payload;
+      
+      if (state.focusMode.active) {
+        // Exit focus mode
+        return {
+          ...state,
+          focusMode: {
+            active: false,
+            tabId: null
+          }
+        };
+      } else {
+        // Enter focus mode with specified tab or current active tab
+        let targetTabId = tabId;
+        
+        if (!targetTabId) {
+          // Find current active tab
+          const activeLeaf = state.leafMap.get(state.activeLeafId);
+          targetTabId = activeLeaf?.activeTabId || null;
+        }
+        
+        if (!targetTabId) {
+          // No active tab to focus on
+          return state;
+        }
+        
+        return {
+          ...state,
+          focusMode: {
+            active: true,
+            tabId: targetTabId
+          }
+        };
+      }
+    }
+
+    case 'EXIT_FOCUS_MODE': {
+      if (!state.focusMode.active) {
+        return state;
+      }
+      
+      return {
+        ...state,
+        focusMode: {
+          active: false,
+          tabId: null
+        }
       };
     }
     

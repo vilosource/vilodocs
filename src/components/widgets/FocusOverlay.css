@@ -1,0 +1,195 @@
+.focus-overlay-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: var(--theme-z-modal);
+  animation: focus-overlay-fade-in 0.2s ease-out;
+}
+
+.focus-overlay-container {
+  width: 90%;
+  height: 90%;
+  background-color: var(--vscode-editor-background);
+  border: 1px solid var(--vscode-panel-border);
+  border-radius: var(--theme-radius-lg);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: var(--theme-shadow-xl);
+  animation: focus-overlay-scale-in 0.2s ease-out;
+}
+
+.focus-overlay-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--theme-spacing-md) var(--theme-spacing-lg);
+  background-color: var(--vscode-panel-background);
+  border-bottom: 1px solid var(--vscode-panel-border);
+  min-height: 40px;
+}
+
+.focus-overlay-title {
+  display: flex;
+  align-items: center;
+  gap: var(--theme-spacing-md);
+  font-size: var(--theme-font-size-md);
+}
+
+.focus-mode-label {
+  color: var(--vscode-statusBar-foreground);
+  background-color: var(--vscode-statusBar-background);
+  padding: var(--theme-spacing-xs) var(--theme-spacing-sm);
+  border-radius: var(--theme-radius-sm);
+  font-size: var(--theme-font-size-xs);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.focus-file-name {
+  color: var(--vscode-editor-foreground);
+  font-weight: 500;
+}
+
+.focus-overlay-close {
+  width: 28px;
+  height: 28px;
+  border: none;
+  background: transparent;
+  color: var(--vscode-editor-foreground);
+  font-size: var(--theme-font-size-lg);
+  cursor: pointer;
+  border-radius: var(--theme-radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--theme-transition-fast);
+}
+
+.focus-overlay-close:hover {
+  background-color: var(--vscode-toolbar-hoverBackground, rgba(255, 255, 255, 0.1));
+  color: var(--vscode-editor-foreground);
+}
+
+.focus-overlay-close:active {
+  background-color: var(--vscode-list-activeSelectionBackground);
+}
+
+.focus-overlay-content {
+  flex: 1;
+  overflow: hidden;
+  position: relative;
+}
+
+.focus-overlay-footer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--theme-spacing-sm) var(--theme-spacing-lg);
+  background-color: var(--vscode-panel-background);
+  border-top: 1px solid var(--vscode-panel-border);
+  min-height: 32px;
+}
+
+.focus-mode-shortcuts {
+  display: flex;
+  align-items: center;
+  gap: var(--theme-spacing-lg);
+}
+
+.shortcut-item {
+  font-size: var(--theme-font-size-xs);
+  color: var(--vscode-descriptionForeground);
+  display: flex;
+  align-items: center;
+  gap: var(--theme-spacing-xs);
+}
+
+.shortcut-item kbd {
+  background: var(--vscode-input-background);
+  border: 1px solid var(--vscode-panel-border);
+  border-radius: var(--theme-radius-sm);
+  padding: 2px var(--theme-spacing-xs);
+  font-size: var(--theme-font-size-xs);
+  font-family: var(--theme-font-family-mono);
+  color: var(--vscode-input-foreground);
+}
+
+/* Animations */
+@keyframes focus-overlay-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes focus-overlay-scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Exit animation classes */
+.focus-overlay-backdrop.exiting {
+  animation: focus-overlay-fade-out 0.15s ease-in;
+}
+
+.focus-overlay-container.exiting {
+  animation: focus-overlay-scale-out 0.15s ease-in;
+}
+
+@keyframes focus-overlay-fade-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes focus-overlay-scale-out {
+  from {
+    opacity: 1;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .focus-overlay-container {
+    width: 95%;
+    height: 95%;
+  }
+  
+  .focus-overlay-header {
+    padding: var(--theme-spacing-sm) var(--theme-spacing-md);
+  }
+  
+  .focus-overlay-title {
+    gap: var(--theme-spacing-sm);
+    font-size: var(--theme-font-size-sm);
+  }
+  
+  .focus-mode-label {
+    font-size: 10px;
+    padding: 2px var(--theme-spacing-xs);
+  }
+}

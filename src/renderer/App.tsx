@@ -9,6 +9,7 @@ import { generateUniqueId, generateFileTabId } from '../utils/id-generator';
 import { useLayoutState } from './hooks/useStateService';
 import { stateService } from './services/StateService';
 import WidgetRegistryService from '../services/WidgetRegistry';
+import { FocusOverlay } from '../components/widgets/FocusOverlay';
 import './App.css';
 
 // Create singleton instances
@@ -135,6 +136,30 @@ export const App: React.FC = () => {
     }
   };
 
+  // Get the focused tab for the focus overlay
+  const getFocusedTab = () => {
+    if (!state.focusMode.active || !state.focusMode.tabId) {
+      return null;
+    }
+    
+    // Find the tab in any leaf
+    for (const leaf of state.leafMap.values()) {
+      const tab = leaf.tabs.find(t => t.id === state.focusMode.tabId);
+      if (tab) {
+        return tab;
+      }
+    }
+    
+    return null;
+  };
+
+  const focusedTab = getFocusedTab();
+
+  // Handle focus mode close
+  const handleCloseFocusMode = useCallback(() => {
+    dispatch({ type: 'EXIT_FOCUS_MODE' });
+  }, [dispatch]);
+
   // Add welcome tab if empty
   useEffect(() => {
     if (!isLoading && state.root.tabs?.length === 0) {
@@ -250,6 +275,40 @@ export const App: React.FC = () => {
           focusManager={focusManager}
         />
       </Shell>
+      
+      {focusedTab && (
+        <FocusOverlay
+          tab={focusedTab}
+          visible={state.focusMode.active}
+          onClose={handleCloseFocusMode}
+          onContentChange={(tabId, content) => {
+            // Handle content changes - find the leaf and update the tab
+            for (const leaf of state.leafMap.values()) {
+              const tabIndex = leaf.tabs.findIndex(t => t.id === tabId);
+              if (tabIndex !== -1) {
+                // Update the tab's content
+                dispatch({
+                  type: 'UPDATE_TAB_CONTENT',
+                  payload: { tabId, content }
+                });
+                break;
+              }
+            }
+          }}
+          onDirtyChange={(tabId, isDirty) => {
+            dispatch({
+              type: 'UPDATE_TAB_DIRTY',
+              payload: { tabId, dirty: isDirty }
+            });
+          }}
+          onSwitchWidget={(tabId, newWidgetType) => {
+            dispatch({
+              type: 'SWITCH_TAB_WIDGET',
+              payload: { tabId, widgetType: newWidgetType }
+            });
+          }}
+        />
+      )}
     </div>
   );
 };
