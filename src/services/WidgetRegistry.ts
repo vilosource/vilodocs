@@ -129,7 +129,7 @@ class WidgetRegistryService {
     this.widgets.set(provider.type, provider);
   }
 
-  registerFileAssociation(pattern: string, widgetType: string, priority: number = 50): void {
+  registerFileAssociation(pattern: string, widgetType: string, priority = 50): void {
     this.fileAssociations.push({ pattern, widgetType, priority });
     // Sort by priority after adding
     this.fileAssociations.sort((a, b) => b.priority - a.priority);

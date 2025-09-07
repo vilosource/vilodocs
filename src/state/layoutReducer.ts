@@ -146,7 +146,7 @@ function normalizeSizes(sizes: number[]): number[] {
   return sizes.map(size => (size / total) * 100);
 }
 
-function enforceMinimumSizes(sizes: number[], minSize: number = 10): number[] {
+function enforceMinimumSizes(sizes: number[], minSize = 10): number[] {
   // First pass: ensure all sizes meet minimum
   let enforced = sizes.map(size => Math.max(size, minSize));
   

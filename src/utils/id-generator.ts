@@ -10,7 +10,7 @@ let counter = 0;
  * @param prefix - The prefix for the ID (e.g., 'tab', 'file', 'pane')
  * @returns A unique ID string
  */
-export function generateUniqueId(prefix: string = 'id'): string {
+export function generateUniqueId(prefix = 'id'): string {
   // Reset counter periodically to avoid overflow
   if (counter > 999999) {
     counter = 0;

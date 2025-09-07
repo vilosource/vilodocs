@@ -12,7 +12,7 @@ export class CommandManager {
   private commands: Map<string, Command> = new Map();
   private dispatch: (action: LayoutAction) => void;
   private chordState: string | null = null;
-  private chordTimeout: number = 1000; // 1 second timeout for chord sequences
+  private chordTimeout = 1000; // 1 second timeout for chord sequences
   private chordTimer: NodeJS.Timeout | null = null;
 
   constructor(dispatch: (action: LayoutAction) => void) {

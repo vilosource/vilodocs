@@ -335,7 +335,7 @@ describe('layoutReducer', () => {
 
   describe('RESIZE_SPLIT', () => {
     test('should resize split children', () => {
-      let state = layoutReducer(initialState, {
+      const state = layoutReducer(initialState, {
         type: 'SPLIT_LEAF',
         payload: { leafId: 'root', direction: 'horizontal' }
       });
@@ -356,7 +356,7 @@ describe('layoutReducer', () => {
     });
 
     test('should enforce minimum sizes', () => {
-      let state = layoutReducer(initialState, {
+      const state = layoutReducer(initialState, {
         type: 'SPLIT_LEAF',
         payload: { leafId: 'root', direction: 'horizontal' }
       });
@@ -380,7 +380,7 @@ describe('layoutReducer', () => {
 
   describe('Invariants', () => {
     test('split should always have at least 2 children', () => {
-      let state = layoutReducer(initialState, {
+      const state = layoutReducer(initialState, {
         type: 'SPLIT_LEAF',
         payload: { leafId: 'root', direction: 'horizontal' }
       });
@@ -391,7 +391,7 @@ describe('layoutReducer', () => {
     });
 
     test('sizes should always sum to 100', () => {
-      let state = layoutReducer(initialState, {
+      const state = layoutReducer(initialState, {
         type: 'SPLIT_LEAF',
         payload: { leafId: 'root', direction: 'horizontal' }
       });
@@ -403,7 +403,7 @@ describe('layoutReducer', () => {
     });
 
     test('active tab should exist in its leaf', () => {
-      let state = layoutReducer(initialState, {
+      const state = layoutReducer(initialState, {
         type: 'ADD_TAB',
         payload: {
           leafId: 'root',

@@ -15,7 +15,7 @@ export const DockOverlay: React.FC<DockOverlayProps> = ({
   if (!visible) return null;
 
   // Calculate overlay position based on drop position
-  let overlayBounds = { ...bounds };
+  const overlayBounds = { ...bounds };
   
   switch (position) {
     case 'left':
