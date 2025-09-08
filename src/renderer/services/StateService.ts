@@ -110,6 +110,10 @@ class StateService extends EventEmitter {
    * Update workspace state
    */
   async updateWorkspace(workspace: Partial<WorkspaceState>): Promise<void> {
+    console.log('StateService.updateWorkspace - input:', workspace);
+    console.log('StateService.updateWorkspace - current workspace type:', workspace.current?.type);
+    console.log('StateService.updateWorkspace - current folders:', workspace.current?.folders?.length);
+    
     const action: StateUpdateAction = {
       type: 'workspace',
       payload: workspace,
@@ -119,6 +123,7 @@ class StateService extends EventEmitter {
     
     // Optimistically update local state
     this.state.workspace = { ...this.state.workspace, ...workspace };
+    console.log('StateService.updateWorkspace - after update, workspace type:', this.state.workspace.current?.type);
     this.emit('workspaceChanged', this.state.workspace);
   }
 

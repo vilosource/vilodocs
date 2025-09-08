@@ -36,6 +36,8 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
   useEffect(() => {
     if (initialWorkspace) {
       console.log('FileExplorer: Loading workspace:', initialWorkspace.name || initialWorkspace.folders[0].path);
+      console.log('FileExplorer: Workspace type:', initialWorkspace.type);
+      console.log('FileExplorer: Folder count:', initialWorkspace.folders.length);
       workspaceService.openWorkspace(initialWorkspace).catch(err => {
         console.error('Failed to open workspace:', err);
       });
@@ -123,6 +125,16 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
 
   // Get all nodes from all workspace folders
   const allNodes = Array.from(state.rootNodes.values()).flat();
+
+  // Debug logging for multi-root workspace
+  console.log('FileExplorer render - workspace state:', {
+    workspace: state.workspace,
+    type: state.workspace?.type,
+    folderCount: state.workspace?.folders?.length,
+    isMulti: state.workspace?.type === 'multi',
+    rootNodesSize: state.rootNodes.size,
+    allNodesLength: allNodes.length
+  });
 
   if (!state.workspace) {
     return (

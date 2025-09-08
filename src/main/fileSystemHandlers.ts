@@ -3,6 +3,7 @@ import fs from 'node:fs/promises';
 import fsSync from 'node:fs';
 import path from 'node:path';
 import { watch } from 'chokidar';
+import Store from 'electron-store';
 import { Channels, type FileNode, type FileStats, type Workspace, type WorkspaceFolder } from '../common/ipc';
 // eslint-disable-next-line import/no-unresolved
 import { v4 as uuidv4 } from 'uuid';
@@ -10,7 +11,8 @@ import { v4 as uuidv4 } from 'uuid';
 // Store active file watchers
 const fileWatchers = new Map<string, any>();
 
-// Recent workspaces storage
+// Recent workspaces storage using electron-store
+const store = new Store();
 const RECENT_WORKSPACES_KEY = 'recentWorkspaces';
 const MAX_RECENT_WORKSPACES = 10;
 
@@ -91,9 +93,9 @@ async function readDirectoryRecursive(dirPath: string, depth = 0, maxDepth = 1):
  */
 function getRecentWorkspaces(): string[] {
   try {
-    const stored = global.localStorage?.getItem(RECENT_WORKSPACES_KEY);
-    return stored ? JSON.parse(stored) : [];
-  } catch {
+    return store.get(RECENT_WORKSPACES_KEY, []) as string[];
+  } catch (error) {
+    console.error('Failed to get recent workspaces:', error);
     return [];
   }
 }
@@ -102,13 +104,14 @@ function getRecentWorkspaces(): string[] {
  * Adds a workspace to recent list
  */
 function addRecentWorkspace(workspacePath: string): void {
-  const recent = getRecentWorkspaces();
-  const filtered = recent.filter(p => p !== workspacePath);
-  filtered.unshift(workspacePath);
-  const trimmed = filtered.slice(0, MAX_RECENT_WORKSPACES);
-  
   try {
-    global.localStorage?.setItem(RECENT_WORKSPACES_KEY, JSON.stringify(trimmed));
+    const recent = getRecentWorkspaces();
+    const filtered = recent.filter(p => p !== workspacePath);
+    filtered.unshift(workspacePath);
+    const trimmed = filtered.slice(0, MAX_RECENT_WORKSPACES);
+    
+    store.set(RECENT_WORKSPACES_KEY, trimmed);
+    console.log('Added to recent workspaces:', workspacePath);
   } catch (error) {
     console.error('Failed to save recent workspaces:', error);
   }

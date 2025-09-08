@@ -1,0 +1,18 @@
+{
+  "version": 1,
+  "name": "Multi-Root Test Workspace",
+  "folders": [
+    {
+      "path": "./src",
+      "name": "Source Code"
+    },
+    {
+      "path": "./tests",
+      "name": "Tests"
+    },
+    {
+      "path": "./docs",
+      "name": "Documentation"
+    }
+  ]
+}
