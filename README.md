@@ -21,6 +21,7 @@ A modern document editor built with Electron, featuring VS Code-style panes, wor
 
 ### 🎛️ **VS Code-Style Interface**
 - Split panes (horizontal: Ctrl+\, vertical: Ctrl+Alt+\)
+- Quick pane navigation with number overlays (Alt+P)
 - Drag-resizable splits with 50%/50% defaults
 - Activity bar and sidebar navigation
 - Status bar with file information
@@ -45,7 +46,8 @@ A modern document editor built with Electron, featuring VS Code-style panes, wor
 - `Ctrl+K Ctrl+O` - Open folder
 - `Ctrl+B` - Toggle sidebar
 - `Ctrl+J` - Toggle panel
-- `F6` - Navigate between panes
+- `Alt+P` - Quick pane navigation with number overlays
+- `F6` - Navigate between panes sequentially
 
 ### **Editor & Splits**
 - `Ctrl+\` - Split editor horizontally (side by side)
