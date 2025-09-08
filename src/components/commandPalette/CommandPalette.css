@@ -5,28 +5,46 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
+  background-color: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(2px);
   display: flex;
   align-items: flex-start;
   justify-content: center;
-  padding-top: 10vh;
-  z-index: calc(var(--theme-z-modal) + 100);
-  animation: command-palette-fade-in 0.15s ease-out;
+  padding-top: 8vh;
+  z-index: 9999;
+  animation: command-palette-fade-in 0.2s ease-out;
 }
 
 /* Command Palette Container */
 .command-palette-container {
   width: 90%;
-  max-width: 600px;
-  max-height: 70vh;
-  background-color: var(--vscode-quickInput-background, var(--vscode-dropdown-background));
-  border: 1px solid var(--vscode-widget-border, var(--vscode-panel-border));
-  border-radius: var(--theme-radius-md, 4px);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
+  max-width: 640px;
+  max-height: 75vh;
+  background: linear-gradient(to bottom, #2d2d30, #252526);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  box-shadow: 
+    0 20px 60px rgba(0, 0, 0, 0.5),
+    0 0 0 1px rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  animation: command-palette-slide-in 0.15s ease-out;
+  animation: command-palette-slide-in 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Dark theme with good contrast */
+.command-palette-container {
+  --palette-bg-primary: #252526;
+  --palette-bg-secondary: #2d2d30;
+  --palette-bg-hover: #2a2d2e;
+  --palette-bg-selected: #094771;
+  --palette-border: rgba(255, 255, 255, 0.1);
+  --palette-text-primary: #cccccc;
+  --palette-text-secondary: #999999;
+  --palette-text-muted: #666666;
+  --palette-accent: #007acc;
+  --palette-accent-hover: #1a8ad4;
 }
 
 /* Input Container */
@@ -34,9 +52,16 @@
   position: relative;
   display: flex;
   align-items: center;
-  padding: var(--theme-spacing-sm) var(--theme-spacing-md);
-  border-bottom: 1px solid var(--vscode-widget-border, var(--vscode-panel-border));
-  background-color: var(--vscode-input-background);
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--palette-border);
+  background: var(--palette-bg-secondary);
+}
+
+.command-palette-input-container::before {
+  content: '🔍';
+  margin-right: 12px;
+  opacity: 0.5;
+  font-size: 16px;
 }
 
 .command-palette-input {
@@ -44,37 +69,38 @@
   background: transparent;
   border: none;
   outline: none;
-  color: var(--vscode-input-foreground);
-  font-size: var(--theme-font-size-md, 14px);
-  font-family: var(--theme-font-family);
-  padding: var(--theme-spacing-xs) 0;
+  color: var(--palette-text-primary);
+  font-size: 15px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+  padding: 0;
+  line-height: 1.5;
 }
 
 .command-palette-input::placeholder {
-  color: var(--vscode-input-placeholderForeground);
-  opacity: 0.7;
+  color: var(--palette-text-muted);
+  opacity: 1;
 }
 
 .command-palette-clear {
-  width: 20px;
-  height: 20px;
+  width: 22px;
+  height: 22px;
   padding: 0;
   border: none;
   background: transparent;
-  color: var(--vscode-foreground);
-  opacity: 0.5;
+  color: var(--palette-text-secondary);
   cursor: pointer;
-  border-radius: var(--theme-radius-sm);
+  border-radius: 4px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 12px;
-  transition: opacity 0.15s;
+  font-size: 14px;
+  transition: all 0.15s ease;
+  margin-left: 8px;
 }
 
 .command-palette-clear:hover {
-  opacity: 1;
-  background-color: var(--vscode-toolbar-hoverBackground);
+  color: var(--palette-text-primary);
+  background-color: rgba(255, 255, 255, 0.08);
 }
 
 /* List Container */
@@ -82,100 +108,132 @@
   flex: 1;
   overflow-y: auto;
   overflow-x: hidden;
-  padding: var(--theme-spacing-xs) 0;
+  background: var(--palette-bg-primary);
+  padding: 4px 0;
 }
 
 /* Empty State */
 .command-palette-empty {
-  padding: var(--theme-spacing-lg);
+  padding: 32px 16px;
   text-align: center;
-  color: var(--vscode-descriptionForeground);
-  font-size: var(--theme-font-size-sm);
+  color: var(--palette-text-muted);
+  font-size: 14px;
+  font-style: italic;
 }
 
 /* List Items */
 .command-palette-item {
   display: flex;
   align-items: center;
-  padding: var(--theme-spacing-xs) var(--theme-spacing-md);
+  padding: 8px 16px;
   cursor: pointer;
-  min-height: 28px;
-  transition: background-color 0.1s;
+  min-height: 36px;
+  transition: background-color 0.1s ease;
+  position: relative;
 }
 
 .command-palette-item:hover {
-  background-color: var(--vscode-list-hoverBackground);
+  background-color: var(--palette-bg-hover);
 }
 
 .command-palette-item.selected {
-  background-color: var(--vscode-list-activeSelectionBackground);
-  color: var(--vscode-list-activeSelectionForeground);
+  background-color: var(--palette-bg-selected);
+}
+
+.command-palette-item.selected::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: var(--palette-accent);
 }
 
 .command-palette-item-icon {
   width: 20px;
   height: 20px;
-  margin-right: var(--theme-spacing-sm);
+  margin-right: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  opacity: 0.8;
+  font-size: 14px;
 }
 
 .command-palette-item-content {
   flex: 1;
   min-width: 0;
-  margin-right: var(--theme-spacing-sm);
+  margin-right: 12px;
 }
 
 .command-palette-item-label {
-  font-size: var(--theme-font-size-sm);
-  color: var(--vscode-foreground);
+  font-size: 14px;
+  color: var(--palette-text-primary);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  font-weight: 400;
+  line-height: 1.4;
+}
+
+.command-palette-item.selected .command-palette-item-label {
+  color: #ffffff;
 }
 
 .command-palette-item-description {
-  font-size: var(--theme-font-size-xs);
-  color: var(--vscode-descriptionForeground);
+  font-size: 12px;
+  color: var(--palette-text-secondary);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   margin-top: 2px;
+  line-height: 1.3;
+}
+
+.command-palette-item.selected .command-palette-item-description {
+  color: rgba(255, 255, 255, 0.7);
 }
 
 .command-palette-item-meta {
   display: flex;
   align-items: center;
-  gap: var(--theme-spacing-sm);
+  gap: 8px;
   flex-shrink: 0;
 }
 
 .command-palette-item-category {
-  font-size: var(--theme-font-size-xs);
-  color: var(--vscode-descriptionForeground);
-  background-color: var(--vscode-badge-background);
-  padding: 2px 6px;
-  border-radius: var(--theme-radius-sm);
+  font-size: 11px;
+  color: var(--palette-text-primary);
+  background: linear-gradient(135deg, rgba(0, 122, 204, 0.2), rgba(0, 122, 204, 0.1));
+  border: 1px solid rgba(0, 122, 204, 0.3);
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .command-palette-item-keybinding {
-  font-family: var(--theme-font-family-mono);
-  font-size: var(--theme-font-size-xs);
-  color: var(--vscode-descriptionForeground);
-  background-color: var(--vscode-keybindingLabel-background, var(--vscode-input-background));
-  border: 1px solid var(--vscode-keybindingLabel-border, var(--vscode-widget-border));
-  border-radius: var(--theme-radius-sm);
-  padding: 2px 4px;
+  font-family: 'SF Mono', 'Monaco', 'Consolas', monospace;
+  font-size: 11px;
+  color: var(--palette-text-secondary);
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid var(--palette-border);
+  border-radius: 4px;
+  padding: 2px 6px;
   white-space: nowrap;
+  box-shadow: inset 0 -1px 0 rgba(0, 0, 0, 0.2);
 }
 
 /* Match Highlighting */
 .match-highlight {
-  color: var(--vscode-list-highlightForeground, var(--vscode-focusBorder));
+  color: var(--palette-accent);
   font-weight: 600;
+  text-decoration: underline;
+  text-decoration-color: var(--palette-accent);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 2px;
 }
 
 /* Footer */
@@ -183,38 +241,53 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: var(--theme-spacing-xs) var(--theme-spacing-md);
-  border-top: 1px solid var(--vscode-widget-border, var(--vscode-panel-border));
-  background-color: var(--vscode-quickInput-background);
-  font-size: var(--theme-font-size-xs);
-  color: var(--vscode-descriptionForeground);
+  padding: 8px 16px;
+  border-top: 1px solid var(--palette-border);
+  background: var(--palette-bg-secondary);
+  font-size: 12px;
+  color: var(--palette-text-secondary);
+  min-height: 32px;
 }
 
 .command-palette-hints {
   display: flex;
   align-items: center;
-  gap: var(--theme-spacing-md);
+  gap: 16px;
 }
 
 .hint-item {
   display: flex;
   align-items: center;
-  gap: var(--theme-spacing-xs);
+  gap: 6px;
+  opacity: 0.8;
+  transition: opacity 0.15s ease;
+}
+
+.hint-item:hover {
+  opacity: 1;
 }
 
 .hint-item kbd {
-  font-family: var(--theme-font-family-mono);
-  font-size: var(--theme-font-size-xs);
-  background-color: var(--vscode-keybindingLabel-background, var(--vscode-input-background));
-  border: 1px solid var(--vscode-keybindingLabel-border, var(--vscode-widget-border));
-  border-radius: var(--theme-radius-sm);
-  padding: 1px 3px;
+  font-family: 'SF Mono', 'Monaco', 'Consolas', monospace;
+  font-size: 11px;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid var(--palette-border);
+  border-radius: 3px;
+  padding: 2px 5px;
+  box-shadow: inset 0 -1px 0 rgba(0, 0, 0, 0.3);
+  color: var(--palette-text-primary);
 }
 
 .command-palette-mode {
-  font-weight: 500;
-  color: var(--vscode-foreground);
-  opacity: 0.8;
+  font-weight: 600;
+  color: var(--palette-accent);
+  text-transform: uppercase;
+  font-size: 11px;
+  letter-spacing: 0.5px;
+  padding: 2px 8px;
+  background: rgba(0, 122, 204, 0.1);
+  border-radius: 4px;
+  border: 1px solid rgba(0, 122, 204, 0.2);
 }
 
 /* Animations */
@@ -230,7 +303,7 @@
 @keyframes command-palette-slide-in {
   from {
     opacity: 0;
-    transform: translateY(-20px) scale(0.95);
+    transform: translateY(-30px) scale(0.95);
   }
   to {
     opacity: 1;
@@ -240,26 +313,49 @@
 
 /* Scrollbar Styling */
 .command-palette-list::-webkit-scrollbar {
-  width: 10px;
+  width: 12px;
 }
 
 .command-palette-list::-webkit-scrollbar-track {
   background: transparent;
+  margin: 4px 0;
 }
 
 .command-palette-list::-webkit-scrollbar-thumb {
-  background-color: var(--vscode-scrollbarSlider-background);
+  background-color: rgba(255, 255, 255, 0.1);
   border-radius: 10px;
-  border: 2px solid transparent;
+  border: 3px solid transparent;
   background-clip: content-box;
+  transition: background-color 0.2s ease;
 }
 
 .command-palette-list::-webkit-scrollbar-thumb:hover {
-  background-color: var(--vscode-scrollbarSlider-hoverBackground);
+  background-color: rgba(255, 255, 255, 0.15);
 }
 
 .command-palette-list::-webkit-scrollbar-thumb:active {
-  background-color: var(--vscode-scrollbarSlider-activeBackground);
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Light theme support (if needed in future) */
+@media (prefers-color-scheme: light) {
+  .command-palette-container {
+    --palette-bg-primary: #ffffff;
+    --palette-bg-secondary: #f3f3f3;
+    --palette-bg-hover: #e8e8e8;
+    --palette-bg-selected: #0e639c;
+    --palette-border: rgba(0, 0, 0, 0.1);
+    --palette-text-primary: #333333;
+    --palette-text-secondary: #666666;
+    --palette-text-muted: #999999;
+    --palette-accent: #0e639c;
+    --palette-accent-hover: #1177bb;
+    
+    background: linear-gradient(to bottom, #ffffff, #f8f8f8);
+    box-shadow: 
+      0 20px 60px rgba(0, 0, 0, 0.15),
+      0 0 0 1px rgba(0, 0, 0, 0.05);
+  }
 }
 
 /* Responsive Adjustments */
@@ -268,15 +364,38 @@
     width: 95%;
     max-width: none;
     margin: 0 10px;
+    max-height: 85vh;
+    padding-top: 5vh;
   }
   
   .command-palette-footer {
     flex-direction: column;
-    gap: var(--theme-spacing-xs);
-    align-items: flex-start;
+    gap: 8px;
+    align-items: stretch;
+    padding: 12px 16px;
   }
   
   .command-palette-hints {
     flex-wrap: wrap;
+    justify-content: center;
   }
+  
+  .command-palette-mode {
+    align-self: center;
+  }
+}
+
+/* Focus styles for accessibility */
+.command-palette-input:focus-visible,
+.command-palette-clear:focus-visible,
+.command-palette-item:focus-visible {
+  outline: 2px solid var(--palette-accent);
+  outline-offset: -2px;
+}
+
+/* Smooth transitions for all interactive elements */
+.command-palette-item,
+.command-palette-clear,
+.hint-item {
+  transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
 }
