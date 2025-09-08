@@ -67,4 +67,21 @@ const api: RendererApis = {
   getWidgetState: (widgetId) => ipcRenderer.invoke(Channels.GetWidgetState, widgetId),
 };
 
-contextBridge.exposeInMainWorld('api', api);
+console.log('========================================');
+console.log('PRELOAD SCRIPT IS EXECUTING');
+console.log('========================================');
+console.log('contextBridge:', typeof contextBridge);
+console.log('ipcRenderer:', typeof ipcRenderer);
+console.log('window object exists:', typeof window !== 'undefined');
+
+try {
+  console.log('Attempting to expose API...');
+  contextBridge.exposeInMainWorld('api', api);
+  console.log('========================================');
+  console.log('API SUCCESSFULLY EXPOSED TO MAIN WORLD');
+  console.log('========================================');
+} catch (error) {
+  console.log('========================================');
+  console.error('ERROR EXPOSING API:', error);
+  console.log('========================================');
+}

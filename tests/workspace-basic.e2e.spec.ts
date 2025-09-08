@@ -1,6 +1,7 @@
 import { test, expect } from '@playwright/test';
 import * as fs from 'fs/promises';
 import * as path from 'path';
+import { ensureAPIAvailable } from './helpers/e2e-helpers';
 
 test.describe('Basic Workspace Tests', () => {
   test('app should load and show file explorer', async ({ page }) => {
@@ -63,6 +64,9 @@ test.describe('Basic Workspace Tests', () => {
     await page.goto('/');
     await page.waitForSelector('#root', { timeout: 30000 });
     
+    // Ensure API is available
+    await ensureAPIAvailable(page);
+    
     // Create test workspace file
     const workspacePath = path.join(process.cwd(), 'test-basic.vilodocs-workspace');
     const workspaceContent = {
@@ -100,6 +104,9 @@ test.describe('Basic Workspace Tests', () => {
   test('should verify multi-root workspace structure', async ({ page }) => {
     await page.goto('/');
     await page.waitForSelector('#root', { timeout: 30000 });
+    
+    // Ensure API is available
+    await ensureAPIAvailable(page);
     
     // Create and load a multi-root workspace
     const workspacePath = path.join(process.cwd(), 'test-multi.vilodocs-workspace');
@@ -144,6 +151,9 @@ test.describe('Basic Workspace Tests', () => {
   test('should distinguish between single and multi-root workspaces', async ({ page }) => {
     await page.goto('/');
     await page.waitForSelector('#root', { timeout: 30000 });
+    
+    // Ensure API is available
+    await ensureAPIAvailable(page);
     
     // Test single folder workspace
     const singlePath = path.join(process.cwd(), 'test-single.vilodocs-workspace');

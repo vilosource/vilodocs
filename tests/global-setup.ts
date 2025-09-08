@@ -51,13 +51,27 @@ async function globalSetup(config: FullConfig) {
     ? path.join(__dirname, '../node_modules/.bin/electron.cmd')
     : path.join(__dirname, '../node_modules/.bin/electron');
 
+  // Point to the built main.js file from Vite
+  const mainPath = path.join(__dirname, '../.vite/build/main.js');
+  
+  // Check if main.js exists
+  if (!fs.existsSync(mainPath)) {
+    throw new Error(`Main process file not found at: ${mainPath}`);
+  }
+  
   // In CI, we need to disable the sandbox due to permission issues
-  const args = ['.'];
+  const args = [mainPath];
+  
+  // Add --no-sandbox flag to help with preload script execution
+  args.push('--no-sandbox');
+  
   if (process.env.CI) {
-    args.push('--no-sandbox');
+    args.push('--disable-gpu');
   }
 
   console.log('🚀 Launching Electron app for E2E tests...');
+  console.log('Main path:', mainPath);
+  console.log('Args:', args);
   
   // Launch Electron app in E2E mode
   const app = await electron.launch({
@@ -69,9 +83,17 @@ async function globalSetup(config: FullConfig) {
       NODE_ENV: 'development', // Use development to load from dev server
       MAIN_WINDOW_VITE_DEV_SERVER_URL: 'http://localhost:5173', // Ensure it loads from dev server
       MAIN_WINDOW_VITE_NAME: 'main_window',
-      // Disable GPU in CI environments
-      DISPLAY: process.env.CI ? ':99' : process.env.DISPLAY
+      // Set DISPLAY properly for xvfb
+      DISPLAY: process.env.DISPLAY || ':99'
     },
+    // Enable logging to see main process output
+    handleSIGTERM: false,
+    handleSIGINT: false,
+  });
+  
+  // Listen for main process console output
+  app.on('console', (msg) => {
+    console.log(`Main process: ${msg.text()}`);
   });
 
   // Get the first window
