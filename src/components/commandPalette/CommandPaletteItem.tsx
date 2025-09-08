@@ -23,7 +23,6 @@ export const CommandPaletteItem = memo<CommandPaletteItemProps>(({
     const parts: React.ReactNode[] = [];
     const lowerText = text.toLowerCase();
     const lowerQuery = searchQuery.toLowerCase();
-    let lastIndex = 0;
     
     // Simple substring matching for now (will be replaced with fuzzy matching)
     const index = lowerText.indexOf(lowerQuery);

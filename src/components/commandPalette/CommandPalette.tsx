@@ -18,9 +18,10 @@ export interface PaletteItem {
 interface CommandPaletteProps {
   isOpen: boolean;
   onClose: () => void;
+  initialMode?: 'files' | 'commands';
 }
 
-export const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose }) => {
+export const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose, initialMode = 'files' }) => {
   const [query, setQuery] = useState('');
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [mode, setMode] = useState<'files' | 'commands' | 'symbols' | 'line'>('files');
@@ -28,7 +29,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose 
   const inputRef = useRef<HTMLInputElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
   
-  const { getItems, executeItem } = useCommandPalette();
+  const { getItems, executeItem, getProviders } = useCommandPalette();
 
   // Determine mode based on query prefix
   useEffect(() => {
@@ -43,10 +44,18 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose 
     }
   }, [query]);
 
-  // Get filtered items based on mode and query
-  const items = useMemo(() => {
-    const searchQuery = mode === 'files' ? query : query.slice(1);
-    return getItems(mode, searchQuery);
+  // State for items (async)
+  const [items, setItems] = useState<PaletteItem[]>([]);
+  
+  // Load items when mode or query changes
+  useEffect(() => {
+    const loadItems = async () => {
+      const searchQuery = mode === 'files' ? query : query.slice(1);
+      const loadedItems = await getItems(mode, searchQuery);
+      setItems(loadedItems || []);
+    };
+    
+    loadItems();
   }, [mode, query, getItems]);
 
   // Reset selection when items change
@@ -54,19 +63,33 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose 
     setSelectedIndex(0);
   }, [items]);
 
-  // Focus input when opened
+  // Focus input when opened and set initial query based on mode
   useEffect(() => {
-    if (isOpen && inputRef.current) {
-      const timeout = setTimeout(() => {
-        inputRef.current?.focus();
-        inputRef.current?.select();
-      }, 50);
-      return () => clearTimeout(timeout);
+    if (isOpen) {
+      // Set initial query based on initial mode
+      if (initialMode === 'commands') {
+        setQuery('>');
+      } else {
+        setQuery('');
+      }
+      
+      // Focus the input
+      if (inputRef.current) {
+        const timeout = setTimeout(() => {
+          inputRef.current?.focus();
+          // Don't select the > prefix for commands mode
+          if (initialMode !== 'commands') {
+            inputRef.current?.select();
+          }
+        }, 50);
+        return () => clearTimeout(timeout);
+      }
     }
-  }, [isOpen]);
+  }, [isOpen, initialMode]);
 
   // Keyboard navigation
   const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
+    e.stopPropagation(); // Prevent event bubbling to avoid duplicate execution
     switch (e.key) {
       case 'ArrowDown':
         e.preventDefault();
@@ -86,11 +109,8 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose 
         break;
       case 'Escape':
         e.preventDefault();
-        if (query) {
-          setQuery('');
-        } else {
-          onClose();
-        }
+        onClose();
+        setQuery('');
         break;
       case 'Tab':
         e.preventDefault();
@@ -151,14 +171,18 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose 
           ref={inputRef}
           value={query}
           onChange={setQuery}
-          placeholder={getPlaceholder(mode)}
+          placeholder={mode === 'files' && !getProviders().has('files') ? 
+            'No folder opened - type > for commands' : 
+            getPlaceholder(mode)}
           onKeyDown={handleKeyDown}
         />
         
         <div ref={listRef} className="command-palette-list">
           {items.length === 0 ? (
             <div className="command-palette-empty">
-              {query ? 'No matching results' : getEmptyMessage(mode)}
+              {mode === 'files' && !getProviders().has('files') ? 
+                'No folder opened' : 
+                (query ? 'No matching results' : getEmptyMessage(mode))}
             </div>
           ) : (
             items.map((item, index) => (
