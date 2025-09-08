@@ -91,16 +91,22 @@ export const test = base.extend<ElectronTestFixtures>({
       
       // Reset to a clean state by navigating to root
       // This is better than reload for Electron apps
-      await page.evaluate(() => {
-        // Clear local storage
-        localStorage.clear();
-        // Reset any React state if needed
-        const rootElement = document.getElementById('root');
-        if (rootElement && (window as any).React) {
-          // Trigger a re-render or state reset
-          rootElement.dispatchEvent(new Event('reset', { bubbles: true }));
-        }
-      });
+      try {
+        await page.evaluate(() => {
+          // Clear local storage
+          localStorage.clear();
+          // Reset any React state if needed
+          const rootElement = document.getElementById('root');
+          if (rootElement && (window as any).React) {
+            // Trigger a re-render or state reset
+            rootElement.dispatchEvent(new Event('reset', { bubbles: true }));
+          }
+        });
+      } catch (e) {
+        // If localStorage access fails, just continue
+        // This can happen with certain security settings
+        console.log('Note: Could not clear localStorage:', e.message);
+      }
       
       // Wait for any transitions
       await page.waitForTimeout(500);
