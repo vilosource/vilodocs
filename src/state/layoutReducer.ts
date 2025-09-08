@@ -28,7 +28,15 @@ export type LayoutAction =
   | { type: 'FOCUS_LEAF'; payload: { leafId: string } }
   | { type: 'TOGGLE_FOCUS_MODE'; payload: { tabId?: string } }
   | { type: 'EXIT_FOCUS_MODE' }
-  | { type: 'RESTORE_LAYOUT'; payload: LayoutNode };
+  | { type: 'RESTORE_LAYOUT'; payload: LayoutNode }
+  | { type: 'FOCUS_NEXT_SPLIT'; payload: {} }
+  | { type: 'FOCUS_PREVIOUS_SPLIT'; payload: {} }
+  | { type: 'FOCUS_ABOVE_SPLIT'; payload: {} }
+  | { type: 'FOCUS_BELOW_SPLIT'; payload: {} }
+  | { type: 'CLOSE_SPLIT'; payload: { leafId: string } }
+  | { type: 'MOVE_TAB_TO_NEXT_SPLIT'; payload: { fromLeafId: string } }
+  | { type: 'MOVE_TAB_TO_PREVIOUS_SPLIT'; payload: { fromLeafId: string } }
+  | { type: 'REBALANCE_SPLITS'; payload: {} };
 
 let nextId = 1;
 const generateId = () => `editor-${nextId++}`;
@@ -174,6 +182,78 @@ function enforceMinimumSizes(sizes: number[], minSize = 10): number[] {
   return normalizeSizes(enforced);
 }
 
+// Split navigation utilities
+function getAllLeaves(root: LayoutNode): Leaf[] {
+  const leaves: Leaf[] = [];
+  
+  function traverse(node: LayoutNode) {
+    if (isLeaf(node)) {
+      leaves.push(node);
+    } else if (isSplit(node)) {
+      node.children.forEach(traverse);
+    }
+  }
+  
+  traverse(root);
+  return leaves;
+}
+
+function getLeafOrder(root: LayoutNode): string[] {
+  // Returns leaves in visual order (left-to-right, top-to-bottom)
+  const leafOrder: string[] = [];
+  
+  function traverse(node: LayoutNode) {
+    if (isLeaf(node)) {
+      leafOrder.push(node.id);
+    } else if (isSplit(node)) {
+      node.children.forEach(traverse);
+    }
+  }
+  
+  traverse(root);
+  return leafOrder;
+}
+
+function findNextLeaf(root: LayoutNode, currentLeafId: string): string | null {
+  const leafOrder = getLeafOrder(root);
+  const currentIndex = leafOrder.indexOf(currentLeafId);
+  
+  if (currentIndex === -1 || currentIndex === leafOrder.length - 1) {
+    return null; // Not found or already at last
+  }
+  
+  return leafOrder[currentIndex + 1];
+}
+
+function findPreviousLeaf(root: LayoutNode, currentLeafId: string): string | null {
+  const leafOrder = getLeafOrder(root);
+  const currentIndex = leafOrder.indexOf(currentLeafId);
+  
+  if (currentIndex <= 0) {
+    return null; // Not found or already at first
+  }
+  
+  return leafOrder[currentIndex - 1];
+}
+
+function rebalanceAllSplits(root: LayoutNode): LayoutNode {
+  function rebalanceSplit(node: LayoutNode): LayoutNode {
+    if (isSplit(node)) {
+      const childCount = node.children.length;
+      const evenSize = 100 / childCount;
+      
+      return {
+        ...node,
+        sizes: Array(childCount).fill(evenSize),
+        children: node.children.map(rebalanceSplit)
+      };
+    }
+    return node;
+  }
+  
+  return rebalanceSplit(root);
+}
+
 export function createInitialState(): EditorGridState {
   const welcomeTab = createWelcomeTab();
   const rootLeaf = createLeaf(generateId(), [welcomeTab]);
@@ -313,9 +393,12 @@ export function layoutReducer(state: EditorGridState, action: LayoutAction): Edi
     
     case 'SPLIT_LEAF': {
       const { leafId, direction, ratio = 0.5 } = action.payload;
+      
       const leaf = state.leafMap.get(leafId);
       
-      if (!leaf) return state;
+      if (!leaf) {
+        return state;
+      }
       
       const newLeafId = generateId();
       
@@ -708,6 +791,143 @@ export function layoutReducer(state: EditorGridState, action: LayoutAction): Edi
           active: false,
           tabId: null
         }
+      };
+    }
+
+    case 'FOCUS_NEXT_SPLIT': {
+      const nextLeafId = findNextLeaf(state.root, state.activeLeafId);
+      if (!nextLeafId) return state;
+      
+      return {
+        ...state,
+        activeLeafId: nextLeafId,
+        focusHistory: [...state.focusHistory.filter(id => id !== nextLeafId), nextLeafId]
+      };
+    }
+
+    case 'FOCUS_PREVIOUS_SPLIT': {
+      const prevLeafId = findPreviousLeaf(state.root, state.activeLeafId);
+      if (!prevLeafId) return state;
+      
+      return {
+        ...state,
+        activeLeafId: prevLeafId,
+        focusHistory: [...state.focusHistory.filter(id => id !== prevLeafId), prevLeafId]
+      };
+    }
+
+    case 'FOCUS_ABOVE_SPLIT': {
+      // For now, treat same as previous split (can be enhanced with spatial awareness)
+      const prevLeafId = findPreviousLeaf(state.root, state.activeLeafId);
+      if (!prevLeafId) return state;
+      
+      return {
+        ...state,
+        activeLeafId: prevLeafId,
+        focusHistory: [...state.focusHistory.filter(id => id !== prevLeafId), prevLeafId]
+      };
+    }
+
+    case 'FOCUS_BELOW_SPLIT': {
+      // For now, treat same as next split (can be enhanced with spatial awareness)
+      const nextLeafId = findNextLeaf(state.root, state.activeLeafId);
+      if (!nextLeafId) return state;
+      
+      return {
+        ...state,
+        activeLeafId: nextLeafId,
+        focusHistory: [...state.focusHistory.filter(id => id !== nextLeafId), nextLeafId]
+      };
+    }
+
+    case 'CLOSE_SPLIT': {
+      const { leafId } = action.payload;
+      const leaf = state.leafMap.get(leafId);
+      if (!leaf) return state;
+      
+      // If this is the only leaf, don't close it
+      if (getAllLeaves(state.root).length <= 1) {
+        return state;
+      }
+      
+      // Find parent split and remove this leaf
+      const parent = findParentSplit(state.root, leafId);
+      if (!parent || parent.children.length <= 1) return state;
+      
+      // Remove the leaf from parent's children
+      const remainingChildren = parent.children.filter(c => c.id !== leafId);
+      
+      let newRoot = state.root;
+      if (remainingChildren.length === 1) {
+        // Replace parent with single remaining child
+        newRoot = replaceNode(newRoot, parent.id, remainingChildren[0]);
+      } else {
+        // Update parent with remaining children
+        const updatedParent: Split = {
+          ...parent,
+          children: remainingChildren,
+          sizes: normalizeSizes(Array(remainingChildren.length).fill(100 / remainingChildren.length))
+        };
+        newRoot = replaceNode(newRoot, parent.id, updatedParent);
+      }
+      
+      newRoot = compactTree(newRoot);
+      
+      // Set active to first available leaf
+      const leaves = getAllLeaves(newRoot);
+      const newActiveLeafId = leaves.length > 0 ? leaves[0].id : state.activeLeafId;
+      
+      return {
+        ...state,
+        root: newRoot,
+        leafMap: rebuildLeafMap(newRoot),
+        activeLeafId: newActiveLeafId
+      };
+    }
+
+    case 'MOVE_TAB_TO_NEXT_SPLIT': {
+      const { fromLeafId } = action.payload;
+      const nextLeafId = findNextLeaf(state.root, fromLeafId);
+      if (!nextLeafId) return state;
+      
+      const sourceLeaf = state.leafMap.get(fromLeafId);
+      if (!sourceLeaf?.activeTabId) return state;
+      
+      // Use existing MOVE_TAB action
+      return layoutReducer(state, {
+        type: 'MOVE_TAB',
+        payload: {
+          tabId: sourceLeaf.activeTabId,
+          targetLeafId: nextLeafId
+        }
+      });
+    }
+
+    case 'MOVE_TAB_TO_PREVIOUS_SPLIT': {
+      const { fromLeafId } = action.payload;
+      const prevLeafId = findPreviousLeaf(state.root, fromLeafId);
+      if (!prevLeafId) return state;
+      
+      const sourceLeaf = state.leafMap.get(fromLeafId);
+      if (!sourceLeaf?.activeTabId) return state;
+      
+      // Use existing MOVE_TAB action
+      return layoutReducer(state, {
+        type: 'MOVE_TAB',
+        payload: {
+          tabId: sourceLeaf.activeTabId,
+          targetLeafId: prevLeafId
+        }
+      });
+    }
+
+    case 'REBALANCE_SPLITS': {
+      const newRoot = rebalanceAllSplits(state.root);
+      
+      return {
+        ...state,
+        root: newRoot,
+        leafMap: rebuildLeafMap(newRoot)
       };
     }
     

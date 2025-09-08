@@ -15,9 +15,11 @@ export class CommandManager {
   private chordTimeout = 1000; // 1 second timeout for chord sequences
   private chordTimer: NodeJS.Timeout | null = null;
 
-  constructor(dispatch: (action: LayoutAction) => void) {
+  constructor(dispatch: (action: LayoutAction) => void, registerDefaults: boolean = true) {
     this.dispatch = dispatch;
-    this.registerDefaultCommands();
+    if (registerDefaults) {
+      this.registerDefaultCommands();
+    }
   }
 
   registerCommand(command: Command): void {
@@ -30,7 +32,9 @@ export class CommandManager {
 
   executeCommand(id: string, context?: any): boolean {
     const command = this.commands.get(id);
-    if (!command) return false;
+    if (!command) {
+      return false;
+    }
 
     // Check when condition
     if (command.when && !command.when(context)) {
@@ -320,14 +324,127 @@ export class CommandManager {
       }
     });
 
-    // Focus navigation
+    // Split navigation commands
+    this.registerCommand({
+      id: 'editor.focusNextSplit',
+      label: 'Focus Next Split',
+      keybinding: 'Alt+Right',
+      execute: (context) => {
+        // Navigate to the next split in visual order
+        this.dispatch({
+          type: 'FOCUS_NEXT_SPLIT',
+          payload: {}
+        });
+      }
+    });
+
+    this.registerCommand({
+      id: 'editor.focusPreviousSplit',
+      label: 'Focus Previous Split',
+      keybinding: 'Alt+Left',
+      execute: (context) => {
+        // Navigate to the previous split in visual order
+        this.dispatch({
+          type: 'FOCUS_PREVIOUS_SPLIT',
+          payload: {}
+        });
+      }
+    });
+
+    this.registerCommand({
+      id: 'editor.focusAboveSplit',
+      label: 'Focus Above Split',
+      keybinding: 'Alt+Up',
+      execute: (context) => {
+        // Navigate to the split above current one
+        this.dispatch({
+          type: 'FOCUS_ABOVE_SPLIT',
+          payload: {}
+        });
+      }
+    });
+
+    this.registerCommand({
+      id: 'editor.focusBelowSplit',
+      label: 'Focus Below Split',
+      keybinding: 'Alt+Down',
+      execute: (context) => {
+        // Navigate to the split below current one
+        this.dispatch({
+          type: 'FOCUS_BELOW_SPLIT',
+          payload: {}
+        });
+      }
+    });
+
+    // Close current split
+    this.registerCommand({
+      id: 'editor.closeCurrentSplit',
+      label: 'Close Current Split',
+      keybinding: 'Ctrl+Shift+W',
+      execute: (context) => {
+        if (context?.activeLeafId) {
+          this.dispatch({
+            type: 'CLOSE_SPLIT',
+            payload: { leafId: context.activeLeafId }
+          });
+        }
+      }
+    });
+
+    // Move tab to next split
+    this.registerCommand({
+      id: 'editor.moveTabToNextSplit',
+      label: 'Move Tab to Next Split',
+      keybinding: 'Ctrl+Alt+Right',
+      execute: (context) => {
+        if (context?.activeLeafId) {
+          this.dispatch({
+            type: 'MOVE_TAB_TO_NEXT_SPLIT',
+            payload: { fromLeafId: context.activeLeafId }
+          });
+        }
+      }
+    });
+
+    // Move tab to previous split
+    this.registerCommand({
+      id: 'editor.moveTabToPreviousSplit',
+      label: 'Move Tab to Previous Split',
+      keybinding: 'Ctrl+Alt+Left',
+      execute: (context) => {
+        if (context?.activeLeafId) {
+          this.dispatch({
+            type: 'MOVE_TAB_TO_PREVIOUS_SPLIT',
+            payload: { fromLeafId: context.activeLeafId }
+          });
+        }
+      }
+    });
+
+    // Rebalance splits
+    this.registerCommand({
+      id: 'editor.rebalanceSplits',
+      label: 'Rebalance Splits',
+      execute: (context) => {
+        this.dispatch({
+          type: 'REBALANCE_SPLITS',
+          payload: {}
+        });
+      }
+    });
+
+    // Focus navigation (legacy)
     this.registerCommand({
       id: 'focus.nextPane',
       label: 'Focus Next Pane',
       keybinding: 'F6',
       execute: (context) => {
-        // Would cycle through panes
-        // Implementation would depend on focus management
+        // Alias for focus next split
+        this.dispatch({
+          type: 'FOCUS_NEXT_SPLIT',
+          payload: {}
+        });
       }
     });
 
@@ -336,7 +453,11 @@ export class CommandManager {
       label: 'Focus Previous Pane',
       keybinding: 'Shift+F6',
       execute: (context) => {
-        // Would cycle through panes in reverse
+        // Alias for focus previous split
+        this.dispatch({
+          type: 'FOCUS_PREVIOUS_SPLIT',
+          payload: {}
+        });
       }
     });
   }
