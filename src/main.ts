@@ -3,6 +3,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { Channels } from './common/ipc';
 import { registerFileSystemHandlers, cleanupFileWatchers } from './main/fileSystemHandlers';
+import { registerCommandPaletteHandlers } from './main/commandPaletteHandlers';
 import { initializeStateManager, getStateManager } from './main/stateManager';
 
 const isE2E = process.env.E2E === '1';
@@ -79,6 +80,9 @@ app.whenReady().then(() => {
   
   // Register file system handlers
   registerFileSystemHandlers();
+  
+  // Register command palette handlers
+  registerCommandPaletteHandlers();
 });
 
 app.on('window-all-closed', () => {

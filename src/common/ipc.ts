@@ -19,6 +19,11 @@ export const Channels = {
   OpenWorkspace: 'workspace:open-workspace',
   SaveWorkspace: 'workspace:save-workspace',
   GetRecentWorkspaces: 'workspace:get-recent',
+  // Command palette file operations
+  SearchFiles: 'palette:search-files',
+  GetWorkspaceFiles: 'palette:get-workspace-files',
+  GetRecentFiles: 'palette:get-recent-files',
+  OpenFileFromPalette: 'palette:open-file',
   // File system events
   FileChanged: 'fs:file-changed',
   FileCreated: 'fs:file-created',
@@ -77,6 +82,14 @@ export interface WorkspaceFolder {
   name?: string;
 }
 
+export interface PaletteFileItem {
+  path: string;
+  name: string;
+  type: 'file' | 'directory';
+  relativePath?: string;
+  extension?: string;
+}
+
 import { ApplicationState, StateUpdateAction, WidgetRegistration } from './state-types';
 
 export type RendererApis = {
@@ -105,6 +118,12 @@ export type RendererApis = {
   openWorkspace(): Promise<Workspace | null>;
   saveWorkspace(workspace: Workspace): Promise<string | null>;
   getRecentWorkspaces(): Promise<string[]>;
+  
+  // Command palette file operations
+  searchFiles(workspacePath: string, query: string): Promise<PaletteFileItem[]>;
+  getWorkspaceFiles(workspacePath: string, limit?: number): Promise<PaletteFileItem[]>;
+  getRecentFiles(): Promise<PaletteFileItem[]>;
+  openFileFromPalette(filePath: string): Promise<{ path: string; content: string } | null>;
   
   // State management
   loadState(): Promise<ApplicationState>;

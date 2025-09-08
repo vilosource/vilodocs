@@ -39,6 +39,12 @@ const api: RendererApis = {
   saveWorkspace: (workspace) => ipcRenderer.invoke(Channels.SaveWorkspace, workspace),
   getRecentWorkspaces: () => ipcRenderer.invoke(Channels.GetRecentWorkspaces),
   
+  // Command palette file operations
+  searchFiles: (workspacePath, query) => ipcRenderer.invoke(Channels.SearchFiles, workspacePath, query),
+  getWorkspaceFiles: (workspacePath, limit) => ipcRenderer.invoke(Channels.GetWorkspaceFiles, workspacePath, limit),
+  getRecentFiles: () => ipcRenderer.invoke(Channels.GetRecentFiles),
+  openFileFromPalette: (filePath) => ipcRenderer.invoke(Channels.OpenFileFromPalette, filePath),
+  
   // State management
   loadState: () => ipcRenderer.invoke(Channels.LoadState),
   saveState: (state) => ipcRenderer.invoke(Channels.SaveState, state),
