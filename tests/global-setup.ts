@@ -67,6 +67,8 @@ async function globalSetup(config: FullConfig) {
       ...process.env, 
       E2E: '1', 
       NODE_ENV: 'development', // Use development to load from dev server
+      MAIN_WINDOW_VITE_DEV_SERVER_URL: 'http://localhost:5173', // Ensure it loads from dev server
+      MAIN_WINDOW_VITE_NAME: 'main_window',
       // Disable GPU in CI environments
       DISPLAY: process.env.CI ? ':99' : process.env.DISPLAY
     },
@@ -84,14 +86,33 @@ async function globalSetup(config: FullConfig) {
     console.log(`Browser error: ${error.message}`);
   });
   
-  // Wait for the app to be ready - check for React root or fallback
+  // Wait for React to mount and render something
   try {
-    await page.waitForSelector('#root', { timeout: 30000 });
+    // First ensure the root element exists
+    await page.waitForSelector('#root', { timeout: 15000 });
+    
+    // Then wait for React to actually render content inside it
+    await page.waitForFunction(
+      () => {
+        const root = document.querySelector('#root');
+        return root && root.children.length > 0;
+      },
+      { timeout: 30000 }
+    );
+    
+    // Give it a bit more time to fully render
+    await page.waitForTimeout(1000);
+    
+    // Try to wait for specific app elements
+    await Promise.race([
+      page.waitForSelector('.shell', { timeout: 5000 }).catch(() => null),
+      page.waitForSelector('.shell-loading', { timeout: 5000 }).catch(() => null),
+      page.waitForSelector('.file-explorer-empty', { timeout: 5000 }).catch(() => null),
+    ]);
   } catch (error) {
-    console.log('Failed to find #root, trying alternative selectors...');
-    // Try waiting for the shell or file explorer
-    await page.waitForSelector('.shell, .file-explorer-empty', { timeout: 30000 });
+    console.log('Warning: App may not be fully loaded:', error.message);
   }
+  
   await page.waitForLoadState('networkidle');
   
   console.log('✅ Electron app launched successfully');

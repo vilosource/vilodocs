@@ -25,7 +25,11 @@ root.render(
   </React.StrictMode>
 );
 
-// Setup theme listener
-window.api.onThemeChanged((theme) => {
-  document.documentElement.dataset.theme = theme;
-});
+// Setup theme listener (only if API is available)
+if (window.api && window.api.onThemeChanged) {
+  window.api.onThemeChanged((theme) => {
+    document.documentElement.dataset.theme = theme;
+  });
+} else {
+  console.warn('Window API not available - running in test environment?');
+}
