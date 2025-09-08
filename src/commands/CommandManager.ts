@@ -15,7 +15,7 @@ export class CommandManager {
   private chordTimeout = 1000; // 1 second timeout for chord sequences
   private chordTimer: NodeJS.Timeout | null = null;
 
-  constructor(dispatch: (action: LayoutAction) => void, registerDefaults: boolean = true) {
+  constructor(dispatch: (action: LayoutAction) => void, registerDefaults = true) {
     this.dispatch = dispatch;
     if (registerDefaults) {
       this.registerDefaultCommands();

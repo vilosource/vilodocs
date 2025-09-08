@@ -89,7 +89,7 @@ This helps us test reading time calculations.`;
     await page.waitForTimeout(1000);
 
     // Initially should be in markdown viewer
-    let statusBar = await page.locator('.status-bar');
+    const statusBar = await page.locator('.status-bar');
     let statusText = await statusBar.textContent();
     
     // Check for markdown-specific status items
@@ -264,7 +264,7 @@ Detailed content.`;
     await page.waitForTimeout(300);
 
     // Status bar should show editor info
-    let statusBar = await page.locator('.status-bar');
+    const statusBar = await page.locator('.status-bar');
     let statusText = await statusBar.textContent();
     expect(statusText).toMatch(/Ln\s+\d+,\s+Col\s+\d+/);
 

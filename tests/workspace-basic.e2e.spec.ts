@@ -98,7 +98,7 @@ test.describe('Basic Workspace Tests', () => {
     expect(result.workspace.folders.length).toBe(2);
     
     // Clean up
-    await fs.unlink(workspacePath).catch(() => {});
+    await fs.unlink(workspacePath).catch(() => { /* ignore errors */ });
   });
 
   test('should verify multi-root workspace structure', async ({ page }) => {
@@ -145,7 +145,7 @@ test.describe('Basic Workspace Tests', () => {
     });
     
     // Clean up
-    await fs.unlink(workspacePath).catch(() => {});
+    await fs.unlink(workspacePath).catch(() => { /* ignore errors */ });
   });
 
   test('should distinguish between single and multi-root workspaces', async ({ page }) => {

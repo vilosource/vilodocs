@@ -14,10 +14,10 @@ export async function ensureAPIAvailable(page: Page) {
         openFile: async () => null,
         saveFile: async (data: any) => null,
         readDirectory: async (path: string) => [],
-        createFile: async (path: string, content: string) => {},
-        createDirectory: async (path: string) => {},
-        deletePath: async (path: string) => {},
-        renamePath: async (oldPath: string, newPath: string) => {},
+        createFile: async (path: string, content: string) => { return; },
+        createDirectory: async (path: string) => { return; },
+        deletePath: async (path: string) => { return; },
+        renamePath: async (oldPath: string, newPath: string) => { return; },
         getFileStats: async (path: string) => ({
           size: 0,
           created: new Date(),
@@ -26,12 +26,12 @@ export async function ensureAPIAvailable(page: Page) {
           isDirectory: false
         }),
         readFileContent: async (path: string) => '',
-        writeFileContent: async (path: string, content: string) => {},
+        writeFileContent: async (path: string, content: string) => { return; },
         
         // File watching
         watchPath: async (path: string) => 'mock-watch-id',
-        unwatchPath: async (watchId: string) => {},
-        onFileChange: (cb: Function) => () => {},
+        unwatchPath: async (watchId: string) => { return; },
+        onFileChange: (cb: (event: any) => void) => () => { return; },
         
         // Workspace operations
         openFolder: async () => null,
@@ -105,17 +105,17 @@ export async function ensureAPIAvailable(page: Page) {
           widgets: {},
           preferences: { theme: 'light' }
         }),
-        saveState: async (state: any) => {},
-        updateState: async (action: any) => {},
-        onStateChanged: (cb: Function) => () => {},
+        saveState: async (state: any) => { return; },
+        updateState: async (action: any) => { return; },
+        onStateChanged: (cb: (state: any) => void) => () => { return; },
         
         // Widget management
-        registerWidget: async (widget: any) => {},
-        updateWidgetState: async (widgetId: string, state: any) => {},
+        registerWidget: async (widget: any) => { return; },
+        updateWidgetState: async (widgetId: string, state: any) => { return; },
         getWidgetState: async (widgetId: string) => null,
         
         // Theme
-        onThemeChanged: (cb: Function) => () => {}
+        onThemeChanged: (cb: (theme: string) => void) => () => { return; }
       };
       console.log('Mock API injected in test');
     });

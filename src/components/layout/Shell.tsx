@@ -22,7 +22,7 @@ interface ShellProps {
   commandManager?: CommandManager; // Main CommandManager from App
 }
 
-interface ShellInnerProps extends ShellProps {}
+type ShellInnerProps = ShellProps
 
 const ShellInner: React.FC<ShellInnerProps> = ({ children, onCommand, onOpenFile, commandManager }) => {
   const { getStatusBarItems } = useStatusBar();

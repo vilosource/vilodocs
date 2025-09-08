@@ -22,7 +22,7 @@ test.describe('Workspace Dirty State', () => {
     await expect(workspaceName).toBeVisible();
     
     // Initially should not show dirty indicator
-    let nameText = await workspaceName.textContent();
+    const nameText = await workspaceName.textContent();
     expect(nameText).not.toContain('•');
     
     // Click Add Folder to make workspace dirty

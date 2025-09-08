@@ -190,11 +190,11 @@ test.describe('Recent Workspaces', () => {
       // This is a basic check - actual shortcut testing would need the handlers to be working
       let hasListeners = false;
       const originalAddEventListener = document.addEventListener;
-      document.addEventListener = function(type: string) {
+      document.addEventListener = function(type: string, ...args: any[]) {
         if (type === 'keydown' || type === 'keyup') {
           hasListeners = true;
         }
-        return originalAddEventListener.apply(this, arguments as any);
+        return originalAddEventListener.apply(this, [type, ...args]);
       };
       
       // Trigger to see if anything is listening
