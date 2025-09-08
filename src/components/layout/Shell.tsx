@@ -10,6 +10,7 @@ import { FocusManager } from '../../focus/FocusManager';
 import { Workspace } from '../../common/ipc';
 import { useWorkspaceState, useLayoutState } from '../../renderer/hooks/useStateService';
 import { StatusBarProvider, useStatusBar } from '../../contexts/StatusBarContext';
+import { CommandPaletteProvider } from '../../contexts/CommandPaletteContext';
 import './Shell.css';
 
 interface ShellProps {
@@ -18,7 +19,11 @@ interface ShellProps {
   onOpenFile?: (path: string, content: string) => void;
 }
 
-const ShellInner: React.FC<ShellProps> = ({ children, onCommand, onOpenFile }) => {
+interface ShellInnerProps extends ShellProps {
+  onCommandManagerInit?: (manager: CommandManager) => void;
+}
+
+const ShellInner: React.FC<ShellInnerProps> = ({ children, onCommand, onOpenFile, onCommandManagerInit }) => {
   const { getStatusBarItems } = useStatusBar();
   const { workspace, updateWorkspace, getExpandedFolders, setExpandedFolders } = useWorkspaceState();
   const { layout, updateLayout, isLoading } = useLayoutState();
@@ -84,6 +89,11 @@ const ShellInner: React.FC<ShellProps> = ({ children, onCommand, onOpenFile }) =
           onCommand('layout.action', action);
         }
       });
+      
+      // Notify parent component about command manager initialization
+      if (onCommandManagerInit) {
+        onCommandManagerInit(commandManagerRef.current);
+      }
     }
 
     if (!focusManagerRef.current) {
@@ -144,7 +154,7 @@ const ShellInner: React.FC<ShellProps> = ({ children, onCommand, onOpenFile }) =
         await updateWorkspace({ current: null });
       }
     });
-  }, [onCommand, updateRegions, updateWorkspace]);
+  }, [onCommand, onCommandManagerInit, updateRegions, updateWorkspace]);
 
   // Global keyboard event handler
   useEffect(() => {
@@ -293,9 +303,13 @@ const ShellInner: React.FC<ShellProps> = ({ children, onCommand, onOpenFile }) =
 };
 
 export const Shell: React.FC<ShellProps> = (props) => {
+  const [commandManager, setCommandManager] = useState<CommandManager | null>(null);
+  
   return (
     <StatusBarProvider>
-      <ShellInner {...props} />
+      <CommandPaletteProvider commandManager={commandManager}>
+        <ShellInner {...props} onCommandManagerInit={setCommandManager} />
+      </CommandPaletteProvider>
     </StatusBarProvider>
   );
 };
