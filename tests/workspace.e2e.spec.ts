@@ -106,7 +106,7 @@ test.describe('Workspace Functionality', () => {
     console.log('Has folder-header class:', fileExplorerHTML.includes('folder-header'));
     
     // Clean up
-    await fs.unlink(workspacePath).catch(() => {});
+    await fs.unlink(workspacePath).catch(() => { /* ignore errors */ });
   });
 
   test('should detect workspace type correctly', async () => {

@@ -189,7 +189,7 @@ test.describe('Basic Workspace Tests', () => {
     expect(multiWorkspace.folders).toHaveLength(2);
     
     // Clean up
-    await fs.unlink(singlePath).catch(() => {});
-    await fs.unlink(multiPath).catch(() => {});
+    await fs.unlink(singlePath).catch(() => { /* ignore errors */ });
+    await fs.unlink(multiPath).catch(() => { /* ignore errors */ });
   });
 });

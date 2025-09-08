@@ -1,5 +1,6 @@
 import { app, BrowserWindow, ipcMain, dialog, nativeTheme } from 'electron';
 import fs from 'node:fs/promises';
+import fsSync from 'node:fs';
 import path from 'node:path';
 import { Channels } from './common/ipc';
 import { registerFileSystemHandlers, cleanupFileWatchers } from './main/fileSystemHandlers';
@@ -23,7 +24,7 @@ function createWindow() {
   const debugLog: string[] = [];
   
   for (const testPath of possiblePaths) {
-    const exists = require('fs').existsSync(testPath);
+    const exists = fsSync.existsSync(testPath);
     debugLog.push(`Testing: ${testPath} - exists: ${exists}`);
     console.log('Main process: Testing preload path:', testPath, '- exists:', exists);
     if (exists) {
@@ -48,7 +49,7 @@ function createWindow() {
   // Write debug info to file for inspection
   if (process.env.E2E === '1') {
     try {
-      require('fs').writeFileSync('/tmp/main-debug.log', debugLog.join('\n') + '\n');
+      fsSync.writeFileSync('/tmp/main-debug.log', debugLog.join('\n') + '\n');
     } catch (e) {
       console.error('Failed to write debug log:', e);
     }

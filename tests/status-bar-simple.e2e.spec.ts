@@ -7,7 +7,7 @@ const test = baseTest.extend<{
   electronApp: ElectronApplication;
   page: Page;
 }>({
-  electronApp: async ({}, use) => {
+  electronApp: async (_, use) => {
     const electronPath = path.join(__dirname, '..', 'node_modules', '.bin', 'electron');
     const appPath = path.join(__dirname, '..');
     

@@ -169,7 +169,7 @@ export const useStatusBar = () => {
     // This prevents errors when widgets are rendered outside the provider
     return {
       widgetStatus: null,
-      updateWidgetStatus: () => {},
+      updateWidgetStatus: () => { /* no-op */ },
       getStatusBarItems: () => []
     };
   }

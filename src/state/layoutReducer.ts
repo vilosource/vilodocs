@@ -29,14 +29,14 @@ export type LayoutAction =
   | { type: 'TOGGLE_FOCUS_MODE'; payload: { tabId?: string } }
   | { type: 'EXIT_FOCUS_MODE' }
   | { type: 'RESTORE_LAYOUT'; payload: LayoutNode }
-  | { type: 'FOCUS_NEXT_SPLIT'; payload: {} }
-  | { type: 'FOCUS_PREVIOUS_SPLIT'; payload: {} }
-  | { type: 'FOCUS_ABOVE_SPLIT'; payload: {} }
-  | { type: 'FOCUS_BELOW_SPLIT'; payload: {} }
+  | { type: 'FOCUS_NEXT_SPLIT' }
+  | { type: 'FOCUS_PREVIOUS_SPLIT' }
+  | { type: 'FOCUS_ABOVE_SPLIT' }
+  | { type: 'FOCUS_BELOW_SPLIT' }
   | { type: 'CLOSE_SPLIT'; payload: { leafId: string } }
   | { type: 'MOVE_TAB_TO_NEXT_SPLIT'; payload: { fromLeafId: string } }
   | { type: 'MOVE_TAB_TO_PREVIOUS_SPLIT'; payload: { fromLeafId: string } }
-  | { type: 'REBALANCE_SPLITS'; payload: {} };
+  | { type: 'REBALANCE_SPLITS' };
 
 let nextId = 1;
 const generateId = () => `editor-${nextId++}`;
