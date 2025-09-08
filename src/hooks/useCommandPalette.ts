@@ -69,23 +69,38 @@ export function useCommandPalette() {
   }, []);
   
   // Get items based on mode and query
-  const getItems = useCallback((mode: string, query: string): PaletteItem[] => {
+  const getItems = useCallback(async (mode: string, query: string): Promise<PaletteItem[]> => {
     let items: PaletteItem[] = [];
+    const providers = context.getProviders();
     
-    // For now, return mock data based on mode
-    // This will be replaced with actual providers
+    // Get items from the appropriate provider
     switch (mode) {
       case 'commands':
-        items = getMockCommands();
+        if (providers.has('commands')) {
+          const provider = providers.get('commands')!;
+          items = await Promise.resolve(provider.getItems(query));
+        }
         break;
       case 'files':
-        items = getMockFiles();
+        if (providers.has('files')) {
+          const provider = providers.get('files')!;
+          items = await Promise.resolve(provider.getItems(query));
+        } else {
+          // No file provider available (no workspace open)
+          items = [];
+        }
         break;
       case 'symbols':
+        // Symbols provider not yet implemented
         items = getMockSymbols();
         break;
       default:
-        items = [];
+        // For default mode, combine results from multiple providers
+        if (providers.has('files')) {
+          const fileProvider = providers.get('files')!;
+          const fileItems = await Promise.resolve(fileProvider.getItems(query));
+          items.push(...fileItems);
+        }
     }
     
     // Filter and score items
@@ -127,7 +142,7 @@ export function useCommandPalette() {
     
     // Limit results for performance
     return items.slice(0, 50);
-  }, []);
+  }, [context]);
   
   return {
     getItems,

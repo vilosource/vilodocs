@@ -258,6 +258,26 @@ export const App: React.FC = () => {
     });
   }, [commandManager, state, dispatch]);
 
+  // Get all opened tabs from state
+  const getOpenedTabs = useCallback(() => {
+    const openedTabs: Array<{ id: string; title: string; filePath?: string }> = [];
+    
+    // Collect all tabs from all leaves
+    for (const leaf of state.leafMap.values()) {
+      leaf.tabs.forEach(tab => {
+        if (tab.filePath) {
+          openedTabs.push({
+            id: tab.id,
+            title: tab.title,
+            filePath: tab.filePath
+          });
+        }
+      });
+    }
+    
+    return openedTabs;
+  }, [state.leafMap]);
+
   if (isLoading) {
     return <div className="app-loading">Loading...</div>;
   }
@@ -267,6 +287,9 @@ export const App: React.FC = () => {
       <Shell 
         onCommand={handleCommand}
         onOpenFile={handleFileOpen}
+        openedTabs={getOpenedTabs()}
+        activeLeafId={state.activeLeafId}
+        commandManager={commandManager}
       >
         <EditorGrid 
           state={state} 

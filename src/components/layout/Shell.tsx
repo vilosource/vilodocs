@@ -17,13 +17,14 @@ interface ShellProps {
   children?: React.ReactNode; // Editor Grid will go here
   onCommand?: (commandId: string, context?: any) => void;
   onOpenFile?: (path: string, content: string) => void;
+  openedTabs?: Array<{ id: string; title: string; filePath?: string }>;
+  activeLeafId?: string;
+  commandManager?: CommandManager; // Main CommandManager from App
 }
 
-interface ShellInnerProps extends ShellProps {
-  onCommandManagerInit?: (manager: CommandManager) => void;
-}
+interface ShellInnerProps extends ShellProps {}
 
-const ShellInner: React.FC<ShellInnerProps> = ({ children, onCommand, onOpenFile, onCommandManagerInit }) => {
+const ShellInner: React.FC<ShellInnerProps> = ({ children, onCommand, onOpenFile, commandManager }) => {
   const { getStatusBarItems } = useStatusBar();
   const { workspace, updateWorkspace, getExpandedFolders, setExpandedFolders } = useWorkspaceState();
   const { layout, updateLayout, isLoading } = useLayoutState();
@@ -46,7 +47,6 @@ const ShellInner: React.FC<ShellInnerProps> = ({ children, onCommand, onOpenFile
   const [regions, setRegions] = useState(regionManager.getState());
   const [activeView, setActiveView] = useState(layout.regions?.primarySideBar?.activeView || 'explorer');
   
-  const commandManagerRef = useRef<CommandManager | null>(null);
   const focusManagerRef = useRef<FocusManager | null>(null);
 
   // Update regions when manager state changes
@@ -80,30 +80,16 @@ const ShellInner: React.FC<ShellInnerProps> = ({ children, onCommand, onOpenFile
     });
   }, [updateLayout, activeView]);
 
-  // Initialize command and focus managers
+  // Initialize focus manager and register Shell-specific commands
   useEffect(() => {
-    if (!commandManagerRef.current) {
-      commandManagerRef.current = new CommandManager((action) => {
-        // Pass layout actions to parent or handle internally
-        if (onCommand) {
-          onCommand('layout.action', action);
-        }
-      });
-      
-      // Notify parent component about command manager initialization
-      if (onCommandManagerInit) {
-        onCommandManagerInit(commandManagerRef.current);
-      }
-    }
-
     if (!focusManagerRef.current) {
       focusManagerRef.current = new FocusManager();
     }
-
-    // Register shell-specific commands
-    const cmdManager = commandManagerRef.current;
     
-    cmdManager.registerCommand({
+    // Only register commands if we have a commandManager from props
+    if (!commandManager) return;
+    
+    commandManager.registerCommand({
       id: 'view.toggleSideBar',
       label: 'Toggle Side Bar',
       keybinding: 'Ctrl+B',
@@ -113,7 +99,7 @@ const ShellInner: React.FC<ShellInnerProps> = ({ children, onCommand, onOpenFile
       }
     });
 
-    cmdManager.registerCommand({
+    commandManager.registerCommand({
       id: 'view.togglePanel',
       label: 'Toggle Panel',
       keybinding: 'Ctrl+J',
@@ -124,7 +110,7 @@ const ShellInner: React.FC<ShellInnerProps> = ({ children, onCommand, onOpenFile
     });
 
     // Workspace commands
-    cmdManager.registerCommand({
+    commandManager.registerCommand({
       id: 'workbench.action.files.openFolder',
       label: 'Open Folder',
       keybinding: 'Ctrl+K Ctrl+O',
@@ -136,7 +122,7 @@ const ShellInner: React.FC<ShellInnerProps> = ({ children, onCommand, onOpenFile
       }
     });
 
-    cmdManager.registerCommand({
+    commandManager.registerCommand({
       id: 'workbench.action.files.openWorkspace',
       label: 'Open Workspace',
       execute: async () => {
@@ -147,26 +133,26 @@ const ShellInner: React.FC<ShellInnerProps> = ({ children, onCommand, onOpenFile
       }
     });
 
-    cmdManager.registerCommand({
+    commandManager.registerCommand({
       id: 'workbench.action.closeFolder',
       label: 'Close Folder',
       execute: async () => {
         await updateWorkspace({ current: null });
       }
     });
-  }, [onCommand, onCommandManagerInit, updateRegions, updateWorkspace]);
+  }, [commandManager, updateRegions, updateWorkspace]);
 
   // Global keyboard event handler
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (commandManagerRef.current) {
-        commandManagerRef.current.handleKeyboardEvent(e);
+      if (commandManager) {
+        commandManager.handleKeyboardEvent(e);
       }
     };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, []);
+  }, [commandManager]);
 
   // Activity bar items
   const activityItems: ActivityBarItem[] = [
@@ -303,12 +289,26 @@ const ShellInner: React.FC<ShellInnerProps> = ({ children, onCommand, onOpenFile
 };
 
 export const Shell: React.FC<ShellProps> = (props) => {
-  const [commandManager, setCommandManager] = useState<CommandManager | null>(null);
+  const { workspace } = useWorkspaceState();
+  
+  const handleOpenFileFromPalette = useCallback(async (path: string) => {
+    // Open file using IPC and pass to onOpenFile handler
+    const result = await window.api.openFileFromPalette(path);
+    if (result && props.onOpenFile) {
+      props.onOpenFile(result.path, result.content);
+    }
+  }, [props]);
   
   return (
     <StatusBarProvider>
-      <CommandPaletteProvider commandManager={commandManager}>
-        <ShellInner {...props} onCommandManagerInit={setCommandManager} />
+      <CommandPaletteProvider 
+        commandManager={props.commandManager}
+        onOpenFile={handleOpenFileFromPalette}
+        workspace={workspace.current}
+        openedTabs={props.openedTabs}
+        activeLeafId={props.activeLeafId}
+      >
+        <ShellInner {...props} />
       </CommandPaletteProvider>
     </StatusBarProvider>
   );
