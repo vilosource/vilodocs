@@ -165,7 +165,13 @@ export const StatusBarProvider: React.FC<{ children: React.ReactNode }> = ({ chi
 export const useStatusBar = () => {
   const context = useContext(StatusBarContext);
   if (!context) {
-    throw new Error('useStatusBar must be used within a StatusBarProvider');
+    // Return a no-op implementation when context is not available
+    // This prevents errors when widgets are rendered outside the provider
+    return {
+      widgetStatus: null,
+      updateWidgetStatus: () => {},
+      getStatusBarItems: () => []
+    };
   }
   return context;
 };
