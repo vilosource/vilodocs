@@ -1,10 +1,11 @@
-import React, { useEffect, useCallback, useRef } from 'react';
+import React, { useEffect, useCallback, useRef, useState } from 'react';
 import { EditorGridState, LayoutAction } from '../../state/layoutReducer';
 import { EditorSplit } from './EditorSplit';
 import { EditorLeaf } from './EditorLeaf';
 import { isSplit, isLeaf } from '../../layout/types';
 import { CommandManager } from '../../commands/CommandManager';
 import { FocusManager } from '../../focus/FocusManager';
+import { PaneNavigator } from '../navigation/PaneNavigator';
 import './EditorGrid.css';
 
 interface EditorGridProps {
@@ -17,6 +18,7 @@ interface EditorGridProps {
 export const EditorGrid: React.FC<EditorGridProps> = ({ state, dispatch, commandManager, focusManager }) => {
   const localCommandManager = useRef<CommandManager | null>(null);
   const localFocusManager = useRef<FocusManager | null>(null);
+  const [isPaneNavigatorActive, setIsPaneNavigatorActive] = useState(false);
 
   // Use provided managers or create local ones
   useEffect(() => {
@@ -27,12 +29,29 @@ export const EditorGrid: React.FC<EditorGridProps> = ({ state, dispatch, command
       localFocusManager.current = focusManager || new FocusManager();
     }
   }, [commandManager, focusManager, dispatch]);
+
+  // Listen for pane navigator trigger from command palette
+  useEffect(() => {
+    const handlePaneNavigatorTrigger = () => {
+      setIsPaneNavigatorActive(true);
+    };
+
+    document.addEventListener('pane-navigator-trigger', handlePaneNavigatorTrigger);
+    return () => document.removeEventListener('pane-navigator-trigger', handlePaneNavigatorTrigger);
+  }, []);
   // Handle keyboard shortcuts through CommandManager
   useEffect(() => {
     const cmdManager = localCommandManager.current;
     if (!cmdManager) return;
 
     const handleKeyDown = (e: KeyboardEvent) => {
+      // Check for pane navigator shortcut (Alt+P)
+      if (e.altKey && e.key === 'p') {
+        e.preventDefault();
+        setIsPaneNavigatorActive(true);
+        return;
+      }
+
       // Build context for command execution
       const activeLeaf = findLeafById(state.root, state.activeLeafId);
       const context = {
@@ -94,6 +113,17 @@ export const EditorGrid: React.FC<EditorGridProps> = ({ state, dispatch, command
     });
   }, [dispatch]);
 
+  const handlePaneSelect = useCallback((leafId: string) => {
+    // Find the leaf and activate its active tab
+    const leaf = findLeafById(state.root, leafId);
+    if (leaf && isLeaf(leaf)) {
+      dispatch({
+        type: 'ACTIVATE_TAB',
+        payload: { tabId: leaf.activeTabId || '' }
+      });
+    }
+  }, [state.root, dispatch]);
+
   const renderNode = (node: typeof state.root): React.ReactNode => {
     if (isSplit(node)) {
       return (
@@ -137,6 +167,11 @@ export const EditorGrid: React.FC<EditorGridProps> = ({ state, dispatch, command
   return (
     <div className="editor-grid">
       {renderNode(state.root)}
+      <PaneNavigator
+        isActive={isPaneNavigatorActive}
+        onDeactivate={() => setIsPaneNavigatorActive(false)}
+        onPaneSelect={handlePaneSelect}
+      />
     </div>
   );
 };

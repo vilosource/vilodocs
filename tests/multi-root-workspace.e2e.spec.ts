@@ -66,7 +66,7 @@ test.describe('Multi-Root Workspace', () => {
     console.log('File explorer contains folder-header?', explorerHTML.includes('folder-header'));
     
     // Clean up
-    await fs.unlink(workspacePath).catch(() => {});
+    await fs.unlink(workspacePath).catch(() => { /* ignore errors */ });
   });
 
   test('should detect workspace type from loaded workspace', async () => {

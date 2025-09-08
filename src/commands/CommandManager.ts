@@ -434,6 +434,19 @@ export class CommandManager {
       }
     });
 
+    // Pane navigator
+    this.registerCommand({
+      id: 'editor.navigatePanes',
+      label: 'Navigate to Pane',
+      keybinding: 'Alt+P',
+      execute: () => {
+        // This is handled in EditorGrid component
+        // Dispatch a custom event that EditorGrid can listen to
+        const event = new CustomEvent('pane-navigator-trigger');
+        document.dispatchEvent(event);
+      }
+    });
+
     // Focus navigation (legacy)
     this.registerCommand({
       id: 'focus.nextPane',

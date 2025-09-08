@@ -121,7 +121,7 @@ describe('CommandPalette', () => {
   describe('error handling', () => {
     it('should handle getItems throwing an error', async () => {
       // Mock console.error to avoid noise in test output
-      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => { /* suppress error */ });
       
       // Return a rejected promise that will be caught
       mockGetItems.mockImplementation(() => Promise.reject(new Error('Failed to fetch items')));
