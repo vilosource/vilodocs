@@ -70,44 +70,6 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
     return cleanup;
   }, [workspaceService]);
 
-  // Keyboard shortcuts
-  useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      // Only handle shortcuts when no input is focused
-      if (event.target instanceof HTMLInputElement || event.target instanceof HTMLTextAreaElement) {
-        return;
-      }
-
-      const isCtrl = event.ctrlKey || event.metaKey;
-      const isShift = event.shiftKey;
-
-      if (isCtrl && isShift) {
-        switch (event.key.toLowerCase()) {
-          case 'o':
-            event.preventDefault();
-            handleOpenFolder();
-            break;
-          case 'w':
-            event.preventDefault();
-            handleOpenWorkspace();
-            break;
-        }
-      } else if (isCtrl) {
-        switch (event.key.toLowerCase()) {
-          case 's':
-            if (state.workspace && state.isDirty) {
-              event.preventDefault();
-              handleSaveWorkspace();
-            }
-            break;
-        }
-      }
-    };
-
-    document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [handleOpenFolder, handleOpenWorkspace, handleSaveWorkspace, state.workspace, state.isDirty]);
-
   const handleOpenFolder = useCallback(async () => {
     // Check if current workspace needs saving
     if (state.isDirty && state.workspace) {
@@ -282,6 +244,44 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
   const handleCloseContextMenu = useCallback(() => {
     setContextMenu(null);
   }, []);
+
+  // Keyboard shortcuts - must be after handler function declarations
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      // Only handle shortcuts when no input is focused
+      if (event.target instanceof HTMLInputElement || event.target instanceof HTMLTextAreaElement) {
+        return;
+      }
+
+      const isCtrl = event.ctrlKey || event.metaKey;
+      const isShift = event.shiftKey;
+
+      if (isCtrl && isShift) {
+        switch (event.key.toLowerCase()) {
+          case 'o':
+            event.preventDefault();
+            handleOpenFolder();
+            break;
+          case 'w':
+            event.preventDefault();
+            handleOpenWorkspace();
+            break;
+        }
+      } else if (isCtrl) {
+        switch (event.key.toLowerCase()) {
+          case 's':
+            if (state.workspace && state.isDirty) {
+              event.preventDefault();
+              handleSaveWorkspace();
+            }
+            break;
+        }
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [handleOpenFolder, handleOpenWorkspace, handleSaveWorkspace, state.workspace, state.isDirty]);
 
   // Get all nodes from all workspace folders
   const allNodes = Array.from(state.rootNodes.values()).flat();
