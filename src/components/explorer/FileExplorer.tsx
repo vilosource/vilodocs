@@ -17,6 +17,7 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
 }) => {
   const [workspaceService] = useState(() => new WorkspaceService());
   const [state, setState] = useState<WorkspaceState>(() => workspaceService.getState());
+  const [recentWorkspaces, setRecentWorkspaces] = useState<string[]>([]);
   const [contextMenu, setContextMenu] = useState<{
     x: number;
     y: number;
@@ -44,6 +45,20 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
     }
   }, [initialWorkspace, workspaceService]);
 
+  // Load recent workspaces
+  useEffect(() => {
+    const loadRecentWorkspaces = async () => {
+      try {
+        const recent = await window.api.getRecentWorkspaces();
+        setRecentWorkspaces(recent);
+      } catch (error) {
+        console.error('Failed to load recent workspaces:', error);
+      }
+    };
+    
+    loadRecentWorkspaces();
+  }, []);
+
   // Listen for file changes
   useEffect(() => {
     const cleanup = window.api.onFileChange((event) => {
@@ -54,6 +69,44 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
     
     return cleanup;
   }, [workspaceService]);
+
+  // Keyboard shortcuts
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      // Only handle shortcuts when no input is focused
+      if (event.target instanceof HTMLInputElement || event.target instanceof HTMLTextAreaElement) {
+        return;
+      }
+
+      const isCtrl = event.ctrlKey || event.metaKey;
+      const isShift = event.shiftKey;
+
+      if (isCtrl && isShift) {
+        switch (event.key.toLowerCase()) {
+          case 'o':
+            event.preventDefault();
+            handleOpenFolder();
+            break;
+          case 'w':
+            event.preventDefault();
+            handleOpenWorkspace();
+            break;
+        }
+      } else if (isCtrl) {
+        switch (event.key.toLowerCase()) {
+          case 's':
+            if (state.workspace && state.isDirty) {
+              event.preventDefault();
+              handleSaveWorkspace();
+            }
+            break;
+        }
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [handleOpenFolder, handleOpenWorkspace, handleSaveWorkspace, state.workspace, state.isDirty]);
 
   const handleOpenFolder = useCallback(async () => {
     // Check if current workspace needs saving
@@ -139,9 +192,44 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
       await workspaceService.openWorkspace(updatedWorkspace);
       // Mark as clean since we just saved
       workspaceService.markClean(savedPath);
+      // Refresh recent workspaces
+      const recent = await window.api.getRecentWorkspaces();
+      setRecentWorkspaces(recent);
       onWorkspaceChange?.(updatedWorkspace);
     }
   }, [workspaceService, onWorkspaceChange, state.workspace]);
+
+  const handleOpenRecentWorkspace = useCallback(async (workspacePath: string) => {
+    // Check if current workspace needs saving
+    if (state.isDirty && state.workspace) {
+      const action = await window.api.showSavePrompt(state.workspace.name || 'Workspace');
+      if (action === 'cancel') {
+        return; // User cancelled, don't proceed
+      }
+      if (action === 'save') {
+        // Save current workspace first
+        const savedPath = await window.api.saveWorkspaceAs(state.workspace);
+        if (savedPath) {
+          workspaceService.markClean(savedPath);
+        } else {
+          return; // Save was cancelled
+        }
+      }
+    }
+    
+    try {
+      const workspace = await window.api.loadWorkspaceFile(workspacePath);
+      if (workspace) {
+        await workspaceService.openWorkspace(workspace);
+        onWorkspaceChange?.(workspace);
+        // Refresh recent workspaces to update order
+        const recent = await window.api.getRecentWorkspaces();
+        setRecentWorkspaces(recent);
+      }
+    } catch (error) {
+      console.error('Failed to open recent workspace:', error);
+    }
+  }, [workspaceService, onWorkspaceChange, state.isDirty, state.workspace]);
 
   const handleToggleExpand = useCallback(async (path: string) => {
     await workspaceService.toggleFolder(path);
@@ -222,6 +310,30 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
               Open Workspace
             </button>
           </div>
+          
+          {recentWorkspaces.length > 0 && (
+            <div className="recent-workspaces">
+              <h4>Recent Workspaces</h4>
+              <ul className="recent-workspaces-list">
+                {recentWorkspaces.slice(0, 5).map((workspacePath, index) => {
+                  const fileName = workspacePath.split('/').pop()?.replace('.vilodocs-workspace', '') || 'Unnamed';
+                  return (
+                    <li key={index} className="recent-workspace-item">
+                      <button
+                        className="recent-workspace-button"
+                        onClick={() => handleOpenRecentWorkspace(workspacePath)}
+                        title={workspacePath}
+                      >
+                        <span className="workspace-icon">📁</span>
+                        <span className="workspace-name">{fileName}</span>
+                        <span className="workspace-path">{workspacePath}</span>
+                      </button>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          )}
         </div>
       </div>
     );

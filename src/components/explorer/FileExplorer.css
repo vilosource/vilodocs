@@ -132,6 +132,76 @@
   border-color: var(--theme-color-gray-500);
 }
 
+/* Recent Workspaces */
+.recent-workspaces {
+  margin-top: 24px;
+  width: 100%;
+  max-width: 300px;
+}
+
+.recent-workspaces h4 {
+  margin: 0 0 12px 0;
+  font-size: var(--theme-font-size-sm);
+  font-weight: 600;
+  color: var(--vscode-foreground);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.recent-workspaces-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.recent-workspace-item {
+  margin-bottom: 2px;
+}
+
+.recent-workspace-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 8px 12px;
+  border: none;
+  background: transparent;
+  border-radius: var(--theme-radius-sm);
+  cursor: pointer;
+  transition: background-color var(--theme-transition-fast);
+  text-align: left;
+  font-family: inherit;
+}
+
+.recent-workspace-button:hover {
+  background: var(--vscode-list-hoverBackground);
+}
+
+.recent-workspace-button:active {
+  background: var(--vscode-list-activeSelectionBackground);
+}
+
+.workspace-icon {
+  font-size: 12px;
+  opacity: 0.8;
+}
+
+.recent-workspace-button .workspace-name {
+  font-weight: 500;
+  color: var(--vscode-foreground);
+  font-size: var(--theme-font-size-sm);
+}
+
+.workspace-path {
+  font-size: var(--theme-font-size-xs);
+  color: var(--vscode-descriptionForeground);
+  margin-left: auto;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 150px;
+}
+
 /* Multi-root workspace */
 .workspace-folders {
   flex: 1;
