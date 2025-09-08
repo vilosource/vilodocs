@@ -2,6 +2,16 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## PRIMARY DEVELOPMENT METHODOLOGY: Test-Driven Development (TDD)
+
+**MANDATORY**: All new features and bug fixes MUST follow Test-Driven Development:
+
+1. **RED** - Write a failing test first
+2. **GREEN** - Write minimal code to make the test pass  
+3. **REFACTOR** - Improve the code while keeping tests green
+
+**NO EXCEPTIONS**: Writing code without tests first is considered a bug. The recent "items.map is not a function" bug in CommandPalette is a direct result of not following TDD - the component was changed from sync to async without tests, causing a runtime crash that tests would have caught immediately.
+
 ## Project Overview
 
 This is an Electron application built with TypeScript, Vite, and Electron Forge. The application uses a multi-process architecture typical of Electron apps with main, renderer, and preload processes.
@@ -50,6 +60,29 @@ npm run lint
 
 ## Testing Strategy - CRITICAL
 
+### Test-Driven Development (TDD) - MANDATORY
+
+**CRITICAL**: Write tests BEFORE implementing features. This prevents bugs like "items.map is not a function" that occur when APIs change from synchronous to asynchronous.
+
+#### TDD Process:
+1. **Write the test first** - Define expected behavior before implementation
+2. **Watch it fail** - Ensures the test actually tests something
+3. **Write minimal code to pass** - Focus on making the test green
+4. **Refactor with confidence** - Tests ensure nothing breaks
+
+#### Example of TDD preventing async bugs:
+```typescript
+// 1. Write test first (forces you to think about the API)
+test('should handle async data loading', async () => {
+  mockGetItems.mockResolvedValue([...]); // Is this async? Decision made upfront
+  render(<Component />);
+  await waitFor(() => ...); // Explicitly handle async behavior
+});
+
+// 2. Implementation is guided by the test
+// You CANNOT accidentally make items.map fail because the test defines the contract
+```
+
 ### Console Error Detection
 **IMPORTANT**: The FIRST test to run or write should ALWAYS check for console errors. Runtime errors that appear in the console often indicate critical issues that will crash the application.
 
@@ -65,10 +98,50 @@ npm run lint
    - Layout persistence
 
 ### Test Implementation Requirements
+- **ALWAYS write tests BEFORE implementation** - No exceptions for new features
+- **Update tests BEFORE changing APIs** - Especially for sync → async migrations
 - All React component tests MUST import React explicitly
 - Use the console error detection setup in `tests/setup/console-error-detection.ts`
 - E2E tests should check for JavaScript errors before checking UI elements
 - When creating new features, write tests that would have caught any bugs encountered
+- **Run tests before every commit** - Use `npm test` to catch issues early
+
+### Common Bug Patterns That TDD Prevents
+
+#### Synchronous to Asynchronous Migration Bugs
+**Most common React error**: "Cannot read property 'map' of undefined" or "items.map is not a function"
+```typescript
+// TEST FIRST - Forces you to handle async properly
+test('handles async data correctly', async () => {
+  const items = Promise.resolve([{id: 1}]); // Explicitly async
+  mockHook.mockReturnValue(items);
+  
+  render(<Component />);
+  
+  // Won't pass without proper async handling in component
+  await waitFor(() => {
+    expect(screen.getByText('...')).toBeInTheDocument();
+  });
+});
+```
+
+#### State Update Timing Issues
+```typescript
+// TEST FIRST - Catches race conditions
+test('updates state in correct order', async () => {
+  const { rerender } = render(<Component />);
+  
+  fireEvent.click(button);
+  await waitFor(() => expect(mockApi).toHaveBeenCalled());
+  
+  // Forces you to handle loading states
+  expect(screen.getByText('Loading...')).toBeInTheDocument();
+  
+  await waitFor(() => {
+    expect(screen.getByText('Data loaded')).toBeInTheDocument();
+  });
+});
+```
 
 ### Common Testing Patterns
 ```typescript
@@ -86,6 +159,25 @@ test('app loads without JavaScript errors', async ({ page }) => {
   await page.goto('/');
   expect(errors).toHaveLength(0); // FIRST assertion
   // Only then check UI elements
+});
+
+// Async hook testing pattern
+test('handles async hooks correctly', async () => {
+  const TestComponent = () => {
+    const { data, loading } = useAsyncHook();
+    if (loading) return <div>Loading...</div>;
+    return <div>{data.map(item => <span key={item.id}>{item.name}</span>)}</div>;
+  };
+  
+  render(<TestComponent />);
+  
+  // First check loading state
+  expect(screen.getByText('Loading...')).toBeInTheDocument();
+  
+  // Then wait for data
+  await waitFor(() => {
+    expect(screen.getByText('Expected item')).toBeInTheDocument();
+  });
 });
 ```
 
