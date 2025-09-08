@@ -54,14 +54,14 @@ class StateService extends EventEmitter {
       
       // Load initial state from main process
       const loadedState = await window.api.loadState();
-      this.state = loadedState;
-      console.log('StateService: Loaded initial state:', loadedState);
+      this.state = loadedState || DEFAULT_APPLICATION_STATE;
+      console.log('StateService: Loaded initial state:', this.state);
       
       // Listen for state changes from main process
       window.api.onStateChanged((newState) => {
         console.log('StateService: State changed from main process');
-        this.state = newState;
-        this.emit('stateChanged', newState);
+        this.state = newState || DEFAULT_APPLICATION_STATE;
+        this.emit('stateChanged', this.state);
       });
       
       this.isInitialized = true;
