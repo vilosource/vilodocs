@@ -23,6 +23,19 @@
 
 .workspace-name {
   color: var(--header-text, #666);
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.workspace-name.dirty {
+  color: var(--theme-color-warning, #ffd166);
+}
+
+.workspace-name .dirty-indicator {
+  color: var(--theme-color-warning, #ffd166);
+  font-size: 16px;
+  line-height: 1;
 }
 
 .file-explorer-actions {
@@ -134,6 +147,9 @@
 }
 
 .folder-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   padding: 6px 12px;
   background: var(--folder-header-bg, rgba(0, 0, 0, 0.03));
   font-size: 11px;
@@ -142,6 +158,20 @@
   letter-spacing: 0.5px;
   color: var(--folder-header-text, #666);
   border-bottom: 1px solid var(--border-color, #e0e0e0);
+}
+
+.folder-name {
+  flex: 1;
+}
+
+.folder-remove-button {
+  opacity: 0.6;
+  margin-left: 8px;
+}
+
+.folder-remove-button:hover {
+  opacity: 1;
+  background-color: var(--theme-color-error, #f48771);
 }
 
 /* Context Menu */

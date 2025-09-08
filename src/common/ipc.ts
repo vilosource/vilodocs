@@ -20,6 +20,11 @@ export const Channels = {
   SaveWorkspace: 'workspace:save-workspace',
   GetRecentWorkspaces: 'workspace:get-recent',
   LoadWorkspaceFile: 'workspace:load-file',
+  AddFolderToWorkspace: 'workspace:add-folder',
+  RemoveFolderFromWorkspace: 'workspace:remove-folder',
+  SaveWorkspaceAs: 'workspace:save-as',
+  CheckWorkspaceBeforeClose: 'workspace:check-before-close',
+  ShowSavePrompt: 'workspace:show-save-prompt',
   // Command palette file operations
   SearchFiles: 'palette:search-files',
   GetWorkspaceFiles: 'palette:get-workspace-files',
@@ -120,6 +125,11 @@ export type RendererApis = {
   saveWorkspace(workspace: Workspace): Promise<string | null>;
   getRecentWorkspaces(): Promise<string[]>;
   loadWorkspaceFile(path: string): Promise<Workspace | null>;
+  addFolderToWorkspace(currentWorkspace: Workspace): Promise<Workspace | null>;
+  removeFolderFromWorkspace(workspace: Workspace, folderId: string): Promise<Workspace>;
+  saveWorkspaceAs(workspace: Workspace): Promise<string | null>;
+  checkWorkspaceBeforeClose(): Promise<boolean>; // Returns true if safe to close
+  showSavePrompt(workspaceName: string): Promise<'save' | 'discard' | 'cancel'>;
   
   // Command palette file operations
   searchFiles(workspacePath: string, query: string): Promise<PaletteFileItem[]>;

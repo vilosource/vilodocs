@@ -56,20 +56,92 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
   }, [workspaceService]);
 
   const handleOpenFolder = useCallback(async () => {
+    // Check if current workspace needs saving
+    if (state.isDirty && state.workspace) {
+      const action = await window.api.showSavePrompt(state.workspace.name || 'Workspace');
+      if (action === 'cancel') {
+        return; // User cancelled, don't proceed
+      }
+      if (action === 'save') {
+        // Save current workspace first
+        const savedPath = await window.api.saveWorkspaceAs(state.workspace);
+        if (savedPath) {
+          workspaceService.markClean(savedPath);
+        } else {
+          return; // Save was cancelled
+        }
+      }
+      // If action was 'discard', proceed without saving
+    }
+    
     const workspace = await window.api.openFolder();
     if (workspace) {
       await workspaceService.openWorkspace(workspace);
       onWorkspaceChange?.(workspace);
     }
-  }, [workspaceService, onWorkspaceChange]);
+  }, [workspaceService, onWorkspaceChange, state.isDirty, state.workspace]);
 
   const handleOpenWorkspace = useCallback(async () => {
+    // Check if current workspace needs saving
+    if (state.isDirty && state.workspace) {
+      const action = await window.api.showSavePrompt(state.workspace.name || 'Workspace');
+      if (action === 'cancel') {
+        return; // User cancelled, don't proceed
+      }
+      if (action === 'save') {
+        // Save current workspace first
+        const savedPath = await window.api.saveWorkspaceAs(state.workspace);
+        if (savedPath) {
+          workspaceService.markClean(savedPath);
+        } else {
+          return; // Save was cancelled
+        }
+      }
+    }
+    
     const workspace = await window.api.openWorkspace();
     if (workspace) {
       await workspaceService.openWorkspace(workspace);
       onWorkspaceChange?.(workspace);
     }
-  }, [workspaceService, onWorkspaceChange]);
+  }, [workspaceService, onWorkspaceChange, state.isDirty, state.workspace]);
+
+  const handleAddFolderToWorkspace = useCallback(async () => {
+    if (!state.workspace) return;
+    
+    const updatedWorkspace = await window.api.addFolderToWorkspace(state.workspace);
+    if (updatedWorkspace) {
+      await workspaceService.openWorkspace(updatedWorkspace);
+      // Mark as dirty since we added a folder
+      workspaceService.markDirty();
+      onWorkspaceChange?.(updatedWorkspace);
+    }
+  }, [workspaceService, onWorkspaceChange, state.workspace]);
+
+  const handleRemoveFolderFromWorkspace = useCallback(async (folderId: string) => {
+    if (!state.workspace) return;
+    
+    const updatedWorkspace = await window.api.removeFolderFromWorkspace(state.workspace, folderId);
+    await workspaceService.openWorkspace(updatedWorkspace);
+    // Mark as dirty since we removed a folder
+    workspaceService.markDirty();
+    onWorkspaceChange?.(updatedWorkspace);
+  }, [workspaceService, onWorkspaceChange, state.workspace]);
+
+  const handleSaveWorkspace = useCallback(async () => {
+    if (!state.workspace) return;
+    
+    const savedPath = await window.api.saveWorkspaceAs(state.workspace);
+    if (savedPath) {
+      console.log('Workspace saved to:', savedPath);
+      // Update workspace with saved path
+      const updatedWorkspace = { ...state.workspace, path: savedPath };
+      await workspaceService.openWorkspace(updatedWorkspace);
+      // Mark as clean since we just saved
+      workspaceService.markClean(savedPath);
+      onWorkspaceChange?.(updatedWorkspace);
+    }
+  }, [workspaceService, onWorkspaceChange, state.workspace]);
 
   const handleToggleExpand = useCallback(async (path: string) => {
     await workspaceService.toggleFolder(path);
@@ -160,8 +232,23 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
       <div className="file-explorer-header">
         <span className="workspace-name">
           {state.workspace.name || 'EXPLORER'}
+          {state.isDirty && ' •'}
         </span>
         <div className="file-explorer-actions">
+          <button 
+            className="icon-button"
+            onClick={handleAddFolderToWorkspace}
+            title="Add Folder to Workspace"
+          >
+            ➕
+          </button>
+          <button 
+            className="icon-button"
+            onClick={handleSaveWorkspace}
+            title="Save Workspace As..."
+          >
+            💾
+          </button>
           <button 
             className="icon-button"
             onClick={handleOpenFolder}
@@ -171,14 +258,14 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
           </button>
           <button 
             className="icon-button"
-            onClick={() => handleCreateFile(state.workspace!.folders[0].path)}
+            onClick={() => handleCreateFile(state.workspace?.folders[0]?.path || '')}
             title="New File"
           >
             📄
           </button>
           <button 
             className="icon-button"
-            onClick={() => handleCreateFolder(state.workspace!.folders[0].path)}
+            onClick={() => handleCreateFolder(state.workspace?.folders[0]?.path || '')}
             title="New Folder"
           >
             📁+
@@ -192,7 +279,16 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
           {state.workspace.folders.map(folder => (
             <div key={folder.id} className="workspace-folder">
               <div className="folder-header">
-                {folder.name || folder.path}
+                <span className="folder-name">{folder.name || folder.path}</span>
+                {(state.workspace?.folders?.length || 0) > 1 && (
+                  <button 
+                    className="icon-button folder-remove-button"
+                    onClick={() => handleRemoveFolderFromWorkspace(folder.id)}
+                    title="Remove from Workspace"
+                  >
+                    ✖️
+                  </button>
+                )}
               </div>
               <FileTree
                 nodes={state.rootNodes.get(folder.id) || []}

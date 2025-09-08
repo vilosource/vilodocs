@@ -367,6 +367,109 @@ export function registerFileSystemHandlers(): void {
       return null;
     }
   });
+  
+  // Add folder to workspace
+  ipcMain.handle(Channels.AddFolderToWorkspace, async (_, currentWorkspace: Workspace): Promise<Workspace | null> => {
+    const result = await dialog.showOpenDialog({
+      properties: ['openDirectory'],
+      title: 'Add Folder to Workspace',
+    });
+    
+    if (result.canceled || result.filePaths.length === 0) {
+      return null;
+    }
+    
+    const folderPath = result.filePaths[0];
+    const folderName = path.basename(folderPath);
+    
+    // Check if folder is already in workspace
+    const existingFolder = currentWorkspace.folders.find(f => f.path === folderPath);
+    if (existingFolder) {
+      return currentWorkspace; // Already exists, return unchanged
+    }
+    
+    // Create new workspace folder
+    const newFolder: WorkspaceFolder = {
+      id: uuidv4(),
+      path: folderPath,
+      name: folderName,
+    };
+    
+    // Create updated workspace
+    const updatedWorkspace: Workspace = {
+      ...currentWorkspace,
+      type: 'multi', // Always becomes multi-root when adding folders
+      folders: [...currentWorkspace.folders, newFolder],
+      name: currentWorkspace.name || 'Multi-Root Workspace',
+    };
+    
+    return updatedWorkspace;
+  });
+  
+  // Remove folder from workspace
+  ipcMain.handle(Channels.RemoveFolderFromWorkspace, async (_, workspace: Workspace, folderId: string): Promise<Workspace> => {
+    const updatedFolders = workspace.folders.filter(f => f.id !== folderId);
+    
+    return {
+      ...workspace,
+      type: updatedFolders.length > 1 ? 'multi' : (updatedFolders.length === 1 ? 'single' : 'untitled'),
+      folders: updatedFolders,
+      name: updatedFolders.length === 1 ? updatedFolders[0].name : workspace.name,
+    };
+  });
+  
+  // Save workspace as (same as save but with explicit naming)
+  ipcMain.handle(Channels.SaveWorkspaceAs, async (_, workspace: Workspace): Promise<string | null> => {
+    const result = await dialog.showSaveDialog({
+      title: 'Save Workspace As',
+      defaultPath: `${workspace.name || 'workspace'}.vilodocs-workspace`,
+      filters: [
+        { name: 'Workspace Files', extensions: ['vilodocs-workspace'] },
+      ],
+    });
+    
+    if (result.canceled || !result.filePath) {
+      return null;
+    }
+    
+    const workspacePath = result.filePath;
+    const workspaceDir = path.dirname(workspacePath);
+    
+    // Convert absolute paths to relative for portability
+    const workspaceData = {
+      version: 1,
+      name: workspace.name,
+      folders: workspace.folders.map(folder => ({
+        id: folder.id,
+        path: path.relative(workspaceDir, folder.path),
+        name: folder.name,
+      })),
+    };
+    
+    await fs.writeFile(workspacePath, JSON.stringify(workspaceData, null, 2), 'utf8');
+    addRecentWorkspace(workspacePath);
+    
+    return workspacePath;
+  });
+  
+  // Show save prompt dialog
+  ipcMain.handle(Channels.ShowSavePrompt, async (_, workspaceName: string): Promise<'save' | 'discard' | 'cancel'> => {
+    const result = await dialog.showMessageBox({
+      type: 'warning',
+      title: 'Unsaved Workspace',
+      message: `Do you want to save changes to "${workspaceName}"?`,
+      detail: 'Your changes will be lost if you don\'t save them.',
+      buttons: ['Save', 'Don\'t Save', 'Cancel'],
+      defaultId: 0,
+      cancelId: 2,
+    });
+    
+    switch (result.response) {
+      case 0: return 'save';
+      case 1: return 'discard';
+      case 2: default: return 'cancel';
+    }
+  });
 }
 
 /**

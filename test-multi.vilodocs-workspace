@@ -1,16 +1,19 @@
 {
   "version": 1,
-  "name": "Multi-Root Test",
+  "name": "Test Multi-Root Workspace",
   "folders": [
     {
+      "id": "folder1",
       "path": "./src",
-      "name": "Source Code"
+      "name": "Source"
     },
     {
+      "id": "folder2", 
       "path": "./tests",
-      "name": "Test Files"
+      "name": "Tests"
     },
     {
+      "id": "folder3",
       "path": "./docs",
       "name": "Documentation"
     }

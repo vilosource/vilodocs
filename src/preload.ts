@@ -39,6 +39,11 @@ const api: RendererApis = {
   saveWorkspace: (workspace) => ipcRenderer.invoke(Channels.SaveWorkspace, workspace),
   getRecentWorkspaces: () => ipcRenderer.invoke(Channels.GetRecentWorkspaces),
   loadWorkspaceFile: (path) => ipcRenderer.invoke(Channels.LoadWorkspaceFile, path),
+  addFolderToWorkspace: (currentWorkspace) => ipcRenderer.invoke(Channels.AddFolderToWorkspace, currentWorkspace),
+  removeFolderFromWorkspace: (workspace, folderId) => ipcRenderer.invoke(Channels.RemoveFolderFromWorkspace, workspace, folderId),
+  saveWorkspaceAs: (workspace) => ipcRenderer.invoke(Channels.SaveWorkspaceAs, workspace),
+  checkWorkspaceBeforeClose: () => ipcRenderer.invoke(Channels.CheckWorkspaceBeforeClose),
+  showSavePrompt: (workspaceName) => ipcRenderer.invoke(Channels.ShowSavePrompt, workspaceName),
   
   // Command palette file operations
   searchFiles: (workspacePath, query) => ipcRenderer.invoke(Channels.SearchFiles, workspacePath, query),

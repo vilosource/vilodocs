@@ -6,6 +6,8 @@ export interface WorkspaceState {
   expandedFolders: Set<string>;
   selectedPath: string | null;
   focusedPath: string | null;
+  isDirty: boolean; // Has unsaved workspace changes
+  lastSavedPath: string | null; // Path where workspace was last saved
 }
 
 export class WorkspaceService {
@@ -15,6 +17,8 @@ export class WorkspaceService {
     expandedFolders: new Set(),
     selectedPath: null,
     focusedPath: null,
+    isDirty: false,
+    lastSavedPath: null,
   };
 
   private changeListeners: Set<(state: WorkspaceState) => void> = new Set();
@@ -32,6 +36,10 @@ export class WorkspaceService {
     this.state.rootNodes.clear();
     this.state.selectedPath = null;
     this.state.focusedPath = null;
+    
+    // Reset dirty state for new workspace
+    this.state.isDirty = false;
+    this.state.lastSavedPath = workspace.path || null;
     
     // Load saved expanded folders for this workspace
     this.loadExpandedFolders();
@@ -297,6 +305,58 @@ export class WorkspaceService {
     for (const listener of this.changeListeners) {
       listener(stateSnapshot);
     }
+  }
+
+  /**
+   * Marks workspace as dirty (has unsaved changes)
+   */
+  markDirty(): void {
+    if (!this.state.isDirty) {
+      this.state.isDirty = true;
+      this.notifyListeners();
+    }
+  }
+
+  /**
+   * Marks workspace as clean (saved)
+   */
+  markClean(savedPath?: string): void {
+    this.state.isDirty = false;
+    if (savedPath) {
+      this.state.lastSavedPath = savedPath;
+    }
+    this.notifyListeners();
+  }
+
+  /**
+   * Updates workspace with new configuration and marks as dirty
+   */
+  updateWorkspace(workspace: Workspace): void {
+    this.state.workspace = workspace;
+    this.markDirty();
+  }
+
+  /**
+   * Checks if workspace has unsaved changes
+   */
+  isDirty(): boolean {
+    return this.state.isDirty;
+  }
+
+  /**
+   * Gets the last saved path
+   */
+  getLastSavedPath(): string | null {
+    return this.state.lastSavedPath;
+  }
+
+  /**
+   * Checks if workspace needs saving prompt
+   */
+  needsSavePrompt(): boolean {
+    return this.state.isDirty && 
+           this.state.workspace !== null && 
+           this.state.workspace.type === 'multi';
   }
 
   /**
