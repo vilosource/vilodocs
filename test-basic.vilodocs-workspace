@@ -1,0 +1,14 @@
+{
+  "version": 1,
+  "name": "Basic Test Workspace",
+  "folders": [
+    {
+      "path": "./src",
+      "name": "Source"
+    },
+    {
+      "path": "./tests",
+      "name": "Tests"
+    }
+  ]
+}

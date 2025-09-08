@@ -19,6 +19,7 @@ export const Channels = {
   OpenWorkspace: 'workspace:open-workspace',
   SaveWorkspace: 'workspace:save-workspace',
   GetRecentWorkspaces: 'workspace:get-recent',
+  LoadWorkspaceFile: 'workspace:load-file',
   // Command palette file operations
   SearchFiles: 'palette:search-files',
   GetWorkspaceFiles: 'palette:get-workspace-files',
@@ -118,6 +119,7 @@ export type RendererApis = {
   openWorkspace(): Promise<Workspace | null>;
   saveWorkspace(workspace: Workspace): Promise<string | null>;
   getRecentWorkspaces(): Promise<string[]>;
+  loadWorkspaceFile(path: string): Promise<Workspace | null>;
   
   // Command palette file operations
   searchFiles(workspacePath: string, query: string): Promise<PaletteFileItem[]>;

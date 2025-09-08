@@ -75,8 +75,23 @@ async function globalSetup(config: FullConfig) {
   // Get the first window
   const page = await app.firstWindow();
   
-  // Wait for the app to be ready - check for React root
-  await page.waitForSelector('#root', { timeout: 30000 });
+  // Add console logging to debug
+  page.on('console', (msg) => {
+    console.log(`Browser console: ${msg.type()} - ${msg.text()}`);
+  });
+  
+  page.on('pageerror', (error) => {
+    console.log(`Browser error: ${error.message}`);
+  });
+  
+  // Wait for the app to be ready - check for React root or fallback
+  try {
+    await page.waitForSelector('#root', { timeout: 30000 });
+  } catch (error) {
+    console.log('Failed to find #root, trying alternative selectors...');
+    // Try waiting for the shell or file explorer
+    await page.waitForSelector('.shell, .file-explorer-empty', { timeout: 30000 });
+  }
   await page.waitForLoadState('networkidle');
   
   console.log('✅ Electron app launched successfully');

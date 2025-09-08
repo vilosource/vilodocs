@@ -340,6 +340,33 @@ export function registerFileSystemHandlers(): void {
   ipcMain.handle(Channels.GetRecentWorkspaces, async () => {
     return getRecentWorkspaces();
   });
+  
+  // Load workspace file directly (for testing)
+  ipcMain.handle(Channels.LoadWorkspaceFile, async (_, workspacePath: string): Promise<Workspace | null> => {
+    try {
+      validatePath(workspacePath);
+      const workspaceContent = await fs.readFile(workspacePath, 'utf8');
+      const workspaceData = JSON.parse(workspaceContent);
+      
+      // Convert relative paths to absolute
+      const workspaceDir = path.dirname(workspacePath);
+      const folders: WorkspaceFolder[] = workspaceData.folders.map((folder: any) => ({
+        id: folder.id || uuidv4(),
+        path: path.isAbsolute(folder.path) ? folder.path : path.join(workspaceDir, folder.path),
+        name: folder.name || path.basename(folder.path),
+      }));
+      
+      return {
+        type: folders.length > 1 ? 'multi' : 'single',
+        folders,
+        name: workspaceData.name || path.basename(workspacePath, '.vilodocs-workspace'),
+        path: workspacePath,
+      };
+    } catch (error) {
+      console.error('Failed to load workspace file:', error);
+      return null;
+    }
+  });
 }
 
 /**
