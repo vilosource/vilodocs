@@ -69,15 +69,15 @@
 
 .empty-message h3 {
   margin: 0 0 8px 0;
-  font-size: 14px;
+  font-size: var(--theme-font-size-lg);
   font-weight: 600;
-  color: var(--text-primary, #333);
+  color: var(--vscode-foreground);
 }
 
 .empty-message p {
   margin: 0 0 16px 0;
-  font-size: 12px;
-  color: var(--text-secondary, #666);
+  font-size: var(--theme-font-size-sm);
+  color: var(--vscode-descriptionForeground);
   line-height: 1.4;
 }
 
@@ -90,31 +90,33 @@
 .primary-button,
 .secondary-button {
   padding: 8px 16px;
-  border: 1px solid var(--button-border, #ccc);
-  border-radius: 4px;
-  font-size: 12px;
+  border-radius: var(--theme-radius-md);
+  font-size: var(--theme-font-size-md);
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.1s;
+  transition: all var(--theme-transition-fast);
 }
 
 .primary-button {
-  background: var(--primary-button-bg, #0078d4);
-  color: var(--primary-button-text, white);
-  border-color: var(--primary-button-bg, #0078d4);
+  background: var(--theme-color-primary);
+  color: white;
+  border: 1px solid var(--theme-color-primary);
 }
 
 .primary-button:hover {
-  background: var(--primary-button-hover, #106ebe);
+  background: var(--theme-color-secondary);
+  border-color: var(--theme-color-secondary);
 }
 
 .secondary-button {
-  background: var(--secondary-button-bg, transparent);
-  color: var(--secondary-button-text, #333);
+  background: var(--vscode-input-background);
+  color: var(--vscode-foreground);
+  border: 1px solid var(--theme-color-gray-600);
 }
 
 .secondary-button:hover {
-  background: var(--secondary-button-hover, rgba(0, 0, 0, 0.05));
+  background: var(--vscode-list-hoverBackground);
+  border-color: var(--theme-color-gray-500);
 }
 
 /* Multi-root workspace */
