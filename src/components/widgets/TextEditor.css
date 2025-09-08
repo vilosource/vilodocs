@@ -1,19 +1,17 @@
 .text-editor {
-  display: flex;
-  flex-direction: column;
   width: 100%;
   height: 100%;
   background: var(--vscode-editor-background);
   color: var(--vscode-editor-foreground);
   font-family: var(--theme-font-family-mono);
+  overflow: hidden;
 }
 
-/* Header - Removed (moved to status bar) */
-
-/* Main editor area - Now uses full height */
-.text-editor {
+.editor-main {
   display: flex;
+  flex-direction: row;
   width: 100%;
+  height: 100%;
   position: relative;
 }
 
@@ -27,6 +25,9 @@
   border-right: 1px solid var(--vscode-panel-border);
   user-select: none;
   min-width: 50px;
+  overflow-y: hidden;
+  overflow-x: hidden;
+  flex-shrink: 0;
 }
 
 .line-number {
@@ -49,6 +50,9 @@
   overflow-x: auto;
   overflow-y: auto;
   tab-size: 2;
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
 }
 
 .editor-textarea::placeholder {
@@ -74,7 +78,6 @@
 }
 
 /* Footer - Removed (moved to status bar) */
-}
 
 .zoom-indicator {
   background: var(--vscode-badge-background, rgba(255, 255, 255, 0.1));

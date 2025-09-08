@@ -137,6 +137,14 @@ export const TextEditor: React.FC<TextEditorProps> = ({
     }
   };
 
+  // Synchronize scrolling between line numbers and textarea
+  const handleScroll = useCallback((e: React.UIEvent<HTMLTextAreaElement>) => {
+    const lineNumbersDiv = e.currentTarget.parentElement?.querySelector('.line-numbers') as HTMLDivElement;
+    if (lineNumbersDiv) {
+      lineNumbersDiv.scrollTop = e.currentTarget.scrollTop;
+    }
+  }, []);
+
   return (
     <div className="text-editor">
       <div ref={editorRef} className="editor-main">
@@ -155,6 +163,7 @@ export const TextEditor: React.FC<TextEditorProps> = ({
           onChange={(e) => handleContentChange(e.target.value)}
           onKeyUp={updateCursorPosition}
           onClick={updateCursorPosition}
+          onScroll={handleScroll}
           placeholder={fileName ? `Start editing ${fileName}...` : 'Start typing...'}
           spellCheck={false}
           autoComplete="off"
