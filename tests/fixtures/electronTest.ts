@@ -34,7 +34,7 @@ export const test = base.extend<ElectronTestFixtures>({
       env: { 
         ...process.env, 
         E2E: '1', 
-        NODE_ENV: 'test',
+        NODE_ENV: 'development', // Use development to load from dev server
         DISPLAY: process.env.CI ? ':99' : process.env.DISPLAY
       },
     });
@@ -57,7 +57,9 @@ export const test = base.extend<ElectronTestFixtures>({
     
     // Otherwise get the first window
     const page = await electronApp.firstWindow();
-    await page.waitForLoadState('domcontentloaded');
+    // Wait for React app to be ready
+    await page.waitForSelector('#root', { timeout: 30000 });
+    await page.waitForLoadState('networkidle');
     await use(page);
   },
   

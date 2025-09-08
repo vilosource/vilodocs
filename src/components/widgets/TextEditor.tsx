@@ -42,6 +42,20 @@ export const TextEditor: React.FC<TextEditorProps> = ({
     setEditorContent(content);
     setIsDirty(false);
   }, [content, filePath]); // Reset when content or file changes
+
+  // Define updateCursorPosition before it's used
+  const updateCursorPosition = useCallback(() => {
+    if (textareaRef.current) {
+      const textarea = textareaRef.current;
+      const text = textarea.value;
+      const selectionStart = textarea.selectionStart;
+      const textBeforeCursor = text.substring(0, selectionStart);
+      const lines = textBeforeCursor.split('\n');
+      const line = lines.length;
+      const column = lines[lines.length - 1].length + 1;
+      setCursorPosition({ line, column });
+    }
+  }, []);
   
   // Focus textarea when widget becomes active
   useEffect(() => {
@@ -71,19 +85,6 @@ export const TextEditor: React.FC<TextEditorProps> = ({
       updateWidgetStatus(null);
     }
   }, [isActive, fileName, filePath, isDirty, cursorPosition, zoomLevel, onSwitchToViewer, updateWidgetStatus]);
-
-  const updateCursorPosition = useCallback(() => {
-    if (textareaRef.current) {
-      const textarea = textareaRef.current;
-      const text = textarea.value;
-      const selectionStart = textarea.selectionStart;
-      const textBeforeCursor = text.substring(0, selectionStart);
-      const lines = textBeforeCursor.split('\n');
-      const line = lines.length;
-      const column = lines[lines.length - 1].length + 1;
-      setCursorPosition({ line, column });
-    }
-  }, []);
 
   const handleContentChange = useCallback((newContent: string) => {
     setEditorContent(newContent);

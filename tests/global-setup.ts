@@ -1,7 +1,51 @@
 import { FullConfig, _electron as electron } from '@playwright/test';
 import path from 'node:path';
+import fs from 'node:fs';
+
+async function waitForServer(url: string, maxAttempts = 30): Promise<boolean> {
+  console.log(`⏳ Waiting for dev server at ${url}...`);
+  for (let i = 0; i < maxAttempts; i++) {
+    try {
+      const response = await fetch(url);
+      if (response.ok) {
+        console.log('✅ Dev server is ready');
+        return true;
+      }
+    } catch (e) {
+      // Server not ready yet
+    }
+    await new Promise(resolve => setTimeout(resolve, 1000));
+  }
+  return false;
+}
+
+async function waitForMainBuild(maxAttempts = 30): Promise<boolean> {
+  console.log('⏳ Waiting for main.js to be built...');
+  const mainPath = path.join(__dirname, '../.vite/build/main.js');
+  
+  for (let i = 0; i < maxAttempts; i++) {
+    if (fs.existsSync(mainPath)) {
+      console.log('✅ main.js is ready');
+      return true;
+    }
+    await new Promise(resolve => setTimeout(resolve, 1000));
+  }
+  return false;
+}
 
 async function globalSetup(config: FullConfig) {
+  // Wait for Vite dev server to be ready (started by Playwright's webServer config)
+  const serverReady = await waitForServer('http://localhost:5173');
+  if (!serverReady) {
+    throw new Error('Dev server failed to start within 30 seconds');
+  }
+
+  // Wait for main.js to be built
+  const mainReady = await waitForMainBuild();
+  if (!mainReady) {
+    throw new Error('main.js was not built within 30 seconds');
+  }
+
   // Store the app instance globally so it can be accessed by tests
   const electronPath = process.platform === 'win32'
     ? path.join(__dirname, '../node_modules/.bin/electron.cmd')
@@ -22,7 +66,7 @@ async function globalSetup(config: FullConfig) {
     env: { 
       ...process.env, 
       E2E: '1', 
-      NODE_ENV: 'test',
+      NODE_ENV: 'development', // Use development to load from dev server
       // Disable GPU in CI environments
       DISPLAY: process.env.CI ? ':99' : process.env.DISPLAY
     },
@@ -31,9 +75,9 @@ async function globalSetup(config: FullConfig) {
   // Get the first window
   const page = await app.firstWindow();
   
-  // Wait for the app to be ready
-  await page.waitForLoadState('domcontentloaded');
-  await page.waitForTimeout(2000); // Give React time to initialize
+  // Wait for the app to be ready - check for React root
+  await page.waitForSelector('#root', { timeout: 30000 });
+  await page.waitForLoadState('networkidle');
   
   console.log('✅ Electron app launched successfully');
   

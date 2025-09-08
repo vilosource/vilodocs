@@ -16,4 +16,13 @@ export default defineConfig({
     video: 'off', // No videos as requested
     screenshot: 'only-on-failure'
   },
+  // Start Vite dev server before running tests
+  webServer: {
+    command: 'npm start',
+    port: 5173,
+    reuseExistingServer: !process.env.CI,
+    stdout: 'pipe',
+    stderr: 'pipe',
+    timeout: 120_000,
+  },
 });
