@@ -7,6 +7,7 @@ import rehypeHighlight from 'rehype-highlight';
 import rehypeKatex from 'rehype-katex';
 import { useScrollableKeyboardNavigation } from '../../hooks/useScrollableKeyboardNavigation';
 import { useZoom, formatZoomLevel } from '../../hooks/useZoom';
+import { useStatusBar } from '../../contexts/StatusBarContext';
 import 'github-markdown-css/github-markdown.css';
 import 'katex/dist/katex.min.css';
 import 'highlight.js/styles/github-dark.css';
@@ -40,6 +41,7 @@ export const MarkdownViewer: React.FC<MarkdownViewerProps> = ({
   const contentRef = useRef<HTMLDivElement>(null);
   const contentWrapperRef = useRef<HTMLDivElement>(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const { updateWidgetStatus } = useStatusBar();
   
   // Add keyboard navigation to the scrollable content
   useScrollableKeyboardNavigation(contentWrapperRef, {
@@ -245,37 +247,30 @@ export const MarkdownViewer: React.FC<MarkdownViewerProps> = ({
   const wordCount = content.split(/\s+/).filter(word => word.length > 0).length;
   const readingTime = Math.ceil(wordCount / 200); // Assuming 200 words per minute
 
+  // Update status bar when widget state changes
+  useEffect(() => {
+    if (isActive) {
+      updateWidgetStatus({
+        type: 'markdown-viewer',
+        fileName: filePath?.split('/').pop() || 'Untitled.md',
+        filePath,
+        wordCount,
+        readingTime,
+        encoding: 'UTF-8',
+        eol: 'LF',
+        language: 'Markdown',
+        zoomLevel,
+        onToggleToc: () => setShowToc(!showToc),
+        onSwitchToEdit
+      });
+    } else {
+      // Clear status when widget becomes inactive
+      updateWidgetStatus(null);
+    }
+  }, [isActive, filePath, wordCount, readingTime, zoomLevel, showToc, onSwitchToEdit, updateWidgetStatus]);
+
   return (
     <div className="markdown-viewer">
-      {/* Header */}
-      <div className="markdown-header">
-        <div className="markdown-actions">
-          <button
-            className="action-button"
-            onClick={() => setShowToc(!showToc)}
-            title="Toggle table of contents (Ctrl+Shift+O)"
-          >
-            {showToc ? '📑' : '📄'} TOC
-          </button>
-          <button
-            className="action-button"
-            onClick={onSwitchToEdit}
-            title="Edit markdown (Ctrl+E)"
-          >
-            ✏️ Edit
-          </button>
-        </div>
-        <div className="markdown-info">
-          <span className="file-name">{filePath?.split('/').pop() || 'Untitled.md'}</span>
-          <span className="separator">•</span>
-          <span className="word-count">{wordCount} words</span>
-          <span className="separator">•</span>
-          <span className="reading-time">{readingTime} min read</span>
-          <span className="separator">•</span>
-          <span className="zoom-level" title="Ctrl+Scroll to zoom">{formatZoomLevel(zoomLevel)}</span>
-        </div>
-      </div>
-
       <div className="markdown-body-wrapper">
         {/* Table of Contents */}
         {showToc && toc.length > 0 && (

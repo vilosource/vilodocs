@@ -8,46 +8,12 @@
   font-family: var(--theme-font-family-mono);
 }
 
-/* Header */
-.editor-header {
+/* Header - Removed (moved to status bar) */
+
+/* Main editor area - Now uses full height */
+.text-editor {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: var(--theme-spacing-sm) var(--theme-spacing-lg);
-  border-bottom: 1px solid var(--vscode-panel-border);
-  background: var(--vscode-editor-background);
-  font-size: var(--theme-font-size-sm);
-}
-
-.file-info {
-  display: flex;
-  align-items: center;
-  gap: var(--theme-spacing-xs);
-}
-
-.file-name {
-  font-weight: 600;
-  color: var(--vscode-editor-foreground);
-}
-
-.dirty-indicator {
-  color: var(--theme-color-warning);
-  font-weight: bold;
-}
-
-.file-path {
-  color: var(--vscode-descriptionForeground);
-  font-size: var(--theme-font-size-xs);
-  max-width: 300px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-/* Main editor area */
-.editor-main {
-  display: flex;
-  flex: 1;
+  width: 100%;
   position: relative;
 }
 
@@ -107,26 +73,7 @@
   /* JSON-specific styles */
 }
 
-/* Footer */
-.editor-footer {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: var(--theme-spacing-xs) var(--theme-spacing-lg);
-  border-top: 1px solid var(--vscode-panel-border);
-  background: var(--vscode-editor-background);
-  font-size: var(--theme-font-size-xs);
-  color: var(--vscode-descriptionForeground);
-}
-
-.editor-stats {
-  display: flex;
-  gap: var(--theme-spacing-lg);
-}
-
-.editor-stats span {
-  display: flex;
-  align-items: center;
+/* Footer - Removed (moved to status bar) */
 }
 
 .zoom-indicator {

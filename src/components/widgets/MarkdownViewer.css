@@ -8,77 +8,7 @@
   font-family: var(--theme-font-family);
 }
 
-/* Header */
-.markdown-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: var(--theme-spacing-sm) var(--theme-spacing-md);
-  border-bottom: 1px solid var(--vscode-panel-border);
-  background: var(--vscode-editor-background);
-  min-height: 40px;
-  flex-shrink: 0;
-}
-
-.markdown-actions {
-  display: flex;
-  gap: var(--theme-spacing-sm);
-}
-
-.action-button {
-  padding: var(--theme-spacing-xs) var(--theme-spacing-sm);
-  background: var(--vscode-button-secondaryBackground);
-  border: 1px solid var(--vscode-button-border, transparent);
-  color: var(--vscode-button-secondaryForeground);
-  cursor: pointer;
-  border-radius: var(--theme-radius-sm);
-  font-size: var(--theme-font-size-sm);
-  transition: all var(--theme-transition-fast);
-  display: flex;
-  align-items: center;
-  gap: var(--theme-spacing-xs);
-}
-
-.action-button:hover {
-  background: var(--vscode-button-secondaryHoverBackground);
-}
-
-.action-button:focus {
-  outline: 1px solid var(--vscode-focusBorder);
-  outline-offset: -1px;
-}
-
-.markdown-info {
-  display: flex;
-  align-items: center;
-  gap: var(--theme-spacing-sm);
-  font-size: var(--theme-font-size-sm);
-  color: var(--vscode-descriptionForeground);
-}
-
-.file-name {
-  font-weight: 500;
-  color: var(--vscode-editor-foreground);
-}
-
-.separator {
-  color: var(--vscode-descriptionForeground);
-  opacity: 0.5;
-}
-
-.word-count,
-.reading-time,
-.zoom-level {
-  font-variant-numeric: tabular-nums;
-}
-
-.zoom-level {
-  background: var(--vscode-badge-background, rgba(255, 255, 255, 0.1));
-  padding: 2px 6px;
-  border-radius: var(--theme-radius-sm);
-  font-weight: 500;
-  cursor: help;
-}
+/* Header - Removed (moved to status bar) */
 
 /* Main Content Area */
 .markdown-body-wrapper {

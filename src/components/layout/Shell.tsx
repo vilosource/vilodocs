@@ -9,6 +9,7 @@ import { CommandManager } from '../../commands/CommandManager';
 import { FocusManager } from '../../focus/FocusManager';
 import { Workspace } from '../../common/ipc';
 import { useWorkspaceState, useLayoutState } from '../../renderer/hooks/useStateService';
+import { StatusBarProvider, useStatusBar } from '../../contexts/StatusBarContext';
 import './Shell.css';
 
 interface ShellProps {
@@ -17,7 +18,8 @@ interface ShellProps {
   onOpenFile?: (path: string, content: string) => void;
 }
 
-export const Shell: React.FC<ShellProps> = ({ children, onCommand, onOpenFile }) => {
+const ShellInner: React.FC<ShellProps> = ({ children, onCommand, onOpenFile }) => {
+  const { getStatusBarItems } = useStatusBar();
   const { workspace, updateWorkspace, getExpandedFolders, setExpandedFolders } = useWorkspaceState();
   const { layout, updateLayout, isLoading } = useLayoutState();
   
@@ -284,15 +286,17 @@ export const Shell: React.FC<ShellProps> = ({ children, onCommand, onOpenFile })
       
       <StatusBar 
         visible={regions.statusBar.visible}
-        items={[
-          { id: 'status', content: 'Ready', position: 'left', priority: 0 },
-          { id: 'workspace', content: workspace.current ? 'Workspace Open' : 'No Folder Open', position: 'left', priority: 1 },
-          { id: 'encoding', content: 'UTF-8', position: 'right', priority: 0 },
-          { id: 'eol', content: 'LF', position: 'right', priority: 1 },
-          { id: 'language', content: 'TypeScript', position: 'right', priority: 2 }
-        ]}
+        items={getStatusBarItems()}
       />
     </div>
+  );
+};
+
+export const Shell: React.FC<ShellProps> = (props) => {
+  return (
+    <StatusBarProvider>
+      <ShellInner {...props} />
+    </StatusBarProvider>
   );
 };
 

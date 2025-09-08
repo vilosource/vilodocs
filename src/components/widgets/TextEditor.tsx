@@ -1,5 +1,6 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useZoom, formatZoomLevel } from '../../hooks/useZoom';
+import { useStatusBar } from '../../contexts/StatusBarContext';
 import './TextEditor.css';
 
 interface TextEditorProps {
@@ -23,8 +24,10 @@ export const TextEditor: React.FC<TextEditorProps> = ({
 }) => {
   const [editorContent, setEditorContent] = useState(content);
   const [isDirty, setIsDirty] = useState(false);
-  const textareaRef = React.useRef<HTMLTextAreaElement>(null);
-  const editorRef = React.useRef<HTMLDivElement>(null);
+  const [cursorPosition, setCursorPosition] = useState({ line: 1, column: 1 });
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const editorRef = useRef<HTMLDivElement>(null);
+  const { updateWidgetStatus } = useStatusBar();
   
   // Add zoom functionality
   const { zoomLevel } = useZoom(editorRef, {
@@ -44,8 +47,43 @@ export const TextEditor: React.FC<TextEditorProps> = ({
   useEffect(() => {
     if (isActive && textareaRef.current) {
       textareaRef.current.focus();
+      updateCursorPosition();
     }
-  }, [isActive]);
+  }, [isActive, updateCursorPosition]);
+
+  // Update status bar when widget state changes
+  useEffect(() => {
+    if (isActive) {
+      updateWidgetStatus({
+        type: 'text-editor',
+        fileName,
+        filePath,
+        isDirty,
+        cursorPosition,
+        language: fileName ? getLanguageFromFileName(fileName) : 'Plain Text',
+        encoding: 'UTF-8',
+        eol: 'LF',
+        zoomLevel,
+        onSwitchToViewer: filePath?.endsWith('.md') ? onSwitchToViewer : undefined
+      });
+    } else {
+      // Clear status when widget becomes inactive
+      updateWidgetStatus(null);
+    }
+  }, [isActive, fileName, filePath, isDirty, cursorPosition, zoomLevel, onSwitchToViewer, updateWidgetStatus]);
+
+  const updateCursorPosition = useCallback(() => {
+    if (textareaRef.current) {
+      const textarea = textareaRef.current;
+      const text = textarea.value;
+      const selectionStart = textarea.selectionStart;
+      const textBeforeCursor = text.substring(0, selectionStart);
+      const lines = textBeforeCursor.split('\n');
+      const line = lines.length;
+      const column = lines[lines.length - 1].length + 1;
+      setCursorPosition({ line, column });
+    }
+  }, []);
 
   const handleContentChange = useCallback((newContent: string) => {
     setEditorContent(newContent);
@@ -57,7 +95,8 @@ export const TextEditor: React.FC<TextEditorProps> = ({
     }
     
     onContentChange?.(newContent);
-  }, [content, isDirty, onContentChange, onDirtyChange]);
+    updateCursorPosition();
+  }, [content, isDirty, onContentChange, onDirtyChange, updateCursorPosition]);
 
   // Handle keyboard shortcuts
   useEffect(() => {
@@ -99,20 +138,6 @@ export const TextEditor: React.FC<TextEditorProps> = ({
 
   return (
     <div className="text-editor">
-      <div className="editor-header">
-        {fileName && (
-          <div className="file-info">
-            <span className="file-name">{fileName}</span>
-            {isDirty && <span className="dirty-indicator">●</span>}
-          </div>
-        )}
-        {filePath && (
-          <div className="file-path" title={filePath}>
-            {filePath}
-          </div>
-        )}
-      </div>
-      
       <div ref={editorRef} className="editor-main">
         <div className="line-numbers">
           {editorContent.split('\n').map((_, index) => (
@@ -127,23 +152,14 @@ export const TextEditor: React.FC<TextEditorProps> = ({
           className={`editor-textarea language-${fileName ? getLanguageFromFileName(fileName) : 'text'}`}
           value={editorContent}
           onChange={(e) => handleContentChange(e.target.value)}
+          onKeyUp={updateCursorPosition}
+          onClick={updateCursorPosition}
           placeholder={fileName ? `Start editing ${fileName}...` : 'Start typing...'}
           spellCheck={false}
           autoComplete="off"
           autoCorrect="off"
           autoCapitalize="off"
         />
-      </div>
-      
-      <div className="editor-footer">
-        <div className="editor-stats">
-          <span>Lines: {editorContent.split('\n').length}</span>
-          <span>Characters: {editorContent.length}</span>
-          {fileName && (
-            <span>Language: {getLanguageFromFileName(fileName)}</span>
-          )}
-          <span className="zoom-indicator" title="Ctrl+Scroll to zoom">{formatZoomLevel(zoomLevel)}</span>
-        </div>
       </div>
     </div>
   );

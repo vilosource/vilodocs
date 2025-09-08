@@ -40,3 +40,17 @@
   outline: 1px solid var(--vscode-focusBorder);
   outline-offset: -1px;
 }
+
+/* File status styles */
+.status-file {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--theme-spacing-xs);
+}
+
+.dirty-indicator {
+  color: var(--theme-color-warning);
+  font-weight: bold;
+  font-size: 1.2em;
+  line-height: 1;
+}
