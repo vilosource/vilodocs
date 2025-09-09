@@ -2,6 +2,23 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## WSL Wayland Support
+
+The application has automatic WSL Wayland support configured. When running on WSL with Wayland display:
+- The `npm start` command automatically detects WSL and WAYLAND_DISPLAY environment variable
+- It adds the necessary Chromium flags: `--enable-features=UseOzonePlatform --ozone-platform=wayland`
+- This is handled by `scripts/start-wsl.js` which wraps the electron-forge start command
+- Manual flag passing is not required - just use `npm start` as normal
+
+## Git Commit Hooks
+
+The repository has a commit-msg hook that prevents AI attribution in commit messages:
+- **Location**: `.githooks/commit-msg`
+- **Setup**: Run `git config core.hooksPath .githooks` or `./scripts/setup-hooks.sh`
+- **Purpose**: Blocks commits containing AI references, "Generated with" attributions, robot emojis, etc.
+- **Important**: When using AI assistance, ensure commit messages are written as if by a human developer
+- The hook ensures clean, professional commit history without AI tool references
+
 ## PRIMARY DEVELOPMENT METHODOLOGY: Test-Driven Development (TDD)
 
 **MANDATORY**: All new features and bug fixes MUST follow Test-Driven Development:
